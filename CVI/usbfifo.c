@@ -14,11 +14,13 @@
 #include "usbfifo.h"
 
 // TO DO: REMOVE
-#include "HL1101.h"
+#include "callback.h"
 
 
 //==============================================================================
-// Constants
+// Constants					 
+
+const int 	dev_hostbps = 256000;
 
 //==============================================================================
 // Types
@@ -30,15 +32,15 @@
 // Static functions
 
 //==============================================================================
-// Global variables
+// Global variables (roughly grouped by function)
 
 // Debug mode variables | TO DO: cleanup
-static char dev_comspdbuf[20];
-static FT_HANDLE dev_fifo_handle;
-static FT_HANDLE dev_handle;
-static const int dev_hostbps = 256000;
-static char dev_idbuf[20];
-static int dev_opened = 0;
+char 	dev_comspdbuf[20];
+char 	dev_idbuf[20];
+int 	dev_opened = 0;
+
+FT_HANDLE 	dev_fifo_handle;
+FT_HANDLE 	dev_handle;
 
 // Serial timeout (ms)
 #define STD_TIMEOUT 200
@@ -64,6 +66,35 @@ void ftwrbyte(char ch)
 	int n;
 	
 	FT_Write (dev_handle, &ch, 1, &n);
+}
+
+
+// Get device comm speed
+void usbfifo_getcomspd (char *buf, int len)
+{
+	int i;
+	
+	for (i = 0; i < strlen (dev_comspdbuf) + 1 && i < len && i < 19; i++)
+	{
+		*buf++ = dev_comspdbuf[i];
+	}
+}
+
+// Get host BPS
+int usbfifo_gethostbps (void)
+{
+	return dev_hostbps;
+}
+
+// Get device ID
+void usbfifo_getid (char *buf, int len)
+{
+	int i;
+	
+	for (i = 0; i < strlen (dev_idbuf) + 1 && i < len && i < 19; i++)
+	{
+		*buf++ = dev_idbuf[i];
+	}
 }
 
 // Open FTDI for use by software

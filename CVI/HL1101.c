@@ -9,7 +9,7 @@
 #include <time.h>
 
 // HL Header
-#include "HL1101.h"
+#include "callback.h"
 
 // Include OLD DLL 
 #include "usbfifodll.h"
@@ -17,9 +17,8 @@
 // Include USBFIFO functionality
 #include "usbfifo.h"
 
-static int panelHandle;
 
-#define NPOINTS_MAX 16384
+
 #define VERT_HIST 100
 #define FILTER_WIDTH 4
 #define CAL_THRESHOLD_HYST 100
@@ -32,21 +31,18 @@ static int panelHandle;
 #define RHO 2 
 #define OHM 3
 
-#define M 0
-#define T 1
-#define FT 2
 
-#define MtoFT 3.3
+
+
 
 
 // Vert Cal
-#define CAL_WINDOW 10.0e-9 /* window during calibration acquisition */
+
 #define CAL_WINDOW_START 10 /* in ns */
 #define OFFSET_ACQ_POS 0 /* First sample in the record, no matter where the wfm is positioned */
 #define CAL_GUARD 0.5e-9 /* Guard region from 50% of step ampl to determine vstart_coax and vend_coax */
 #define STEP_AMPL 800
 
-int calIncrement;
 static double wfm_data[NPOINTS_MAX], wfm_data_ave[NPOINTS_MAX];
 static double ymin, ymax; 
 static  int delay_value;
@@ -123,8 +119,7 @@ char save_file[MAX_SAVE_FILE+160];
 
 // Transaction Data
 static UINT16 rec_len=1024;
-static UINT16 wfm[NPOINTS_MAX];
-static double wfmf[NPOINTS_MAX];
+
 static double timescale[NPOINTS_MAX];
 static double dist_m[NPOINTS_MAX]; 
 static double dist_ft[NPOINTS_MAX]; 
@@ -143,7 +138,7 @@ static UINT16 calstart=540, calend=3870, calstart_save=540;
 //static UINT16 calstart=575, calend=3880;
 #define CALSTART_DEFAULT 540
 #define CALEND_DEFAULT 3870
-static timeinf start_tm, end_tm;
+
 
 static UINT16 dac0val=0, dac1val=0, dac2val=0;
 static int freerun_en=0;
@@ -152,14 +147,11 @@ static UINT16 stepcount=6, strobecount=2;	  // Aki 7 to 6
 static UINT16 stepcountArray[5]={4, 5, 6, 7, 8};
 static double calLevels[5];
 
-static int HL1101_yaxis_val;
-static int HL1101_xaxis_val;
 
-static double HL1101_start;
-static double HL1101_windowsz;
-static double HL1101_diel = 2.25;
 
-static int usb_opened = 0;
+
+
+
 
 int y_axis,x_axis;
 
@@ -189,23 +181,7 @@ void vert_cal(void);
 /* Initialization routines */
 /***************************/
 
-// Open FTDI device
-void open_device()
-{
-	static char buf[32];
-	static int hostbps;
-	static int devbps;
 
-	hostbps = usbfifo_gethostbps();
-
-	usb_opened = usbfifo_open();
-	if (usb_opened)
-	{
-		usbfifo_getid(buf, 32);
-		usbfifo_getcomspd(buf, 32);
-		devbps = atoi(buf);
-	}
-}
 
 
 
@@ -1101,44 +1077,7 @@ int CVICALLBACK on_vertcal (int panel, int control, int event,
 /* Time window routines */
 /************************/
 
-// Scale X axis values
-void SetupTimescale()
-{
-	double val1, val2, vel;
-	UINT32 windowsz;
 
-	GetCtrlVal(panelHandle, PANEL_RING_HORIZONTAL, &HL1101_xaxis_val);
-	GetCtrlVal(panelHandle, PANEL_NUM_STARTTM, &HL1101_start);
-	GetCtrlVal(panelHandle, PANEL_NUM_WINDOWSZ, &HL1101_windowsz);
-
-	// If X Axis set to time
-	if (HL1101_xaxis_val == T)
-	{
-		val1 = HL1101_start;
-		val2 = HL1101_windowsz;
-	}
-
-	// If distance selected, calculate based on K
-	else
-	{
-		// Calculate distance in meters
-		vel = (double)3E8/sqrt(HL1101_diel);
-		val1 = HL1101_start*1E9/vel;
-		val2 = HL1101_windowsz*1E9/vel;
-
-		// Calculate distance in feet, if selected
-		if ( HL1101_xaxis_val == FT)
-		{
-			val1 = val1/MtoFT;
-			val2 = val2/MtoFT;
-		}
-	}
-
-	start_tm.time = (UINT32)(val1/50.0*0xFFFF);
-	windowsz = (UINT32)(val2/50.0*0xFFFF);
-
-	end_tm.time = start_tm.time + windowsz;
-}
 
 
 /************************/
@@ -2089,48 +2028,4 @@ int CVICALLBACK on_quit (int panel, int control, int event,
 /* INITIALIZATION ROUTINES */
 /***************************/
 
-// Main startup function
-int main (int argc, char *argv[])
-{
-	int i;
 
-	// Initial values for maximum length of array
-	for (i=0; i < NPOINTS_MAX; i++)
-	{
-		wfm[i] = 0;
-		wfmf[i] = 0.0;
-	}
-
-	// Verify instrument functionality
-	if (InitCVIRTE (0, argv, 0) == 0)
-	{
-		return -1;	/* out of memory */
-	}
-
-	// Load UI
-	if ((panelHandle = LoadPanel (0, "ZTDR.uir", PANEL)) < 0)
-	{
-		return -1;
-	}
-
-	DisplayPanel (panelHandle);
-
-	// Set 50 ns timescale
-	calIncrement = (int)((((double)CAL_WINDOW - (double)0.0) *(double)1.0/(double)1024.0 )/
-						 (((double)50e-9)/(double)65536.0)); 						// AKi 75ns to 50nS
-
-	// Set timescale prior to use
-	SetupTimescale();
-
-	// Set initial cursor positions
-	/* TO DO */
-	SetGraphCursor(panelHandle, PANEL_WAVEFORM, 1,    33, 0);
-	SetGraphCursor(panelHandle, PANEL_WAVEFORM, 2,    66, 0);
-	/* END TO DO */
-
-	open_device();
-
-	RunUserInterface ();
-	DiscardPanel (panelHandle);
-	return 0;
-}

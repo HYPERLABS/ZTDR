@@ -5,7 +5,7 @@
 #include "FTD2XX.h"
 
 // Include DLL 
-#include "usbfifodll.h"	    
+//#include "usbfifodll.h"	    
 #include "usbfifo.h"
 
 
@@ -15,10 +15,7 @@
 
 
 
-int usbfifo_gethostbps(void)
-{
-	return dev_hostbps;
-}
+
 
 void usbfifo_devicereset(void)
 {
@@ -50,19 +47,9 @@ int usbfifo_isok()
 	return dev_opened;
 }
 
-void usbfifo_getid(char *buf, int len)
-{
-	int i;
-	for (i=0;i<strlen(dev_idbuf)+1 && i < len && i<19;i++)
-		*buf++ = dev_idbuf[i];
-}
 
-void usbfifo_getcomspd(char *buf, int len)
-{
-	int i;
-	for (i=0;i<strlen(dev_comspdbuf)+1 && i < len && i<19;i++)
-		*buf++ = dev_comspdbuf[i];
-}
+
+
 
 void usbfifo_listdevs()
 {
