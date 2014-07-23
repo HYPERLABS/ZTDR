@@ -423,24 +423,6 @@ int CVICALLBACK on_waveform (int panel, int control, int event,
 	return 0;
 }
 
-// Cable type changed
-int CVICALLBACK on_cable_type (int panel, int control, int event,
-							   void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-			
-			GetCtrlVal(panelHandle, PANEL_RING_CABLE_TYPE, &HL1101_diel);
-			SetCtrlVal(panelHandle, PANEL_NUM_DIELECTRIC, HL1101_diel);
-			SetupTimescale();
-			AcquireWaveform();
-			
-			break;
-	}
-	return 0;
-}
-
 // Dielectric (K) changed
 int CVICALLBACK on_dielectric (int panel, int control, int event,
 							   void *callbackData, int eventData1, int eventData2)

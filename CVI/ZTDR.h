@@ -40,11 +40,10 @@
 #define  PANEL_NUM_WINDOWSZ               24      /* control type: scale, callback function: onChangeWindow */
 #define  PANEL_TIMER_ACQUIRE              25      /* control type: timer, callback function: onTimer */
 #define  PANEL_NUM_DIELECTRIC             26      /* control type: scale, callback function: on_dielectric */
-#define  PANEL_RING_CABLE_TYPE            27      /* control type: ring, callback function: on_cable_type */
-#define  PANEL_DECORATION_4               28      /* control type: deco, callback function: on_average */
-#define  PANEL_RING_RECLEN                29      /* control type: ring, callback function: on_reclen_change */
-#define  PANEL_COMMANDBUTTON_8            30      /* control type: command, callback function: (none) */
-#define  PANEL_MESSAGES                   31      /* control type: string, callback function: (none) */
+#define  PANEL_DECORATION_4               27      /* control type: deco, callback function: on_average */
+#define  PANEL_RING_RECLEN                28      /* control type: ring, callback function: on_reclen_change */
+#define  PANEL_COMMANDBUTTON_8            29      /* control type: command, callback function: (none) */
+#define  PANEL_MESSAGES                   30      /* control type: string, callback function: (none) */
 
 
      /* Control Arrays: */
@@ -64,7 +63,6 @@ int  CVICALLBACK HL1101_recall(int panel, int control, int event, void *callback
 int  CVICALLBACK HL1101_reset(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK HL1101_save(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_average(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK on_cable_type(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_cal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_dielectric(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_panel_event(int panel, int event, void *callbackData, int eventData1, int eventData2);
