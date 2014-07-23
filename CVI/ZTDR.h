@@ -15,7 +15,7 @@
      /* Panels and Controls: */
 
 #define  PANEL                            1       /* callback function: onPanel */
-#define  PANEL_WAVEFORM                   2       /* control type: graph, callback function: on_waveform */
+#define  PANEL_WAVEFORM                   2       /* control type: graph, callback function: onWaveform */
 #define  PANEL_TOGGLEBUTTON               3       /* control type: textButton, callback function: (none) */
 #define  PANEL_RING                       4       /* control type: ring, callback function: onChangeUnitY */
 #define  PANEL_NUM_YMAX                   5       /* control type: numeric, callback function: (none) */
@@ -59,7 +59,6 @@
      /* Callback Prototypes: */
 
 int  CVICALLBACK on_average(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK on_waveform(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onAcquire(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onCal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeAverage(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
@@ -76,6 +75,7 @@ int  CVICALLBACK onReset(int panel, int control, int event, void *callbackData, 
 int  CVICALLBACK onSave(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onTimer(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onVertCal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onWaveform(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onZoom(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 
 

@@ -1531,7 +1531,7 @@ void saveWaveform (void)
 }
 
 // Reset plot area and clear recalled waveform
-void resetWaveform()
+void resetWaveform (void)
 {
 	int status;
 
@@ -1548,6 +1548,27 @@ void resetWaveform()
 	SetCtrlVal (panelHandle, PANEL_TOGGLEBUTTON, 1);
 
 	DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmRecall, VAL_IMMEDIATE_DRAW);
+}
+
+// Update cursor readings
+void updateCursors (void)
+{
+	double c1x, c1y, c2x, c2y;
+	static char buf[128];
+
+	c1x = c1y = c2x = c2y = 0;
+
+	GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
+	GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
+
+	sprintf (buf, "%.2f    %.2f", c1x, c1y);
+	SetCtrlVal (panelHandle, PANEL_STR_CURS1,  buf);
+
+	sprintf (buf, "%.2f    %.2f", c2x, c2y);
+	SetCtrlVal (panelHandle, PANEL_STR_CURS2, buf);
+
+	sprintf(buf, "%.2f    %.2f", c2x-c1x, c2y-c1y);
+	SetCtrlVal(panelHandle, PANEL_STR_DELTA, buf);
 }
 
 // Cursor-based zoom

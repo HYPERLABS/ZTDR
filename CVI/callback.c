@@ -12,6 +12,7 @@
 //==============================================================================
 // Include files
 
+#include <ansi_c.h>
 #include "ZTDR.h"
 
 //==============================================================================
@@ -439,6 +440,34 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 			
 			break;
 
+		}
+		
+		case EVENT_RIGHT_CLICK:
+		{   	
+			break;
+		}
+	}
+	
+	return 0;
+}
+
+
+// Update cursors on waveform acquisition
+int CVICALLBACK on_waveform (int panel, int control, int event,
+							 void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+		{
+			break;
+		}
+
+		case EVENT_VAL_CHANGED:
+		{
+			extern updateCursors ();
+
+			break;
 		}
 		
 		case EVENT_RIGHT_CLICK:
