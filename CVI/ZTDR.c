@@ -1,7 +1,7 @@
 //==============================================================================
 //
 // Title:		ZTDR.c
-// Purpose:		A short description of the implementation.
+// Purpose:		Main functionality for HL11xx TDR instruments
 //
 // Created on:	7/22/2014 at 8:40:39 PM by Brian Doxey.
 // Copyright:	HYPERLABS. All Rights Reserved.
@@ -45,6 +45,12 @@
 #define UNIT_NS 1
 #define UNIT_FT 2
 
+// Vertical units
+#define UNIT_MV 0
+#define UNIT_NORM 1
+#define UNIT_RHO 2 
+#define UNIT_OHM 3
+
 // Conversion
 #define MtoFT 3.2808
 #define FTtoM 0.3048
@@ -85,34 +91,34 @@ int 	freerun_en = 0;
 UINT16 	strobecount = 2;
 
 // Transaction data
-double 	dist_ft[NPOINTS_MAX]; 
-double 	dist_m[NPOINTS_MAX]; 
 UINT16 	rec_len=1024;
-double 	timescale[NPOINTS_MAX];
-UINT16 	wfm[NPOINTS_MAX];
-double 	wfmf[NPOINTS_MAX];
 
+// Horizontal values for each unit
+double 	dist_ft[NPOINTS_MAX]; 
+double 	dist_m[NPOINTS_MAX];
+double 	timescale[NPOINTS_MAX];
+
+UINT16 	wfm[NPOINTS_MAX]; 			// Raw data
+double 	wfmf[NPOINTS_MAX]; 			// Filtered data
+double  wfm_data[NPOINTS_MAX];		// Converted to selected units
+double  wfm_data_ave[NPOINTS_MAX]; 	// After waveform averaging
+
+// Waveforms
+static int WfmHandle;
+static int WfmRecall;
 
 // Time window
 timeinf start_tm, end_tm;
 
 // User interface and states
-int 	HL1101_xaxis_val;
-int 	HL1101_yaxis_val;
-
-int		HL1101_start;
-double 	HL1101_windowsz;
-
-double 	HL1101_diel;
-
 int 	panelHandle;
 
 
 //==============================================================================
-// Global functions (roughly grouped by functionality and order of call)
+// Global functions (roughly grouped by functionality, order of call)
 
 // Main startup function
-int main (int argc, char *argv[])
+void main (int argc, char *argv[])
 {
 	int i;
 
@@ -156,13 +162,16 @@ int main (int argc, char *argv[])
 
 	RunUserInterface ();
 	DiscardPanel (panelHandle);
-	
-	return 0;
 }
 
 // Scale time range of window for waveform acquisition
 void setupTimescale (void)
 {
+	int HL1101_xaxis_val;
+	int	HL1101_start;
+	double 	HL1101_windowsz;
+	double 	HL1101_diel;
+	
 	double val1, val2, vel;
 	UINT32 windowsz;
 
@@ -245,6 +254,10 @@ void calTimebase (void)
 	setupTimescale ();
 }
 
+
+//==============================================================================
+// Full time base calibration
+
 // Set parameters for calibration
 void calSetParams (void)
 {
@@ -284,26 +297,6 @@ void calSetParams (void)
 	end_tm.time = start_tm.time + windowsz;
 }
 
-// Write parameters to device
-int calWriteParams (void)
-{
-	int ret;
-
-	ret = usbfifo_setparams ((UINT8) freerun_en, calstart, calend, start_tm, end_tm, stepcount, 
-							 strobecount, 0, rec_len, dac0val, dac1val, dac2val);
-
-	if (ret < 0)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Params failed.");
-		return 0;
-	}
-	else
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Params written.");
-		return 1;
-	}
-}
-
 // Acquire waveform for calibration
 void calAcquireWaveform (int calStepIndex)
 {
@@ -327,7 +320,7 @@ void calAcquireWaveform (int calStepIndex)
 	//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquiring...");
 
 	// Write acquisition parameters
-	if (calWriteParams () <= 0)
+	if (writeParams () <= 0)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
 		return;
@@ -609,6 +602,10 @@ void calFindDiscont (void)
 	calDiscLevel = calDiscLevel / rec_len;
 }
 
+
+//==============================================================================
+// Calibrate vertical axis waveform data
+
 // Calibrate vertical axis
 void vertCal (void)
 {
@@ -635,10 +632,10 @@ void vertCal (void)
 	}
 
 	// Calculate offset of waveform by taking and averaging sample at 0 ns 
-	vertCalTimescale0 (CAL_WINDOW_START);
+	vertCalOffset (CAL_WINDOW_START);
 
 	// Write the acquisition parameters 
-	if (vertCalWriteParams () <= 0)
+	if (writeParams () <= 0)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
 		return;
@@ -682,7 +679,7 @@ void vertCal (void)
 	vertCalTimescale ();
 
 	// Write the acquisition parameters    
-	if (vertCalWriteParams() <= 0)
+	if (vertCalWriteParams () <= 0)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
 		return;
@@ -780,8 +777,8 @@ void vertCal (void)
 	// TO DO: don't do regular cal if doing it here
 }
 
-// Set timescale for vert cal at 0 ns ONLY
-void vertCalTimescale0 (double windowStart)
+// Set timescale and calculate offset at 0 ns
+void vertCalOffset (double windowStart)
 {
 	double val;
 	UINT32 windowsz;
@@ -829,6 +826,326 @@ int vertCalWriteParams (void)
 	}
 }
 
+
+//==============================================================================
+// Calibrate vertical axis waveform data
+
+// Main acquisition function
+void acquire (void)
+{
+	int ret = 0;
+	int i,n,k;
+	int status;
+	int acquisition_nr = 1;
+	
+	unsigned char buf[24];
+	char ch;
+	UINT8 acq_result;
+	static char cbuf[32];
+	
+	int dots;
+	double ymax, ymin;
+	int nblocks;
+	int blocksok;
+	
+	double impedance = 50;
+	double ampl_factor = 250.0;
+	
+	int	HL1101_xaxis_val, HL1101_yaxis_val;
+	int	auto_flag;
+
+	double wfmf_debug[1024];
+	double wfm_data_debug[1024];
+	
+	double offset = 0;
+	
+	if (!usb_opened)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure.");
+		return;
+	}
+	
+	// Set window to acquire offset at 0 ns
+	vertCalOffset (OFFSET_ACQ_POS);
+	
+	// Write the acquisition parameters
+	if (vertCalWriteParams () <= 0)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
+		return;
+	}
+	
+	// Acquire data
+	ret = usbfifo_acquire (&acq_result, 0);
+	
+	if (ret < 0)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
+		return;
+	}
+	
+	// Read blocks of data from block numbers 0-63 (max 64 blocks and 16384 pts)
+	blocksok = 1;
+	nblocks = rec_len / 256;
+	
+	for (i=0; i < nblocks; i++)
+	{
+		// Verify data integrity of block
+		int ntries = 3;
+		while ((ret = usbfifo_readblock ((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
+		
+		if (ret < 0)
+			blocksok = 0;
+	}
+	
+	if (blocksok == 0)
+	{
+		//setCtrlVal(panelHandle, PANEL_TXT_LOG, "Read failure.");
+		return;
+	}
+	
+	// Reconstruct data and find offset for acquisition
+	reconstructData (0); 
+	offset = mean_array();
+	
+	// Timescale and parameters for main acquisition 
+	setupTimescale ();
+	
+	if (writeParams () <= 0)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
+		return;
+	}
+	
+	//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquiring...");
+	
+	// Number of waveforms to average
+	GetCtrlVal (panelHandle, PANEL_NUM_WFMPERSEC, &acquisition_nr);
+		
+	// Get axis limits and units
+	GetCtrlVal (panelHandle, PANEL_NUM_YMIN, &ymin);
+	GetCtrlVal (panelHandle, PANEL_NUM_YMAX, &ymax);
+	GetCtrlVal (panelHandle, PANEL_CHK_DOTS, &dots);
+
+	// Get selected units
+	GetCtrlVal (panelHandle, PANEL_RING, &HL1101_yaxis_val);
+	GetCtrlVal (panelHandle, PANEL_RING_HORIZONTAL, &HL1101_xaxis_val);
+	
+	// Acquire k waveforms, loop and average if k > 1
+	for (k = 0; k < acquisition_nr; k++) 
+	{ 
+		ret = usbfifo_acquire (&acq_result, 0);
+		
+		if (ret < 0)
+		{
+			//printf("Failed to run the acquisition sequence (did not get '.')");
+			//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
+			return;
+		}
+	
+		// Read blocks of data from block numbers 0-63 (max 64 blocks and 16384 pts)
+		blocksok = 1;
+		nblocks = rec_len / 256;
+		
+		for (i = 0; i < nblocks; i++)
+		{
+			// Verify data integrity of block 
+			int ntries = 3;
+			while ((ret = usbfifo_readblock((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
+		
+			if (ret < 0)
+			{
+				blocksok = 0;
+			}
+		}
+	
+		if (blocksok == 0)
+		{
+			//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Read failure.");
+			return;
+		}
+	
+		// Reconstruct data and account for offset
+		reconstructData (offset);
+ 		
+		// Store data, perform rho conversion
+		for (i = 0; i < rec_len; i++)
+		{ 
+			if (i < 1024)
+			{
+				// Store pre-conversion values for debug purposes
+				wfmf_debug[i] = wfmf[i];
+				wfm_data_debug[i] = wfm_data[i];
+			}
+			
+			// Convert first to Rho (baseline unit for conversions)
+			wfm_data[i] = (double) (wfmf[i]) / (double) vampl - 1.0;
+		}
+
+		// Y Axis scaling based on selected unit
+		switch (HL1101_yaxis_val)
+		{   
+			case UNIT_MV:
+
+				for (i=0; i<rec_len; i++)
+				{
+					wfm_data[i] *= ampl_factor;
+				}
+
+				ymin = -500.00;
+				ymax =  500.00;
+
+				break;
+
+			case UNIT_NORM:
+
+				for (i=0; i<rec_len; i++)
+				{
+					wfm_data[i] += 1.0;
+				}
+
+				ymin = 0.00;
+				ymax =  2.00;
+
+				break;
+
+			case UNIT_OHM:
+
+				for (i=0; i<rec_len; i++)
+				{   	
+					wfm_data[i] = (double) impedance * ((double) (1.0) + (double) (wfm_data[i])) / ((double) (1.0) - (double) (wfm_data[i]));
+		   		    	
+					if(wfm_data[i] >= 500)
+					{ 
+						wfm_data[i]=500.0;
+					}
+		  
+					if(wfm_data[i] >= 500)
+					{ 
+						wfm_data[i] = 500.0;
+					}
+				}
+
+				ymin =   0.00;
+				ymax = 500.00;
+
+				break;
+
+			default: // RHO, data already in this unit
+
+				ymin = -1.00;
+				ymax =  1.00;
+
+				break;
+
+		}
+
+		// Set Y Axis limits if manual scaling
+		GetCtrlVal (panelHandle, PANEL_TOGGLEBUTTON, &auto_flag);
+
+		// Manual scaling
+		if (auto_flag==0)
+		{
+			GetCtrlVal (panelHandle, PANEL_NUM_YMAX, &ymax);
+			GetCtrlVal (panelHandle, PANEL_NUM_YMIN, &ymin);
+
+			// Compensate if min > max
+			if((double) ymin >= (double) ymax)
+			{
+				ymin= (double) ymax - (double) 1.0;
+			}
+		}
+
+		// Clear graph area
+		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, -1, VAL_IMMEDIATE_DRAW);
+		
+		// Set Y axis range to be used in waveform 
+		status = SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, ymin, ymax);
+		
+		// Set appropriate values in UIR limits
+		SetCtrlVal (panelHandle, PANEL_NUM_YMAX, ymax);
+		SetCtrlVal (panelHandle, PANEL_NUM_YMIN, ymin);
+		
+		if (auto_flag)
+		{
+			SetAxisScalingMode( panelHandle, PANEL_WAVEFORM, VAL_XAXIS, VAL_AUTOSCALE, 0, 0);
+			SetAxisScalingMode( panelHandle, PANEL_WAVEFORM, VAL_LEFT_YAXIS, VAL_AUTOSCALE, 0, 0);
+			SetAxisScalingMode( panelHandle, PANEL_WAVEFORM, VAL_RIGHT_YAXIS, VAL_AUTOSCALE, 0, 0);
+		}
+		else 
+		{
+			SetAxisScalingMode( panelHandle, PANEL_WAVEFORM, VAL_LEFT_YAXIS, VAL_MANUAL, ymin, ymax);
+			SetAxisScalingMode( panelHandle, PANEL_WAVEFORM, VAL_RIGHT_YAXIS, VAL_MANUAL, ymin, ymax);
+		}
+	
+		// Average waveforms
+		for (i=0; i<1024; i++)
+		{
+			wfm_data_ave[i] = (k* wfm_data_ave[i] + wfm_data[i])/(k+1);
+		}
+	}
+	
+	// Horizontal units in time
+	if (HL1101_xaxis_val == UNIT_NS)
+	{
+		WfmHandle = PlotXY (panelHandle, PANEL_WAVEFORM, timescale, wfm_data_ave, rec_len, VAL_DOUBLE, VAL_DOUBLE, 
+							dots? VAL_SCATTER : VAL_FAT_LINE, VAL_SOLID_DIAMOND, VAL_SOLID, 1, dots? VAL_MAGENTA : VAL_MAGENTA);
+	}
+
+	// Horizontal units in meters
+	else if (HL1101_xaxis_val == UNIT_M) 
+	{
+		WfmHandle = PlotXY (panelHandle, PANEL_WAVEFORM, dist_m, wfm_data_ave, rec_len, VAL_DOUBLE, VAL_DOUBLE, 
+							dots? VAL_SCATTER : VAL_FAT_LINE, VAL_SOLID_DIAMOND, VAL_SOLID, 1, dots? VAL_MAGENTA : VAL_MAGENTA);
+	}
+	
+	// Horizontal units in feet
+	else 
+	{
+		WfmHandle = PlotXY (panelHandle, PANEL_WAVEFORM, dist_ft, wfm_data_ave, rec_len, VAL_DOUBLE, VAL_DOUBLE,
+							dots? VAL_SCATTER : VAL_FAT_LINE, VAL_SOLID_DIAMOND, VAL_SOLID, 1, dots? VAL_MAGENTA : VAL_MAGENTA);
+	}
+	
+	RefreshGraph (panelHandle, PANEL_WAVEFORM);
+	
+	// Position cursors and update control reading
+	double c1x, c1y, c2x, c2y;
+	c1x = c1y = c2x = c2y = 0;
+	
+	GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
+    GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
+	
+	sprintf (buf, "%.2f    %.2f", c1x, c1y);
+	SetCtrlVal (panelHandle, PANEL_STR_CURS1, buf);
+	
+	sprintf (buf, "%.2f    %.2f", c2x, c2y);
+	SetCtrlVal (panelHandle, PANEL_STR_CURS2, buf);
+	
+	sprintf (buf, "%.2f    %.2f", c2x-c1x, c2y-c1y);
+	SetCtrlVal (panelHandle, PANEL_STR_DELTA, buf);
+
+}
+
+// Write parameters to device
+int writeParams (void)
+{
+	int ret;
+
+	ret = usbfifo_setparams ((UINT8) freerun_en, calstart, calend, start_tm, end_tm, stepcount, 
+							 strobecount, 0, rec_len, dac0val, dac1val, dac2val);
+
+	if (ret < 0)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Params failed.");
+		return 0;
+	}
+	else
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Params written.");
+		return 1;
+	}
+}
+
 // Reconstruct data into useable form
 void reconstructData (double offset)
 {
@@ -838,8 +1155,11 @@ void reconstructData (double offset)
 	// TO DO: is myWfm used?
 	double myWfm[1024];
 	double vel;
+	double HL1101_diel;
 	
-	vel = (double)3E8/sqrt(HL1101_diel);
+	GetCtrlVal (panelHandle, PANEL_NUM_DIELECTRIC, &HL1101_diel);
+	
+	vel = (double) 3E8 / sqrt (HL1101_diel);
 
 	incr = (end_tm.time - start_tm.time)/rec_len;
 	
