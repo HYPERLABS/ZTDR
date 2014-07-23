@@ -122,34 +122,7 @@ int usbfifo_checkmem(int *nlocs, int *failval)
 	return buf[0] == 's';
 }
 
-#define NPARAMS 26
- 
-#define IDX_FREERUN 0
-#define IDX_STEPCNT_UPPER 1
-#define IDX_STEPCNT_LOWER 2
-#define IDX_RECLEN_UPPER 3
-#define IDX_RECLEN_LOWER 4
-#define IDX_DAC0_UPPER 5
-#define IDX_DAC0_LOWER 6 
-#define IDX_DAC1_UPPER 7
-#define IDX_DAC1_LOWER 8
-#define IDX_DAC2_UPPER 9
-#define IDX_DAC2_LOWER 10
-#define IDX_CALSTART_UPPER 11
-#define IDX_CALSTART_LOWER 12
-#define IDX_CALEND_UPPER 13
-#define IDX_CALEND_LOWER 14
-#define IDX_TMSTART_B3 15  
-#define IDX_TMSTART_B2 16
-#define IDX_TMSTART_B1 17
-#define IDX_TMSTART_B0 18
-#define IDX_TMEND_B3 19	 
-#define IDX_TMEND_B2 20
-#define IDX_TMEND_B1 21
-#define IDX_TMEND_B0 22
-#define IDX_OVERSAMPLE 23
-#define IDX_STROBECNT_UPPER 24
-#define IDX_STROBECNT_LOWER 25
+
 
 
 

@@ -829,7 +829,6 @@ int vertCalWriteParams (void)
 	}
 }
 
-
 // Reconstruct data into useable form
 void reconstructData (double offset)
 {
