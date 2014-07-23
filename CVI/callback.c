@@ -101,6 +101,31 @@ int CVICALLBACK onChangeAverage (int panel, int control, int event,
 	return 0;
 }
 
+// Dielectric (K) changed
+int CVICALLBACK onChangeK (int panel, int control, int event,
+						   void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+		{
+			extern setupTimescale();
+			
+			extern acquire ();
+			
+			break;
+		}
+		
+		case EVENT_RIGHT_CLICK:
+		{   	
+			break;
+		}
+			
+	}
+	
+	return 0;
+}
+
 // Window start changed
 int CVICALLBACK onChangeStart (int panel, int control, int event,
 							   void *callbackData, int eventData1, int eventData2)
@@ -247,6 +272,52 @@ int CVICALLBACK onQuit (int panel, int control, int event,
 	return 0;
 }
 
+// Recall stored waveform
+int CVICALLBACK onRecall (int panel, int control, int event,
+						  void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+		{
+		case EVENT_COMMIT:
+		{ 	
+			extern resetPlot ();
+			
+			extern recallWaveform ();
+			
+			break;
+		}
+		
+		case EVENT_RIGHT_CLICK:
+		{   	
+			break;
+		}
+	}
+	
+	return 0;
+}
+
+// Store waveform
+int CVICALLBACK onSave (int panel, int control, int event,
+						void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+		{  	
+			extern saveWaveform ();
+			
+			break;
+		}
+		
+		case EVENT_RIGHT_CLICK:
+		{   	
+			break;
+		}
+	}
+	
+	return 0;
+}
+
 // Timer-based acquisition, if set to auto-acquire
 int CVICALLBACK onTimer (int panel, int control, int event,
 						 void *callbackData, int eventData1, int eventData2)
@@ -324,27 +395,4 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 	return 0;
 }
 
-// Dielectric (K) changed
-int CVICALLBACK onChangeK (int panel, int control, int event,
-						   void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-		{
-			extern setupTimescale();
-			
-			extern acquire ();
-			
-			break;
-		}
-		
-		case EVENT_RIGHT_CLICK:
-		{   	
-			break;
-		}
-			
-	}
-	
-	return 0;
-}
+

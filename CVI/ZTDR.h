@@ -30,8 +30,8 @@
 #define  PANEL_NUM_WFMPERSEC              14      /* control type: numeric, callback function: onChangeAverage */
 #define  PANEL_CAL_STEP1                  15      /* control type: command, callback function: onCal */
 #define  PANEL_COMMANDBUTTON_2            16      /* control type: command, callback function: onVertCal */
-#define  PANEL_COMMANDBUTTON_7            17      /* control type: command, callback function: HL1101_save */
-#define  PANEL_COMMANDBUTTON_6            18      /* control type: command, callback function: HL1101_recall */
+#define  PANEL_COMMANDBUTTON_7            17      /* control type: command, callback function: onSave */
+#define  PANEL_COMMANDBUTTON_6            18      /* control type: command, callback function: onRecall */
 #define  PANEL_COMMANDBUTTON_9            19      /* control type: command, callback function: HL1101_reset */
 #define  PANEL_COMMANDBUTTON_10           20      /* control type: command, callback function: onPrint */
 #define  PANEL_COMMANDBUTTON_11           21      /* control type: command, callback function: onQuit */
@@ -58,9 +58,7 @@
 
      /* Callback Prototypes: */
 
-int  CVICALLBACK HL1101_recall(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK HL1101_reset(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK HL1101_save(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_average(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_panel_event(int panel, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_waveform(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
@@ -74,6 +72,8 @@ int  CVICALLBACK onChangeUnitY(int panel, int control, int event, void *callback
 int  CVICALLBACK onChangeWindow(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onPrint(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onQuit(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onRecall(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onSave(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onTimer(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onVertCal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onZoom(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
