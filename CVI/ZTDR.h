@@ -28,8 +28,8 @@
 #define  PANEL_CMD_ACQUIRE                12      /* control type: command, callback function: onAcquire */
 #define  PANEL_CHK_CTSACQUIRE             13      /* control type: radioButton, callback function: (none) */
 #define  PANEL_NUM_WFMPERSEC              14      /* control type: numeric, callback function: onChangeAverage */
-#define  PANEL_CAL_STEP1                  15      /* control type: command, callback function: on_cal */
-#define  PANEL_COMMANDBUTTON_2            16      /* control type: command, callback function: on_vertcal */
+#define  PANEL_CAL_STEP1                  15      /* control type: command, callback function: onCal */
+#define  PANEL_COMMANDBUTTON_2            16      /* control type: command, callback function: onVertCal */
 #define  PANEL_COMMANDBUTTON_7            17      /* control type: command, callback function: HL1101_save */
 #define  PANEL_COMMANDBUTTON_6            18      /* control type: command, callback function: HL1101_recall */
 #define  PANEL_COMMANDBUTTON_9            19      /* control type: command, callback function: HL1101_reset */
@@ -63,13 +63,12 @@ int  CVICALLBACK HL1101_recall(int panel, int control, int event, void *callback
 int  CVICALLBACK HL1101_reset(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK HL1101_save(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_average(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK on_cal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_dielectric(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_panel_event(int panel, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_reclen_change(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK on_vertcal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_waveform(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onAcquire(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onCal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeAverage(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeStart(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeUnitX(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
@@ -77,6 +76,7 @@ int  CVICALLBACK onChangeUnitY(int panel, int control, int event, void *callback
 int  CVICALLBACK onChangeWindow(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onQuit(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onTimer(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onVertCal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onZoom(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 
 

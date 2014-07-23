@@ -76,7 +76,7 @@ FT_HANDLE 	dev_handle;
 
 
 //==============================================================================
-// Global functions (alphabetical, not grouped by function)
+// Global functions (alphabetical, not by functionality)
 
 // Read FTDI byte
 static char ftrdbyte(void)

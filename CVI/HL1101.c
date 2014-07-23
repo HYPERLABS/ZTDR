@@ -69,35 +69,6 @@ void vert_cal()
 	SetupTimescale();
 }
 
-// Callback for CALIBRATE button
-int CVICALLBACK on_cal (int panel, int control, int event,
-						void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-
-			timebase_cal();
-
-			break;
-	}
-	return 0;
-}
-
-// Callback for VERT CAL button
-int CVICALLBACK on_vertcal (int panel, int control, int event,
-							void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-			
-			vert_cal();
-			
-			break;
-	}
-	return 0;
-}
 
 // Reset plot area
 void reset_plot()

@@ -32,7 +32,7 @@
 extern int panelHandle;
 
 //==============================================================================
-// Global functions (sorted alphabetically, not by function)
+// Global functions (sorted alphabetically, not by functionality)
 
 // Acquire waveform manually
 int CVICALLBACK onAcquire (int panel, int control, int event,
@@ -49,6 +49,28 @@ int CVICALLBACK onAcquire (int panel, int control, int event,
 		
 		case EVENT_RIGHT_CLICK:
 		{		 
+			break;
+		}
+	}
+	
+	return 0;
+}
+
+// Full time base calibration
+int CVICALLBACK onCal (int panel, int control, int event,
+					   void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+		{
+			extern calTimebase ();
+
+			break;
+		}
+		
+		case EVENT_RIGHT_CLICK:
+		{
 			break;
 		}
 	}
@@ -232,6 +254,28 @@ int CVICALLBACK onTimer (int panel, int control, int event,
 	return 0;
 }
 
+// Vertical calibration only
+int CVICALLBACK onVertCal (int panel, int control, int event,
+						   void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+		{
+			extern vertCal();
+			
+			break;
+		}
+		
+		case EVENT_RIGHT_CLICK:
+		{
+			break;
+		}
+	}
+	
+	return 0;
+}
+
 // Zoom on selection /* TO DO */
 int CVICALLBACK onZoom (int panel, int control, int event,
 						void *callbackData, int eventData1, int eventData2)
@@ -258,3 +302,9 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 	
 	return 0;
 }
+
+
+
+
+
+
