@@ -27,7 +27,7 @@
 #define  PANEL_CHK_DOTS                   11      /* control type: radioButton, callback function: (none) */
 #define  PANEL_CMD_ACQUIRE                12      /* control type: command, callback function: onAcquire */
 #define  PANEL_CHK_CTSACQUIRE             13      /* control type: radioButton, callback function: (none) */
-#define  PANEL_NUM_WFMPERSEC              14      /* control type: numeric, callback function: on_average */
+#define  PANEL_NUM_WFMPERSEC              14      /* control type: numeric, callback function: onChangeAverage */
 #define  PANEL_CAL_STEP1                  15      /* control type: command, callback function: on_cal */
 #define  PANEL_COMMANDBUTTON_2            16      /* control type: command, callback function: on_vertcal */
 #define  PANEL_COMMANDBUTTON_7            17      /* control type: command, callback function: HL1101_save */
@@ -72,6 +72,7 @@ int  CVICALLBACK on_reclen_change(int panel, int control, int event, void *callb
 int  CVICALLBACK on_vertcal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_waveform(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onAcquire(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onChangeAverage(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeStart(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeUnitX(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeUnitY(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);

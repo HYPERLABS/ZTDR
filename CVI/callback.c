@@ -56,6 +56,29 @@ int CVICALLBACK onAcquire (int panel, int control, int event,
 	return 0;
 }
 
+// Waveform averaging changed
+int CVICALLBACK onChangeAverage (int panel, int control, int event,
+								 void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+		{
+			
+			extern acquire();
+			
+			break;
+		}
+	
+		case EVENT_RIGHT_CLICK:
+		{
+			break;
+		}
+	}
+	
+	return 0;
+}
+
 // Window start changed
 int CVICALLBACK onChangeStart (int panel, int control, int event,
 							   void *callbackData, int eventData1, int eventData2)
@@ -226,6 +249,7 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 			break;
 
 		}
+		
 		case EVENT_RIGHT_CLICK:
 		{   	
 			break;

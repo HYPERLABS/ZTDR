@@ -482,21 +482,7 @@ int HL1101_reset (int panel, int control, int event,
 
 
 
-// Waveform averaging changed
-int CVICALLBACK on_average (int panel, int control, int event,
-							void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-			
-			GetCtrlVal(panel, control, &acquisition_nr);
-			AcquireWaveform();
-			
-			break;
-	}
-	return 0;
-}
+
 
 // Print panel and waveform
 int CVICALLBACK HL1101_print (int panel, int control, int event,
