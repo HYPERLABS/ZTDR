@@ -20,7 +20,6 @@
 
 
 #define VERT_HIST 100
-#define FILTER_WIDTH 4
 #define CAL_THRESHOLD_HYST 100
 
 #define BUF_REC_LEN 64
@@ -117,10 +116,10 @@ float dflt_start_value[] =
 /* TO DO */
 char save_file[MAX_SAVE_FILE+160];
 
-// Transaction Data
-static UINT16 rec_len=1024;
 
-static double timescale[NPOINTS_MAX];
+
+
+
 static double dist_m[NPOINTS_MAX]; 
 static double dist_ft[NPOINTS_MAX]; 
 static double rise_time;
@@ -128,24 +127,20 @@ static int plotid = -1, plotid1 = -1;
 static int recall_plotid = -1;
 static double cal_threshold1;
 static double cal_threshold2;
-static double cal_threshold3;
 
 static double levelRight;
 static double levelLeft;
-static double calDiscLevel;
-
-static UINT16 calstart=540, calend=3870, calstart_save=540;
-//static UINT16 calstart=575, calend=3880;
-#define CALSTART_DEFAULT 540
-#define CALEND_DEFAULT 3870
 
 
-static UINT16 dac0val=0, dac1val=0, dac2val=0;
-static int freerun_en=0;
 
-static UINT16 stepcount=6, strobecount=2;	  // Aki 7 to 6
-static UINT16 stepcountArray[5]={4, 5, 6, 7, 8};
-static double calLevels[5];
+
+
+
+
+ 
+			 
+
+
 
 
 
@@ -190,38 +185,7 @@ void vert_cal(void);
 /* Common routines */
 /*******************/
  
-// Write parameters to device
-static int WriteParams(void)
-{
-	int ret;
 
-	ret = usbfifo_setparams(
-			  freerun_en,
-			  calstart,
-			  calend,
-			  start_tm,
-			  end_tm,
-			  stepcount,
-			  strobecount,
-			  0,
-			  rec_len,
-			  dac0val,
-			  dac1val,
-			  dac2val );
-
-	//	printf("WriteParams: calstart=%d calend=%d\n", calstart, calend);
-
-	if (ret < 0)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Params failed.");
-		return 0;
-	}
-	else
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Params written.");
-		return 1;
-	}
-}
 
 // Write parameters for calibration 
 static int WriteParamsVertCal()
@@ -298,39 +262,6 @@ static void ReconstructData(double offset)
 	if (fp) fclose(fp);
 }
 
-// Reconstruct data for calibration
-static void ReconstructDataCal(void)
-{
-	int i, j;
-	timeinf curt;
-	double val;
-	UINT32 incr;
-	FILE *fp = NULL; // fopen("c:/wfm.txt", "w");
-	
-	incr = (end_tm.time - start_tm.time)/rec_len;
-	
-	curt.time = start_tm.time;
-	for (i=0;i<rec_len;i++)
-	{						 		
-		if (fp) fprintf(fp, "%d %d\n",i, wfm[i]);
-		wfmf[i] = (double)wfm[i];
-		timescale[i] =((double)curt.time)/((double)0xFFFF)*50.0;
-		curt.time += incr;
-	}
-	
-// Smooth data for better resolution
-	for (i = FILTER_WIDTH/2; i < rec_len - FILTER_WIDTH/2; i++)
-	{
-		val = 0;
-		for (j = i - FILTER_WIDTH/2; j < i + FILTER_WIDTH/2; j++)
-		{
-			val = val + wfmf[j];
-		}
-		wfmf[i] = val/FILTER_WIDTH;
-	}
-	if (fp) fclose(fp);
-}
-
 // Set vertical labels
 void set_y_labels(void)
 {
@@ -380,45 +311,7 @@ void HL1101_x_axis (int panel, int control)
 /* Calibration routines */
 /************************/
 
-// Set parameters for calibration
-static void SetupToCalibrate(void)
-{
-	// Changes stimulus drive to 80MHz on the CPLD
-	UINT8 acq_result;
-	int ret;
 
-	calstart = 0;
-	calend = 4095;
-
-	if (!usb_opened)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure.");
-		return;
-	}
-
-	ret = usbfifo_acquire(&acq_result, 0);
-
-	if (ret < 0)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
-		return;
-	}
-}
-
-// Set timescale for calibration
-void SetupTimescaleCal()
-{
-	double val;
-	UINT32 windowsz;
-	
-	val = 0;
-	start_tm.time = (UINT32)(val/50.0*0xFFFF);
-	
-	val = 0;
-	windowsz = (UINT32)(val/50.0*0xFFFF);
-	
-	end_tm.time = start_tm.time + windowsz;
-}
 
 // Set timescale for vert cal
 void SetupTimescaleVertCal()
@@ -450,139 +343,11 @@ void SetupTimescaleVertCal0(double windowStart)
 	val = val;
 }
 
-// Set step count
-void SetupStepcount(int index)
-{
-	stepcount = stepcountArray[(UINT16)index];
-}
-
-// TO DO: function description
-static void FindMeanCalWfm(int calStepIndex)
-{
-	int i;
-	double val;
-
-	val = 0;
-	for (i=0; i < rec_len; i++)
-	{
-		val = val + wfmf[i];
-	}
-	val = val /rec_len;
-	calLevels[calStepIndex] = val;
-}
-
-// TO DO: function description
-static void FindCalDiscontLevel(void)
-{
-	int i, j;
-
-	char dispStr[10];
-
-	calDiscLevel = 0;
-
-	j = 0;
-
-	for (i = 0; i < rec_len; i++)
-	{
-		calDiscLevel = calDiscLevel + wfmf[i];
-	}
-
-	calDiscLevel = calDiscLevel/rec_len;
-
-}
-
-// Acquire waveform for calibration (1/2)
-static void AcquireWaveformCal1(int calStepIndex)
-{
-	int ret = 0;
-	int i,n;
-	unsigned char buf[24];
-	char ch;
-	UINT8 acq_result;
-	static char cbuf[32];
-	double ymin, ymax;
-	int dots;
-	int nblocks;
-	int blocksok;
-	double ymind, ymaxd;
-
-	if (!usb_opened)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure.");
-		return;
-	}
-
-	//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquiring...");
-
-	// Write acquisition parameters
-	if (WriteParams() <= 0)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
-		return;
-	} 
-
-	// Run acquisition
-	ret = usbfifo_acquire(&acq_result, 0);
-
-	if (ret < 0)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
-		return;
-	}
-
-	// Read blocks of data from block numbers 0-63 (16384 pts)	
-	blocksok = 1;
-	nblocks = rec_len / 256;
-	for (i=0; i<nblocks; i++)
-	{
-		// Verify data integrity of block
-		int ntries = 3;
-		while ( (ret = usbfifo_readblock(i, (UINT16*)(wfm+256*i) )) < 0
-				&& ntries--);
-
-		if (ret < 0)
-		{   
-			blocksok = 0;
-		}
-	}
-
-	if (blocksok == 0)
-	{
-		//setCtrlVal(panelHandle, PANEL_TXT_LOG, "Read failure.");
-		return;
-	}
-
-	GetCtrlVal(panelHandle, PANEL_NUM_YMIN, &ymin);
-	GetCtrlVal(panelHandle, PANEL_NUM_YMAX, &ymax);
-	GetCtrlVal(panelHandle, PANEL_CHK_DOTS, &dots);
-
-	ReconstructDataCal();
-	FindMeanCalWfm(calStepIndex);
-
-	if (startupCal == 0)
-	{
-		if (plotid1 != -1)
-			DeleteGraphPlot(panelHandle, PANEL_WAVEFORM, plotid1, VAL_DELAYED_DRAW);
 
 
-		plotid1 = PlotXY(panelHandle, PANEL_WAVEFORM, timescale, wfmf, rec_len,
-						 VAL_DOUBLE, VAL_DOUBLE, dots?VAL_SCATTER:VAL_FAT_LINE,
-						 VAL_SOLID_DIAMOND, VAL_SOLID, 1,
-						 dots? VAL_MAGENTA : VAL_MAGENTA );
-
-		SetAxisScalingMode( panelHandle, PANEL_WAVEFORM, VAL_XAXIS, VAL_AUTOSCALE, 0, 0);
-
-		ymind = (double)ymin;
-		ymaxd = (double)ymax;
 
 
-		SetAxisScalingMode( panelHandle, PANEL_WAVEFORM, VAL_LEFT_YAXIS, VAL_MANUAL, ymind, ymaxd);
-		SetAxisScalingMode( panelHandle, PANEL_WAVEFORM, VAL_RIGHT_YAXIS, VAL_MANUAL, ymind, ymaxd);
 
-		RefreshGraph(panelHandle, PANEL_WAVEFORM);
-	}
-
-}
 
 // Acquire waveform for calibration (2/2)
 static void AcquireWaveformCal2(void)
@@ -675,141 +440,9 @@ static void AcquireWaveformCal2(void)
 
 }
 
-// Find optimal step count
-void FindOptimalStepCount(void)
-{
-	int i, idx_min, idx_max, opt_idx;
-	double val, min, max;
 
-	max = 0;
-	min = (double)4095;
 
-	idx_min = 0;
-	idx_max = 0;
 
-	for (i = 0; i < 5; i++)
-	{
-		if (calLevels[i] < min)
-		{
-			min = calLevels[i];
-			idx_min = i;
-		}
-		if (calLevels[i] > max)
-		{
-			max = calLevels[i];
-			idx_max = i;
-		}
-	}
-
-	if ((min < 1) || (max > 4094))
-	{
-		SetCtrlVal(panelHandle, PANEL_MESSAGES, "Calibration failed");
-	}
-
-	val = (max - min)/4 + min;
-
-	opt_idx = 0;
-	for (i = 4; i > 0; i--)
-	{
-		if (calLevels[i] < val)
-		{
-			opt_idx = i;
-		}
-	}
-	if (opt_idx > 0)
-	{
-		opt_idx = opt_idx - 1;
-	}
-	stepcount = stepcountArray[opt_idx];
-
-	stepcount = 6;
-
-	cal_threshold3 = val;
-
-}
-
-// TO DO: description of routine
-void CalDAC()
-{
-	char dispStr[10];
-
-	int i;
-	int stepcount_save;
-	
-	calstart = 0;
-
-	SetupTimescaleCal();
-	AcquireWaveformCal2();
-	
-	i = 0;
-	
-	while ((calDiscLevel < cal_threshold3) && (i < 10) && (calstart <= 1100))
-	{
-		calstart = calstart + 100;
-		AcquireWaveformCal2();
-		i++;
-	}
-	
-	if (i==10)
-	{
-		calstart = CALSTART_DEFAULT;
-	}
-
-	i = 0;
-
-	while ((calDiscLevel > cal_threshold3) && (i < 16))
-	{
-		calstart = calstart - 10;
-		AcquireWaveformCal2();
-		i++;
-	}
-	
-	if (i == 16)
-	{
-		calstart = CALSTART_DEFAULT;
-	}
-	calstart_save = calstart;
-	
-	calend = 4094;
-	calstart = 2000;
-
-	stepcount_save = stepcount;
-	stepcount = stepcount + 4;
-
-	SetupTimescaleCal();
-	AcquireWaveformCal2();
-	
-	i = 0;
-	
-	while ((calDiscLevel < cal_threshold3) && (i < 25) && (calstart <= 4095))
-	{
-		calstart = calstart + 100;
-		AcquireWaveformCal2();
-		i++;
-	}
-	if (i == 25)
-	{
-		calend = CALEND_DEFAULT;
-	}
-	i = 0;
-
-	while ((calDiscLevel > cal_threshold3) && (i < 16))
-	{
-		calstart = calstart - 10;
-		AcquireWaveformCal2();
-		i++;
-	}
-
-	calend = calstart;
-	if (i == 16)
-	{
-		calend = CALEND_DEFAULT;
-	}
-	calstart = calstart_save;
-
-	stepcount = stepcount_save +1;
-
-}
 
 // Main VertCal routine
 static void PerformVertCal(void)
@@ -1030,32 +663,7 @@ int CVICALLBACK on_cal (int panel, int control, int event,
 	return 0;
 }
 
-// Calibrate timebase
-void timebase_cal()
-{
-	int i;
 
-	SetCtrlVal(panelHandle, PANEL_MESSAGES, "Calibration in progress");
-	
-	SetupToCalibrate();
-	SetupTimescaleCal();
-
-	// Cycle through stepcount arrays
-	for (i=0; i<5; i++)
-	{
-		SetupStepcount(i);
-		AcquireWaveformCal1(i);
-	}
-
-	FindOptimalStepCount();
-
-	CalDAC();
-	
-	//Reset_Calibrate();
-	PerformVertCal(); // Aki very new cal
-	SetupTimescale();
-	SetCtrlVal(panelHandle, PANEL_MESSAGES, "Calibration Done");
-}
 
 // Callback for VERT CAL button
 int CVICALLBACK on_vertcal (int panel, int control, int event,
@@ -1165,12 +773,13 @@ static void AcquireWaveform(void)
 	// Timescale and parameters for main acquisition 
 	SetupTimescale();
 	
+	// TO DO: remove this, now auto-cal on startup
 	// If first acquisition of software session, run timebase calibration
 	if (startupCal)
 	{
-		timebase_cal();
+		// timebase_cal();
 		startupCal = 0;
-		SetCtrlVal(panelHandle, PANEL_MESSAGES, "Calibration Done");
+		// SetCtrlVal(panelHandle, PANEL_MESSAGES, "Calibration Done");
 	}
 	
 	if (WriteParams() <= 0)

@@ -36,8 +36,19 @@
 
 		
 //==============================================================================
-// Global functions
+// Global functions (TO DO: sort)
 
+void 	calAcquireWaveform (int calStepIndex);
+void 	calDAC (void);
+void 	calFindDiscont (void);
+void 	calFindMean (int calStepIndex);
+void 	calFindStepcount (void);
+void 	calReconstructData (void);
+void 	calSetParams (void);
+void 	calSetupTimescale (void);
+void 	calTimebase (void);
+int 	calWriteParams (void);
+void 	FindOptimalStepCount (void);
 int	 	main (int argc, char *argv[]);
 void 	openDevice (void);
 void 	setupTimescale (void);
