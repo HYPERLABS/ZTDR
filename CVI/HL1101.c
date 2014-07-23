@@ -11,8 +11,11 @@
 // HL Header
 #include "HL1101.h"
 
-// Include DLL 
+// Include OLD DLL 
 #include "usbfifodll.h"
+
+// Include USBFIFO functionality
+#include "usbfifo.h"
 
 static int panelHandle;
 
@@ -2105,7 +2108,7 @@ int main (int argc, char *argv[])
 	}
 
 	// Load UI
-	if ((panelHandle = LoadPanel (0, "HL1101.uir", PANEL)) < 0)
+	if ((panelHandle = LoadPanel (0, "ZTDR.uir", PANEL)) < 0)
 	{
 		return -1;
 	}

@@ -5,113 +5,15 @@
 #include "FTD2XX.h"
 
 // Include DLL 
-#include "usbfifodll.h"
+#include "usbfifodll.h"	    
+#include "usbfifo.h"
 
-#define STD_TIMEOUT 200 // serial timeout (ms)
 
-static FT_HANDLE dev_handle;
-static FT_HANDLE dev_fifo_handle;
-static int dev_opened = 0;
-static char dev_idbuf[20];
-static char dev_comspdbuf[20];
-static const int dev_hostbps = 256000;
 
-static void ftwrbyte(char ch)
-{
-	int n;
-	FT_Write( dev_handle, &ch, 1, &n);
-}
 
-static char ftrdbyte()
-{
-	char ch;
-	int n;
-	FT_Read( dev_handle, &ch, 1, &n);
-	return ch;
-}
 
-int usbfifo_open()
-{
-	char ch;
-	int n;
-	FT_STATUS stat, statfifo;
-	char buf[20];
-	
-	if (dev_opened)
-		return 1;
-		
-	statfifo = FT_OpenEx("USBFIFOV1A", FT_OPEN_BY_SERIAL_NUMBER, &dev_fifo_handle);
-	stat = FT_OpenEx("USBFIFOV1B", FT_OPEN_BY_SERIAL_NUMBER,  &dev_handle);
-	
-	if (stat != FT_OK || statfifo != FT_OK)
-	{
-		if (stat == FT_OK)
-			FT_Close(dev_handle);
-			
-		if (statfifo == FT_OK)
-			FT_Close(dev_fifo_handle);
-			
-		dev_opened = 0;
-		
-	}
-	else
-	{
-		dev_opened = 1;
-		
-		stat = FT_SetBaudRate( dev_handle, dev_hostbps );
-		if (stat != FT_OK)
-			return -1;
-		
-		stat = FT_SetDataCharacteristics( dev_handle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_NONE );
-		if (stat != FT_OK)
-			return -2;
-			
-		stat = FT_SetFlowControl( dev_handle, FT_FLOW_NONE, 'o', 'p' );  // o and p are bogus characters
-		if (stat != FT_OK)
-			return -3;
-		
-		stat = FT_SetTimeouts( dev_handle, STD_TIMEOUT, STD_TIMEOUT );
-		if (stat != FT_OK)
-			return -4;
-			
-		// added, then removed on 23 aug 09
-		//stat = FT_SetLatencyTimer(dev_handle, 3);
-		//if (stat != FT_OK)
-		//	return -8;
-		//FT_SetLatencyTimer(dev_fifo_handle, 2);
-			
-		/* read id string */
-		ftwrbyte('i');
-		FT_Read( dev_handle, dev_idbuf, 16, &n );
-		dev_idbuf[16] = '\0';
-		ftwrbyte('i');
-		ch = ftrdbyte();
-		
-		if (ch != '.')
-			return -5;
-		
-		
-		/* read comspeed comspeed */
-		ftwrbyte('s');
-		FT_Read( dev_handle, dev_comspdbuf, 16, &n );
-		dev_comspdbuf[16] = '\0';
-		ftwrbyte('s');
-		ch = ftrdbyte();
-		
-		if (ch != '.')
-			return -6;
-			
-		
-		if (strncmp(dev_idbuf, "USBFIFO", 7) != 0)
-			return -7;
-		
-		FT_ClrDtr(dev_handle);
-		// toggle reset
-		FT_SetRts(dev_handle);
-		FT_ClrRts(dev_handle);
-	}
-	return dev_opened;
-}
+
+
 
 int usbfifo_gethostbps(void)
 {
