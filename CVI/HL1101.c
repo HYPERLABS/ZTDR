@@ -63,38 +63,6 @@ static int retrieve, norm_flag,auto_flag;
 static double x1, x2, y1, y2;
 
 
-// Reset plot area
-void reset_plot()
-{
-	int status;
-
-	status = SetCtrlAttribute(panelHandle,PANEL_RING,
-							  ATTR_DIMMED,0);
-	status = SetCtrlAttribute(panelHandle,PANEL_NUM_WINDOWSZ,
-							  ATTR_DIMMED,0);
-	status = SetCtrlAttribute(panelHandle,PANEL_NUM_STARTTM,
-							  ATTR_DIMMED,0);
-
-	status = SetCtrlAttribute(panelHandle,PANEL_COMMANDBUTTON,
-							  ATTR_DIMMED,0);
-
-	status = SetCtrlAttribute(panelHandle,PANEL_NUM_YMAX,
-							  ATTR_DIMMED,0);
-	status = SetCtrlAttribute(panelHandle,PANEL_NUM_YMIN,
-							  ATTR_DIMMED,0);
-	status = SetCtrlAttribute(panelHandle,PANEL_TOGGLEBUTTON,
-							  ATTR_DIMMED,0);
-
-	wfm_ret_flag = 0;
-
-	norm_flag = 0;
-	SetCtrlVal (panelHandle, PANEL_TOGGLEBUTTON,1);
-
-	if (recall_plotid != -1)
-		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, recall_plotid,
-						 VAL_IMMEDIATE_DRAW);
-	recall_plotid = -1;
-}
 
 
 
@@ -107,29 +75,7 @@ void reset_plot()
 
 
 
-// Basic panel functionality
-int CVICALLBACK on_panel_event (int panel, int event, void *callbackData,
-								int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_GOT_FOCUS:
-			
-			break;
-			
-		case EVENT_LOST_FOCUS:
-			
-			break;
-			
-		case EVENT_CLOSE:
-			
-			usbfifo_close();
-			QuitUserInterface(0);
-			
-			break;
-	}
-	return 0;
-}
+
 
 // On waveform acquisition
 int CVICALLBACK on_waveform (int panel, int control, int event,
@@ -167,24 +113,4 @@ int CVICALLBACK on_waveform (int panel, int control, int event,
 
 
 
-// UI reset
-int CVICALLBACK HL1101_reset (int panel, int control, int event,
-				  void *callbackData, int eventData1, int eventData2)
-{
-	int status;
 
-	switch (event)
-	{
-		case EVENT_COMMIT:
-
-			reset_plot();
-			AcquireWaveform();
-			
-			break;
-			
-		case EVENT_RIGHT_CLICK:
-
-			break;
-	}
-	return 0;
-}

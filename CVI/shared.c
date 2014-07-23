@@ -1530,6 +1530,26 @@ void saveWaveform (void)
 	n = CloseFile (fd);
 }
 
+// Reset plot area and clear recalled waveform
+void resetWaveform()
+{
+	int status;
+
+	status = SetCtrlAttribute (panelHandle, PANEL_RING, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_NUM_WINDOWSZ, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_NUM_STARTTM, ATTR_DIMMED, 0);
+
+	status = SetCtrlAttribute (panelHandle, PANEL_COMMANDBUTTON, ATTR_DIMMED, 0);
+
+	status = SetCtrlAttribute (panelHandle, PANEL_NUM_YMAX, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_NUM_YMIN, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_TOGGLEBUTTON, ATTR_DIMMED, 0);
+
+	SetCtrlVal (panelHandle, PANEL_TOGGLEBUTTON, 1);
+
+	DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmRecall, VAL_IMMEDIATE_DRAW);
+}
+
 // Cursor-based zoom
 void zoom (void)
 {

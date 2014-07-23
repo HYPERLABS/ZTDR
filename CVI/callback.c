@@ -225,6 +225,35 @@ int CVICALLBACK onChangeUnitY (int panel, int control, int event,
 	return 0;
 }
 
+// Basic panel behavior
+int CVICALLBACK onPanel (int panel, int event, void *callbackData,
+						 int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_GOT_FOCUS:
+		{
+			break;
+		}
+			
+		case EVENT_LOST_FOCUS:
+		{	
+			break;
+		}
+			
+		case EVENT_CLOSE:
+		{		
+			extern usbfifo_close();
+			
+			QuitUserInterface(0);
+			
+			break;
+		}
+	}
+	
+	return 0;
+}
+
 // Print panel and waveform
 int CVICALLBACK onPrint (int panel, int control, int event,
 						 void *callbackData, int eventData1, int eventData2)
@@ -280,9 +309,35 @@ int CVICALLBACK onRecall (int panel, int control, int event,
 		{
 		case EVENT_COMMIT:
 		{ 	
-			extern resetPlot ();
+			extern resetWaveform ();
 			
 			extern recallWaveform ();
+			
+			break;
+		}
+		
+		case EVENT_RIGHT_CLICK:
+		{   	
+			break;
+		}
+	}
+	
+	return 0;
+}
+
+// Reset UI to clear recalled waveform settings
+int CVICALLBACK onReset (int panel, int control, int event,
+						 void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+		{
+			extern resetWaveform ();
+			
+			extern setupTimescale ();
+			
+			extern acquire ();
 			
 			break;
 		}
@@ -378,7 +433,7 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 		{
 			extern zoom ();
 			
-			extern setupTimescale();
+			extern setupTimescale ();
 			
 			extern acquire ();
 			
@@ -394,5 +449,3 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 	
 	return 0;
 }
-
-
