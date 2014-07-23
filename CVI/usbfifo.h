@@ -1,7 +1,7 @@
 //==============================================================================
 //
 // Title:		usbfifo.h
-// Purpose:		A short description of the interface.
+// Purpose:		Declaration of functions used by usbfifo.c
 //
 // Created on:	7/22/2014 at 8:05:26 PM by Brian Doxey.
 // Copyright:	HYPERLABS. All Rights Reserved.

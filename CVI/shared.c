@@ -16,7 +16,7 @@
 
 #include "FTD2XX.h"
 
-#include "callback.h"
+#include "shared.h"
 #include "usbfifo.h"
 #include "ZTDR.h"
 
@@ -73,6 +73,65 @@
 
 // Initialization
 int 	usb_opened = 0;
+
+// Unit labels and ranges
+char *y_label[] =
+     {
+      "MVOLT",
+      "NORM ",
+      "RHO  ",
+      "OHM  " 
+	 };
+
+char *x_label[] =
+     {
+      "Round Trip (m) ",
+      "Round Trip (ns)",
+      "Round Trip (ft)" 
+	 };
+
+char *x_label_start[] =
+     {
+      "Start (m)   ",
+      "Start (ns)" ,
+      "Start (ft)  "
+	 };
+      
+char *x_label_windowsz[] =
+     {
+      "Window (m)",
+      "Window (ns)",
+      "Window (ft)" 
+	 }; 		
+      
+float x_dflt_start[] =
+     {
+      0.0,
+      0.0,
+      0.0
+	 };
+
+float x_dflt_windowsz[]  =
+     {
+      10.0,
+      50.0,
+      33.3
+	 };
+
+float x_max_range[] =
+     {
+      400.0,
+      2000.0,
+      1332
+	 };
+
+char *label_dist[] =
+     {
+      "(X2-X1) (m) ",
+      "(X2-X1) (ft)",
+      "(X2-X1) (ns)" 
+	 };
+
 
 // Calibration
 double 	calDiscLevel;
@@ -1190,4 +1249,42 @@ double mean_array (void)
 	}
 
 	return((double) temp / (double) 1000.0);
+}
+
+
+//==============================================================================
+// Functions triggered by UIR callbacks
+
+// Set horizontal labels
+void changeUnitX (void)
+{
+	int status;
+	int x_axis;
+	
+	GetCtrlVal (panelHandle, PANEL_RING_HORIZONTAL, &x_axis);
+	
+	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, x_label[x_axis]);
+	
+	status = SetCtrlAttribute (panelHandle, PANEL_NUM_STARTTM, ATTR_LABEL_TEXT, x_label_start[x_axis]);
+	status = SetCtrlAttribute (panelHandle, PANEL_NUM_WINDOWSZ, ATTR_LABEL_TEXT, x_label_windowsz[x_axis]);
+	
+	status = SetCtrlAttribute (panelHandle, PANEL_NUM_STARTTM, ATTR_MAX_VALUE, x_max_range[x_axis]);
+	status = SetCtrlAttribute (panelHandle, PANEL_NUM_WINDOWSZ, ATTR_MAX_VALUE, x_max_range[x_axis]);
+	
+	status = SetCtrlVal (panelHandle, PANEL_NUM_STARTTM, x_dflt_start[x_axis]);
+	status = SetCtrlVal (panelHandle, PANEL_NUM_WINDOWSZ, x_dflt_windowsz[x_axis]);
+	
+	// TO DO: better label for DIST
+	// status = SetCtrlAttribute (panelHandle, PANEL_*****, ATTR_LABEL_TEXT, label_dist[x_axis]);	
+}
+
+// Set vertical labels
+void changeUnitY (void)
+{
+	int status;
+	int y_axis;
+	
+	GetCtrlVal (panelHandle, PANEL_RING, &y_axis);
+	
+	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, y_label[y_axis]);
 }

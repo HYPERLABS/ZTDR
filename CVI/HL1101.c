@@ -41,62 +41,17 @@ void SetupTimescale(void);
 
 
 // Values and ranges for X and Y axes
-char *y_label[] =
-     {
-      "MVOLT",
-      "NORM ",
-      "RHO  ",
-      "OHM  " 
-	 };  
+  
       
-char *label_dist[] =
-     {
-      "(X2-X1)[m]  ",
-      "(X2-X1)[ft] ",
-      "(X2-X1)[nS]" 
-	 };
 
-char *label_start[] =
-     {
-      "Start [m]   ",
-      "Start [ns]" ,
-      "Start [ft]  "
-	 };
-      
-char *label_window[] =
-     {
-      "Window [m]",
-      "Window [ns]",
-      "Window [ft]" 
-	 };
-      
-char *x_label[] =
-     {
-      "Round Trip [m]   ",
-      "Round Trip [ns]  ",
-      "Round Trip [ft]" 
-	 };    
-      
-float max_range[] =
-     {
-      400.0,
-      2000.0,
-      1332
-	 };
 
-float dflt_value[]  =
-     {
-      10.0,
-      50.0,
-      33.3
-	 };		
+
       
-float dflt_start_value[] =
-     {
-      0.0,
-      0.0,
-      0.0
-	 };
+    
+      
+
+
+
 
 /* TO DO */
 char save_file[MAX_SAVE_FILE+160];
@@ -136,49 +91,8 @@ void timebase_cal(void);
 void vert_cal(void);
 
 
-// Set vertical labels
-void set_y_labels(void)
-{
-	int status;
 
-	status = SetCtrlAttribute (panelHandle,PANEL_WAVEFORM,
-							   ATTR_YNAME,y_label[y_axis]);
-}
 
-// Set vertical labels
-void HL1101_y_axis_1 (int panel, int control)
-{
-	GetCtrlVal (panel,control,&y_axis);
-	set_y_labels();
-}
-
-// Set horizontal labels
-void set_x_labels(void)
-{
-	int status;
-
-	status = SetCtrlAttribute (panelHandle,PANEL_NUM_STARTTM,
-							   ATTR_LABEL_TEXT,label_start[x_axis]);
-	status = SetCtrlAttribute (panelHandle,PANEL_NUM_WINDOWSZ,
-							   ATTR_LABEL_TEXT,label_window[x_axis]);
-	status = SetCtrlAttribute (panelHandle,PANEL_WAVEFORM,
-							   ATTR_XNAME,x_label[x_axis]);
-	status = SetCtrlAttribute (panelHandle,PANEL_NUM_STARTTM,
-							   ATTR_MAX_VALUE,max_range[x_axis]);
-	status = SetCtrlVal(panelHandle,PANEL_NUM_STARTTM,
-						dflt_start_value[x_axis]);
-	status = SetCtrlAttribute (panelHandle,PANEL_NUM_WINDOWSZ,
-							   ATTR_MAX_VALUE,max_range[x_axis]);
-	status = SetCtrlVal(panelHandle,PANEL_NUM_WINDOWSZ,
-						dflt_value[x_axis]);
-}
-
-// Set horizontal labels
-void HL1101_x_axis (int panel, int control)
-{
-	GetCtrlVal (panel,control,&x_axis);
-	set_x_labels();
-}
 
 
 // Call vertcal routines
@@ -203,8 +117,6 @@ int CVICALLBACK on_cal (int panel, int control, int event,
 	return 0;
 }
 
-
-
 // Callback for VERT CAL button
 int CVICALLBACK on_vertcal (int panel, int control, int event,
 							void *callbackData, int eventData1, int eventData2)
@@ -219,9 +131,6 @@ int CVICALLBACK on_vertcal (int panel, int control, int event,
 	}
 	return 0;
 }
-
-
-
 
 // Reset plot area
 void reset_plot()
@@ -643,44 +552,9 @@ int CVICALLBACK on_dielectric (int panel, int control, int event,
 	return 0;
 }
 
-// Horizontal units changed
-int CVICALLBACK on_horizontal (int panel, int control, int event,
-							   void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-			
-			GetCtrlVal(panel, control, &HL1101_xaxis_val);
-			HL1101_x_axis (panel, control);				  
-			SetupTimescale();
-			AcquireWaveform();
-			
-			break;
-			
-		case EVENT_RIGHT_CLICK:
-			
-			break;
-	}
-	return 0;
-}
 
-// Vertical units changed
-int CVICALLBACK HL1101_y_axis (int panel, int control, int event,
-							   void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-			
-			HL1101_y_axis_1 (panel, control);
-			GetCtrlVal(panel, control, &HL1101_yaxis_val);
-			AcquireWaveform();
 
-			break;
-	}
-	return 0;
-}
+
 
 // UI reset
 int HL1101_reset (int panel, int control, int event,
