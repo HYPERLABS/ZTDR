@@ -30,15 +30,6 @@
 #define RHO 2 
 #define OHM 3
 
-
-
-
-
-
-// Vert Cal
-
-
-
 static double wfm_data[NPOINTS_MAX], wfm_data_ave[NPOINTS_MAX];
 static double ymin, ymax; 
 static  int delay_value;
@@ -114,10 +105,6 @@ float dflt_start_value[] =
 char save_file[MAX_SAVE_FILE+160];
 
 
-
-
-
-
 static double rise_time;
 static int plotid = -1, plotid1 = -1;
 static int recall_plotid = -1;
@@ -126,21 +113,6 @@ static double cal_threshold2;
 
 static double levelRight;
 static double levelLeft;
-
-
-
-
-
-
-
- 
-			 
-
-
-
-
-
-
 
 
 
@@ -165,28 +137,6 @@ static double x1, x2, y1, y2;
 
 void timebase_cal(void);
 void vert_cal(void);
-/* END TO DO */
-
-
-/***************************/
-/* Initialization routines */
-/***************************/
-
-
-
-
-
-
-/*******************/
-/* Common routines */
-/*******************/
- 
-
-
-
-
-
-
 
 
 // Set vertical labels
@@ -232,21 +182,6 @@ void HL1101_x_axis (int panel, int control)
 	GetCtrlVal (panel,control,&x_axis);
 	set_x_labels();
 }
-
-
-/************************/
-/* Calibration routines */
-/************************/
-
-
-
-
-
-
-
-
-
-
 
 
 // Acquire waveform for calibration (2/2)
@@ -341,41 +276,12 @@ static void AcquireWaveformCal2(void)
 }
 
 
-
-
-
-
-
 // Call vertcal routines
 void vert_cal()
 {
 	PerformVertCal();
 	SetupTimescale();
 }
-
-/* NOT NEEDED 
-// TO DO: function description
-static void Reset_Calibrate(void)
-{
-	// Changes stimulus drive back from 80MHz to the CPLD
-	UINT8 acq_result;
-	int ret;
-
-	if (!usb_opened)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure.");
-		return;
-	}
-
-	ret = usbfifo_reset_calibrate(&acq_result, 0);
-
-	if (ret < 0)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
-		return;
-	}
-}
-*/
 
 // Callback for CALIBRATE button
 int CVICALLBACK on_cal (int panel, int control, int event,
@@ -409,17 +315,6 @@ int CVICALLBACK on_vertcal (int panel, int control, int event,
 	return 0;
 }
 
-
-/************************/
-/* Time window routines */
-/************************/
-
-
-
-
-/************************/
-/* Acquisition routines */
-/************************/
 
 // Main acquisition function /* TO DO */
 static void AcquireWaveform(void)
@@ -811,11 +706,6 @@ int CVICALLBACK on_acquire (int panel, int control, int event,
 	return 0;
 }
 
-
-/**********************************/
-/* Waveform storage and retrieval */
-/**********************************/
-
 // Store waveform to file
 void HL1101_savedata()
 {   
@@ -1046,11 +936,6 @@ int CVICALLBACK HL1101_recall (int panel, int control, int event,
 		}
 	return 0;
 }
- 
-
-/******************************/
-/* Control-triggered routines */
-/******************************/
 
 // Basic panel functionality
 int CVICALLBACK on_panel_event (int panel, int event, void *callbackData,
@@ -1355,15 +1240,3 @@ int CVICALLBACK on_quit (int panel, int control, int event,
 		}
 	return 0;
 }
-
-
-
-
-// ABOVE: to organize
-// BELOW: to optimize/troubleshoot
-
-/***************************/
-/* INITIALIZATION ROUTINES */
-/***************************/
-
-
