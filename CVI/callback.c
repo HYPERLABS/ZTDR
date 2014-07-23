@@ -132,3 +132,29 @@ int CVICALLBACK onChangeUnitY (int panel, int control, int event,
 	
 	return 0;
 }
+
+// Close UI and exit
+int CVICALLBACK onQuit (int panel, int control, int event,
+						void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+		{
+		case EVENT_COMMIT:
+			{
+			
+				usbfifo_close();
+				
+				QuitUserInterface(0);
+									 
+				break;
+			}
+		}
+		
+		case EVENT_RIGHT_CLICK:
+			{
+			
+				break;
+			}
+		
+	return 0;
+}

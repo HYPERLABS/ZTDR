@@ -599,30 +599,3 @@ int CVICALLBACK on_reclen_change (int panel, int control, int event,
 	}
 	return 0;
 }
-
-// SetRef functionality (temporarily depricated)
-int CVICALLBACK HL1101_setref (int panel, int control, int event,
-		void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-		{
-		case EVENT_COMMIT:
-			
-			break;
-		}
-	return 0;
-}
-
-// Close UI and exit
-int CVICALLBACK on_quit (int panel, int control, int event,
-		void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-		{
-		case EVENT_COMMIT:
-			usbfifo_close();
-			QuitUserInterface(0);
-			break;
-		}
-	return 0;
-}
