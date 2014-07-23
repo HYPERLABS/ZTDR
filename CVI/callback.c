@@ -2,7 +2,7 @@
 //
 // Title:		callback.c
 // Purpose:		Definitions of all UIR callback functions utilized in ZTDR
-//				This file contains only structural code, execution in ZTDR.c
+//				This file contains only structural code; execution in ZTDR.c
 //
 // Created on:	7/23/2014 at 10:12:00 AM by Brian Doxey.
 // Copyright:	HYPERLABS. All Rights Reserved.
@@ -202,6 +202,32 @@ int CVICALLBACK onTimer (int panel, int control, int event,
 		
 		case EVENT_RIGHT_CLICK:
 		{		 
+			break;
+		}
+	}
+	
+	return 0;
+}
+
+// Zoom on selection /* TO DO */
+int CVICALLBACK onZoom (int panel, int control, int event,
+						void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+		{
+			extern zoom ();
+			
+			extern setupTimescale();
+			
+			extern acquire ();
+			
+			break;
+
+		}
+		case EVENT_RIGHT_CLICK:
+		{   	
 			break;
 		}
 	}

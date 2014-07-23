@@ -22,7 +22,7 @@
 #define  PANEL_NUM_YMIN                   6       /* control type: numeric, callback function: (none) */
 #define  PANEL_STR_CURS1                  7       /* control type: string, callback function: (none) */
 #define  PANEL_STR_CURS2                  8       /* control type: string, callback function: (none) */
-#define  PANEL_COMMANDBUTTON              9       /* control type: command, callback function: HL1101_zoom */
+#define  PANEL_COMMANDBUTTON              9       /* control type: command, callback function: onZoom */
 #define  PANEL_STR_DELTA                  10      /* control type: string, callback function: (none) */
 #define  PANEL_CHK_DOTS                   11      /* control type: radioButton, callback function: (none) */
 #define  PANEL_CMD_ACQUIRE                12      /* control type: command, callback function: onAcquire */
@@ -63,7 +63,6 @@ int  CVICALLBACK HL1101_print(int panel, int control, int event, void *callbackD
 int  CVICALLBACK HL1101_recall(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK HL1101_reset(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK HL1101_save(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK HL1101_zoom(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_average(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_cable_type(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_cal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
@@ -79,6 +78,7 @@ int  CVICALLBACK onChangeUnitY(int panel, int control, int event, void *callback
 int  CVICALLBACK onChangeWindow(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onQuit(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onTimer(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onZoom(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 
 
 #ifdef __cplusplus

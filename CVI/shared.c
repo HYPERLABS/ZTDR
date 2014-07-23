@@ -1288,3 +1288,24 @@ void changeUnitY (void)
 	
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, y_label[y_axis]);
 }
+
+// Cursor-based zoom
+void zoom (void)
+{
+	double c1x, c1y, c2x, c2y;
+	
+	GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
+	GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
+
+	if (c1x < c2x)
+	{
+		SetCtrlVal(panelHandle, PANEL_NUM_STARTTM, c1x);
+	}
+	else
+	{
+		SetCtrlVal(panelHandle, PANEL_NUM_STARTTM, c2x);
+	}
+	
+	// Update window size
+	SetCtrlVal (panelHandle, PANEL_NUM_WINDOWSZ, fabs (c2x - c1x));
+}

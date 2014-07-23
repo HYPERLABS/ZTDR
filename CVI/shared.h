@@ -61,6 +61,7 @@ void 	vertCalOffset (double windowStart);
 void 	vertCalTimescale (void);
 int 	vertCalWriteParams (void);
 int 	writeParams (void);
+void 	zoom (void);
 		
 		
 

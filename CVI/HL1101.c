@@ -480,44 +480,7 @@ int HL1101_reset (int panel, int control, int event,
 	return 0;
 }
 
-// Zoom on selection /* TO DO */
-int CVICALLBACK HL1101_zoom (int panel, int control, int event,
-							 void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
 
-			GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &x1, &y1);
-			GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &x2, &y2);
-
-			if (x1 < x2)
-			{
-				SetCtrlVal(panelHandle, PANEL_NUM_STARTTM, x1);
-			}
-			else
-			{
-				SetCtrlVal(panelHandle, PANEL_NUM_STARTTM, x2);
-			}
-			SetCtrlVal(panelHandle, PANEL_NUM_WINDOWSZ, fabs(x2-x1));
-			SetupTimescale();
-			AcquireWaveform();
-
-			//SetCtrlVal (panelHandle, PANEL_SLIDE_2, x2);
-			//GetCtrlVal(panelHandle, PANEL_SLIDE_2, &HL2100_end_val);
-			//GetCtrlVal (panelHandle, PANEL_SLIDE_1, &start);
-			//GetCtrlVal (panelHandle, PANEL_SLIDE_2, &end);
-
-			//acquire();
-
-			break;
-			
-		case EVENT_RIGHT_CLICK:
-			
-			break;
-	}
-	return 0;
-}
 
 // Waveform averaging changed
 int CVICALLBACK on_average (int panel, int control, int event,
