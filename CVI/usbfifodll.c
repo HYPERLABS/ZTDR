@@ -29,15 +29,10 @@ void usbfifo_devicereset(void)
 }
 
 
-
-
 int usbfifo_isok()
 {
 	return dev_opened;
 }
-
-
-
 
 
 void usbfifo_listdevs()
@@ -110,14 +105,6 @@ int usbfifo_checkmem(int *nlocs, int *failval)
 	
 	return buf[0] == 's';
 }
-
-
-
-
-
-
-
-		
 
 
 int usbfifo_command(UINT16 *ret_val, UINT8 cmd, UINT16 arg0, UINT16 arg1)

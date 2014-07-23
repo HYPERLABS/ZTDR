@@ -200,6 +200,27 @@ int CVICALLBACK onChangeUnitY (int panel, int control, int event,
 	return 0;
 }
 
+// Print panel and waveform
+int CVICALLBACK onPrint (int panel, int control, int event,
+						 void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+		{
+		case EVENT_COMMIT:
+		{
+			PrintPanel(panel, "", 1, VAL_FULL_PANEL, 1);
+			
+			break;
+		}
+			
+		case EVENT_RIGHT_CLICK:
+		{
+			break;
+		}
+	}
+	return 0;
+}
+
 // Close UI and exit
 int CVICALLBACK onQuit (int panel, int control, int event,
 						void *callbackData, int eventData1, int eventData2)
@@ -303,8 +324,27 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 	return 0;
 }
 
-
-
-
-
-
+// Dielectric (K) changed
+int CVICALLBACK onChangeK (int panel, int control, int event,
+						   void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+		{
+			extern setupTimescale();
+			
+			extern acquire ();
+			
+			break;
+		}
+		
+		case EVENT_RIGHT_CLICK:
+		{   	
+			break;
+		}
+			
+	}
+	
+	return 0;
+}

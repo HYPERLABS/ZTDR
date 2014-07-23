@@ -33,15 +33,15 @@
 #define  PANEL_COMMANDBUTTON_7            17      /* control type: command, callback function: HL1101_save */
 #define  PANEL_COMMANDBUTTON_6            18      /* control type: command, callback function: HL1101_recall */
 #define  PANEL_COMMANDBUTTON_9            19      /* control type: command, callback function: HL1101_reset */
-#define  PANEL_COMMANDBUTTON_10           20      /* control type: command, callback function: HL1101_print */
+#define  PANEL_COMMANDBUTTON_10           20      /* control type: command, callback function: onPrint */
 #define  PANEL_COMMANDBUTTON_11           21      /* control type: command, callback function: onQuit */
 #define  PANEL_RING_HORIZONTAL            22      /* control type: ring, callback function: onChangeUnitX */
 #define  PANEL_NUM_STARTTM                23      /* control type: scale, callback function: onChangeStart */
 #define  PANEL_NUM_WINDOWSZ               24      /* control type: scale, callback function: onChangeWindow */
 #define  PANEL_TIMER_ACQUIRE              25      /* control type: timer, callback function: onTimer */
-#define  PANEL_NUM_DIELECTRIC             26      /* control type: scale, callback function: on_dielectric */
+#define  PANEL_NUM_DIELECTRIC             26      /* control type: scale, callback function: onChangeK */
 #define  PANEL_DECORATION_4               27      /* control type: deco, callback function: on_average */
-#define  PANEL_RING_RECLEN                28      /* control type: ring, callback function: on_reclen_change */
+#define  PANEL_RING_RECLEN                28      /* control type: ring, callback function: (none) */
 #define  PANEL_COMMANDBUTTON_8            29      /* control type: command, callback function: (none) */
 #define  PANEL_MESSAGES                   30      /* control type: string, callback function: (none) */
 
@@ -58,22 +58,21 @@
 
      /* Callback Prototypes: */
 
-int  CVICALLBACK HL1101_print(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK HL1101_recall(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK HL1101_reset(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK HL1101_save(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_average(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK on_dielectric(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_panel_event(int panel, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK on_reclen_change(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_waveform(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onAcquire(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onCal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeAverage(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onChangeK(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeStart(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeUnitX(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeUnitY(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeWindow(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onPrint(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onQuit(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onTimer(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onVertCal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);

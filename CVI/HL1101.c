@@ -394,25 +394,10 @@ int CVICALLBACK on_waveform (int panel, int control, int event,
 	return 0;
 }
 
-// Dielectric (K) changed
-int CVICALLBACK on_dielectric (int panel, int control, int event,
-							   void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-			
-			GetCtrlVal(panelHandle, PANEL_NUM_DIELECTRIC, &HL1101_diel);
-			SetupTimescale();
-			AcquireWaveform();
-			
-			break;
-	}
-	return 0;
-}
+
 
 // UI reset
-int HL1101_reset (int panel, int control, int event,
+int CVICALLBACK HL1101_reset (int panel, int control, int event,
 				  void *callbackData, int eventData1, int eventData2)
 {
 	int status;
@@ -437,38 +422,4 @@ int HL1101_reset (int panel, int control, int event,
 
 
 
-// Print panel and waveform
-int CVICALLBACK HL1101_print (int panel, int control, int event,
-		void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-		{
-		case EVENT_COMMIT:
-			
-			(void) PrintPanel(panel, "", 1, VAL_FULL_PANEL, 1);
-			
-			break;
-			
-		case EVENT_RIGHT_CLICK:
 
-			break;
-		}
-	return 0;
-}
-
-// Change record length (temporarily depricated)
-int CVICALLBACK on_reclen_change (int panel, int control, int event,
-								  void *callbackData, int eventData1, int eventData2)
-{
-	UINT32 val;
-	switch (event)
-	{
-		case EVENT_VAL_CHANGED:
-			
-			GetCtrlVal(panelHandle, PANEL_RING_RECLEN, &val);
-			rec_len = val;
-
-			break;
-	}
-	return 0;
-}
