@@ -36,8 +36,8 @@
 #define  PANEL_COMMANDBUTTON_10           20      /* control type: command, callback function: HL1101_print */
 #define  PANEL_COMMANDBUTTON_11           21      /* control type: command, callback function: on_quit */
 #define  PANEL_RING_HORIZONTAL            22      /* control type: ring, callback function: onChangeUnitX */
-#define  PANEL_NUM_STARTTM                23      /* control type: scale, callback function: on_starttm_change */
-#define  PANEL_NUM_WINDOWSZ               24      /* control type: scale, callback function: on_windowsz_change */
+#define  PANEL_NUM_STARTTM                23      /* control type: scale, callback function: onChangeStart */
+#define  PANEL_NUM_WINDOWSZ               24      /* control type: scale, callback function: onChangeWindow */
 #define  PANEL_TIMER_ACQUIRE              25      /* control type: timer, callback function: on_timer_acquire */
 #define  PANEL_NUM_DIELECTRIC             26      /* control type: scale, callback function: on_dielectric */
 #define  PANEL_RING_CABLE_TYPE            27      /* control type: ring, callback function: on_cable_type */
@@ -73,13 +73,13 @@ int  CVICALLBACK on_dielectric(int panel, int control, int event, void *callback
 int  CVICALLBACK on_panel_event(int panel, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_quit(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_reclen_change(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK on_starttm_change(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_timer_acquire(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_vertcal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK on_waveform(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK on_windowsz_change(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onChangeStart(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeUnitX(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeUnitY(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onChangeWindow(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 
 
 #ifdef __cplusplus

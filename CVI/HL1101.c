@@ -8,17 +8,6 @@
 #include <stdio.h>
 #include <time.h>
 
-// HL Header
-#include "callback.h"
-
-// Include OLD DLL 
-#include "usbfifodll.h"
-
-// Include USBFIFO functionality
-#include "usbfifo.h"
-
-
-
 #define VERT_HIST 100
 #define CAL_THRESHOLD_HYST 100
 
@@ -38,20 +27,6 @@ static startupCal = 1;
 // Define functions
 double mean_array(void);
 void SetupTimescale(void);
-
-
-// Values and ranges for X and Y axes
-  
-      
-
-
-
-      
-    
-      
-
-
-
 
 /* TO DO */
 char save_file[MAX_SAVE_FILE+160];
@@ -86,14 +61,6 @@ static int retrieve, norm_flag,auto_flag;
 /* static */ int wfm_ret_flag = 0;
 //double x1, x2, y1, y2, r1, p1,  dist_x1x2, b1, b2, e1, e2; 
 static double x1, x2, y1, y2;
-
-void timebase_cal(void);
-void vert_cal(void);
-
-
-
-
-
 
 // Call vertcal routines
 void vert_cal()
@@ -485,38 +452,6 @@ int CVICALLBACK on_waveform (int panel, int control, int event,
 	return 0;
 }
 
-// Window start changed
-int CVICALLBACK on_starttm_change (int panel, int control, int event,
-								   void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_VAL_CHANGED:
-			
-			SetupTimescale();
-			AcquireWaveform();
-			
-			break;
-	}
-	return 0;
-}
-
-// Window width changed
-int CVICALLBACK on_windowsz_change (int panel, int control, int event,
-									void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_VAL_CHANGED:
-			
-			SetupTimescale();
-			AcquireWaveform();
-			
-			break;
-	}
-	return 0;
-}
-
 // Cable type changed
 int CVICALLBACK on_cable_type (int panel, int control, int event,
 							   void *callbackData, int eventData1, int eventData2)
@@ -551,10 +486,6 @@ int CVICALLBACK on_dielectric (int panel, int control, int event,
 	}
 	return 0;
 }
-
-
-
-
 
 // UI reset
 int HL1101_reset (int panel, int control, int event,

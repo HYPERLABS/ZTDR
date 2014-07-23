@@ -34,7 +34,54 @@ extern int panelHandle;
 //==============================================================================
 // Global functions (sorted alphabetically, not by function)
 
-// Horizontal units changed
+// Window start changed
+int CVICALLBACK onChangeStart (int panel, int control, int event,
+							   void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_VAL_CHANGED:
+			{
+				extern setupTimescale ();
+			
+				extern acquire ();
+			
+				break;
+			}
+			
+		case EVENT_RIGHT_CLICK:
+		{   
+			break;
+		}
+	}
+	
+	return 0;
+}
+
+// Window width changed
+int CVICALLBACK onChangeWindow (int panel, int control, int event,
+								void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_VAL_CHANGED:
+			{
+				extern setupTimescale ();
+			
+				extern acquire ();
+			
+				break;
+			}
+			
+		case EVENT_RIGHT_CLICK:
+		{   
+			break;
+		}
+	}
+	
+	return 0;
+}
+
 // Horizontal units changed
 int CVICALLBACK onChangeUnitX (int panel, int control, int event,
 							   void *callbackData, int eventData1, int eventData2)
