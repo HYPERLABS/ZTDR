@@ -132,36 +132,7 @@ void reset_plot()
 	recall_plotid = -1;
 }
 
-// Timer-based acquisition, if set to automatic
-int CVICALLBACK on_timer_acquire (int panel, int control, int event,
-								  void *callbackData, int eventData1, int eventData2)
-{
-	int i;
-	switch (event)
-	{
-		case EVENT_TIMER_TICK:
-			GetCtrlVal(panel, PANEL_CHK_CTSACQUIRE, &i);
-			if (i)
-			{
-				AcquireWaveform();
-			}
-			break;
-	}
-	return 0;
-}
 
-// Manual acquisition
-int CVICALLBACK on_acquire (int panel, int control, int event,
-							void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-			AcquireWaveform();
-			break;
-	}
-	return 0;
-}
 
 // Store waveform to file
 void HL1101_savedata()

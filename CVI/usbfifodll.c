@@ -28,18 +28,7 @@ void usbfifo_devicereset(void)
 	FT_ClrRts(dev_handle);
 }
 
-void usbfifo_close(void)
-{
-	FT_STATUS stat;
-	
-	if (!dev_opened)
-		return;
-	
-	stat = FT_Close (dev_handle);
-	stat = FT_Close (dev_fifo_handle);
-	
-	dev_opened = 0;
-}
+
 
 
 int usbfifo_isok()

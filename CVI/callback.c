@@ -34,6 +34,28 @@ extern int panelHandle;
 //==============================================================================
 // Global functions (sorted alphabetically, not by function)
 
+// Acquire waveform manually
+int CVICALLBACK onAcquire (int panel, int control, int event,
+						   void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_TIMER_TICK:
+		{
+			extern acquire ();
+
+			break;
+		}
+		
+		case EVENT_RIGHT_CLICK:
+		{		 
+			break;
+		}
+	}
+	
+	return 0;
+}
+
 // Window start changed
 int CVICALLBACK onChangeStart (int panel, int control, int event,
 							   void *callbackData, int eventData1, int eventData2)
@@ -41,20 +63,20 @@ int CVICALLBACK onChangeStart (int panel, int control, int event,
 	switch (event)
 	{
 		case EVENT_VAL_CHANGED:
-			{
-				extern setupTimescale ();
-			
-				extern acquire ();
-			
-				break;
-			}
-			
+		{
+			extern setupTimescale ();
+
+			extern acquire ();
+
+			break;
+		}
+
 		case EVENT_RIGHT_CLICK:
-		{   
+		{
 			break;
 		}
 	}
-	
+
 	return 0;
 }
 
@@ -65,16 +87,16 @@ int CVICALLBACK onChangeWindow (int panel, int control, int event,
 	switch (event)
 	{
 		case EVENT_VAL_CHANGED:
-			{
-				extern setupTimescale ();
-			
-				extern acquire ();
-			
-				break;
-			}
-			
+		{
+			extern setupTimescale ();
+
+			extern acquire ();
+
+			break;
+		}
+
 		case EVENT_RIGHT_CLICK:
-		{   
+		{
 			break;
 		}
 	}
@@ -89,20 +111,20 @@ int CVICALLBACK onChangeUnitX (int panel, int control, int event,
 	switch (event)
 	{
 		case EVENT_COMMIT:
-			{
-				extern changeUnitX ();
-			
-				extern setupTimescale ();
-			
-				extern acquire ();
-			
-				break;
-			}
-			
+		{
+			extern changeUnitX ();
+
+			extern setupTimescale ();
+
+			extern acquire ();
+
+			break;
+		}
+
 		case EVENT_RIGHT_CLICK:
-			{   
-				break;
-			}
+		{
+			break;
+		}
 	}
 	
 	return 0;
@@ -138,23 +160,51 @@ int CVICALLBACK onQuit (int panel, int control, int event,
 						void *callbackData, int eventData1, int eventData2)
 {
 	switch (event)
-		{
+	{
 		case EVENT_COMMIT:
+		{
+			extern usbfifo_close();
+
+			QuitUserInterface(0);
+
+			break;
+		}
+
+		case EVENT_RIGHT_CLICK:
+		{
+
+			break;
+		}
+
+	}
+	
+	return 0;
+}
+
+// Timer-based acquisition, if set to auto-acquire
+int CVICALLBACK onTimer (int panel, int control, int event,
+						 void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_TIMER_TICK:
+		{
+			int i;
+			GetCtrlVal (panel, PANEL_CHK_CTSACQUIRE, &i);
+
+			if (i == 1)
 			{
-			
-				usbfifo_close();
-				
-				QuitUserInterface(0);
-									 
-				break;
+				extern acquire ();
 			}
+
+			break;
 		}
 		
 		case EVENT_RIGHT_CLICK:
-			{
-			
-				break;
-			}
-		
+		{		 
+			break;
+		}
+	}
+	
 	return 0;
 }

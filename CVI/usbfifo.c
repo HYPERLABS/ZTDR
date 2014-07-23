@@ -128,6 +128,22 @@ int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
 
 }
 
+// Close FTDI device
+void usbfifo_close (void)
+{
+	FT_STATUS stat;
+	
+	if (!dev_opened)
+	{
+		return;
+	}
+	
+	stat = FT_Close (dev_handle);
+	stat = FT_Close (dev_fifo_handle);
+	
+	dev_opened = 0;
+}
+
 // Get device comm speed
 void usbfifo_getcomspd (char *buf, int len)
 {

@@ -887,7 +887,7 @@ int vertCalWriteParams (void)
 
 
 //==============================================================================
-// Calibrate vertical axis waveform data
+// General acquisition and processing
 
 // Main acquisition function
 void acquire (void)

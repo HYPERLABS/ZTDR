@@ -80,6 +80,7 @@ typedef union _timeinf timeinf;
 char 	ftrdbyte (void);
 void 	ftwrbyte (char ch);
 int 	usbfifo_acquire (UINT8 *ret_val, UINT8 arg);
+void 	usbfifo_close (void);
 void 	usbfifo_getcomspd (char *buf, int len); 
 int 	usbfifo_gethostbps (void);
 void 	usbfifo_getid (char *buf, int len);
