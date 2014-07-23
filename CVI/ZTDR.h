@@ -50,8 +50,14 @@ void 	calTimebase (void);
 int 	calWriteParams (void);
 void 	FindOptimalStepCount (void);
 int	 	main (int argc, char *argv[]);
+double 	mean_array (void);
 void 	openDevice (void);
+void 	reconstructData (double offset);
 void 	setupTimescale (void);
+void 	vertCal (void);
+void 	vertCalTimescale (void);
+void 	vertCalTimescale0 (double windowStart);
+int 	vertCalWriteParams (void);
 		
 		
 

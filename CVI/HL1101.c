@@ -37,10 +37,7 @@
 
 // Vert Cal
 
-#define CAL_WINDOW_START 10 /* in ns */
-#define OFFSET_ACQ_POS 0 /* First sample in the record, no matter where the wfm is positioned */
-#define CAL_GUARD 0.5e-9 /* Guard region from 50% of step ampl to determine vstart_coax and vend_coax */
-#define STEP_AMPL 800
+
 
 static double wfm_data[NPOINTS_MAX], wfm_data_ave[NPOINTS_MAX];
 static double ymin, ymax; 
@@ -120,8 +117,7 @@ char save_file[MAX_SAVE_FILE+160];
 
 
 
-static double dist_m[NPOINTS_MAX]; 
-static double dist_ft[NPOINTS_MAX]; 
+
 static double rise_time;
 static int plotid = -1, plotid1 = -1;
 static int recall_plotid = -1;
@@ -154,7 +150,7 @@ int acquisition_nr =1, wfmpersec =1;
 
 static int retrieve, norm_flag,auto_flag; 
 
-static double vampl = 679.0; 
+ 
 
 
 //TO DO array sizes
@@ -187,80 +183,11 @@ void vert_cal(void);
  
 
 
-// Write parameters for calibration 
-static int WriteParamsVertCal()
-{
-	int ret;
 
-	ret = usbfifo_setparams(
-			  0,		   		// no free run
-			  calstart, 		//set by timebase calibration
-			  calend,
-			  start_tm,
-			  end_tm,
-			  stepcount,
-			  strobecount,
-			  0,
-			  1024,		   //add define
-			  dac0val,
-			  dac1val,
-			  dac2val );
 
-	//	printf("WriteParams: calstart=%d calend=%d\n", calstart, calend);
 
-	if (ret < 0)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Params failed.");
-		return 0;
-	}
-	else
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Params written.");
-		return 1;
-	}
-}
 
-// Calculate offset from average 0
-double mean_array()
-{
-	long temp;
-	int i;
-	temp = 0;
-	for (i=24; i<1024; i++){
-		temp += wfmf[i];
-	}
 
-	return((double)temp/(double)1000.0);
-}
-
-// Reconstruct data into useable form
-static void ReconstructData(double offset)
-{
-	int i;
-	timeinf curt;
-	UINT32 incr;
-	FILE *fp = NULL; // fopen("c:/wfm.txt", "w");
-	double myWfm[1024];
-	double vel;
-	
-	vel = (double)3E8/sqrt(HL1101_diel);
-
-	incr = (end_tm.time - start_tm.time)/rec_len;
-	
-	curt.time = start_tm.time;
-	for (i=0;i<rec_len;i++)
-	{						 		
-		if (fp) fprintf(fp, "%d %d\n",i, wfm[i]);
-		wfmf[i] = (double)wfm[i] - offset;
-		if (i < 1024)
-			myWfm[i] = wfmf[i];
-		timescale[i] =((double)curt.time)/((double)0xFFFF)*50.0;
-		dist_m[i] = timescale[i] * vel * 1E-9;
-		dist_ft[i] = timescale[i] * vel * 1E-9 * MtoFT;
-		curt.time += incr;
-	}  
-	if (fp) fclose(fp);
-}
 
 // Set vertical labels
 void set_y_labels(void)
@@ -313,35 +240,8 @@ void HL1101_x_axis (int panel, int control)
 
 
 
-// Set timescale for vert cal
-void SetupTimescaleVertCal()
-{
-	double val;
-	UINT32 windowsz;
-	 // AKI HACK : Changed 12ns to 10ns
-	val = 10;  // add defines
-	start_tm.time = (UINT32)(val/50.0*0xFFFF);
-	
-	val = 10;//ns
-	windowsz = (UINT32)(val/50.0*0xFFFF);
-	
-	end_tm.time = start_tm.time + windowsz;
-}
 
-// Set timescale for vert cal at 0 ns ONLY
-void SetupTimescaleVertCal0(double windowStart)
-{
-	double val;
-	UINT32 windowsz;
-	
-	start_tm.time = (UINT32)(windowStart/50.0*0xFFFF);
-	
-	val = 0;//ns
-	windowsz = (UINT32)(val/50.0*0xFFFF);
-	
-	end_tm.time = start_tm.time + windowsz;
-	val = val;
-}
+
 
 
 
@@ -444,178 +344,7 @@ static void AcquireWaveformCal2(void)
 
 
 
-// Main VertCal routine
-static void PerformVertCal(void)
-{
-	int ret = 0;
-	int i,n;
-	unsigned char buf[24];
-	char ch;
-	UINT8 acq_result;
-	static char cbuf[32];
-	double ymin, ymax;
 
-	int dots;
-	int nblocks;
-	int blocksok;
-	double ymind, ymaxd;
-	double vstart, vend;
-	int tempID, tempID2, calInterval, i50;
-	double temp;
-
-	if (!usb_opened)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure.");
-		return;
-	}
-
-	// Calculate offset of waveform by taking and averaging sample at 0 ns 
-	SetupTimescaleVertCal0(CAL_WINDOW_START);
-
-	// Write the acquisition parameters 
-	if (WriteParamsVertCal() <= 0)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
-		return;
-	}
-
-	// Acquire data 
-	ret = usbfifo_acquire(&acq_result, 0);
- 
-	if (ret < 0)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
-		return;
-	}
-
-	// Read blocks of data from block numbers 0-63 (16384 pts)
-	blocksok = 1;
-	nblocks = rec_len / 256;
-	for (i=0; i<nblocks; i++)
-	{
-		// Verify data integrity of block
-		int ntries = 3;
-		while ( (ret = usbfifo_readblock(i, (UINT16*)(wfm+256*i) )) < 0
-				&& ntries--);
-
-		if (ret < 0)
-		{
-			blocksok = 0;
-		}
-	}
-
-	if (blocksok == 0)
-	{
-		//setCtrlVal(panelHandle, PANEL_TXT_LOG, "Read failure.");
-		return;
-	}
-
-	// Reconstruct data and find offset for acquisition
-	ReconstructData(0);
-	vstart = mean_array();
-
-	// Timescale and parameters for main acquisition
-	SetupTimescaleVertCal();
-
-	// Write the acquisition parameters    
-	if (WriteParamsVertCal() <= 0)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
-		return;
-	}
-
-	// Acquire data 
-	ret = usbfifo_acquire(&acq_result, 0);
-	
-	if (ret < 0)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
-		return;
-	}
-
-	// Read blocks of data from block numbers 0-63 (16384 pts)
-	blocksok = 1;
-	nblocks = rec_len / 256;
-	for (i=0; i<nblocks; i++)
-	{
-		// Verify data integrity of block 
-		int ntries = 3;
-		while ( (ret = usbfifo_readblock(i, (UINT16*)(wfm+256*i) )) < 0
-				&& ntries--);
-
-		if (ret < 0)
-		{
-			blocksok = 0;
-		}
-	}
-
-	if (blocksok == 0)
-	{
-		//setCtrlVal(panelHandle, PANEL_TXT_LOG, "Read failure.");
-		return;
-	}
-
-	GetCtrlVal(panelHandle, PANEL_NUM_YMIN, &ymin);
-	GetCtrlVal(panelHandle, PANEL_NUM_YMAX, &ymax);
-	GetCtrlVal(panelHandle, PANEL_CHK_DOTS, &dots);
-
-	ReconstructData(0);
-
-	if (plotid != -1)
-		DeleteGraphPlot(panelHandle, PANEL_WAVEFORM, plotid, VAL_DELAYED_DRAW);
-
-	plotid = PlotXY(panelHandle, PANEL_WAVEFORM, timescale, wfmf, rec_len,
-					VAL_DOUBLE, VAL_DOUBLE, dots?VAL_SCATTER:VAL_FAT_LINE,
-					VAL_SOLID_DIAMOND, VAL_SOLID, 1,
-					dots? VAL_MAGENTA : VAL_MAGENTA );
-
-	// Find the 50% crossing from vstart to approx. vstart + 1200 (step size)
-	i=0;
-
-	while (wfmf[i] < (vstart + 400.0) && (i <= 1022))
-	{
-		i = i + 1;
-	}
-
-	i50 = i;
-
-	// Compute a calibrated vstart as average of points from 0 to (i50 - CAL_GUARD(0.5ns)) at calIncrement
-	// Normalize calIncrement to waveform index
-	calInterval = (int)(CAL_GUARD/(CAL_WINDOW/1024));
-	
-	tempID = i50 - calInterval;
-
-	if (tempID > 1)
-	{
-		temp = 0;
-		for (i=0; i<tempID; i++)
-		{
-			temp += wfmf[i];
-		}
-		vstart = temp / tempID;
-	}
-
-	// Compute calibrated vend as average over 1ns at i50 + 2*CAL_GUARD (1ns) at calIncrement
-	tempID = i50 + calInterval;
-	if (tempID > 1023)		   /* Don't run out of acquired waveform */
-		tempID = 1023;
-
-	tempID2 = i50 + 3 * calInterval;
-	if (tempID2 > 1023)
-		tempID2 = 1023;
-
-	temp = 0;
-	for (i = tempID; i<tempID2; i++)
-	{
-		temp += wfmf[i];
-	}
-	vend = temp / (tempID2 - tempID);
-
-	vampl = vend - vstart;
-	
-	RefreshGraph(panelHandle, PANEL_WAVEFORM);
-
-}
 
 // Call vertcal routines
 void vert_cal()

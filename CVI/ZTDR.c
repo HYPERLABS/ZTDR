@@ -30,6 +30,13 @@
 
 // Calibration
 #define CAL_WINDOW 10.0e-9
+#define CAL_WINDOW_START 10 // ns
+#define CAL_GUARD 0.5e-9
+#define STEP_AMPL 800
+
+// First sample in the record, no matter where the wfm is positioned
+#define OFFSET_ACQ_POS 0
+
 #define CALSTART_DEFAULT 540
 #define CALEND_DEFAULT 3870
 
@@ -68,6 +75,7 @@ double 	calLevels[5];
 double 	cal_threshold;
 UINT16 	stepcount = 6;
 UINT16 	stepcountArray[5] = {4, 5, 6, 7, 8};
+double 	vampl = 679.0;
 
 // Calibration parameters
 UINT16	calstart_save = 540;
@@ -77,10 +85,13 @@ int 	freerun_en = 0;
 UINT16 	strobecount = 2;
 
 // Transaction data
-double 	timescale[NPOINTS_MAX];
+double 	dist_ft[NPOINTS_MAX]; 
+double 	dist_m[NPOINTS_MAX]; 
 UINT16 	rec_len=1024;
+double 	timescale[NPOINTS_MAX];
 UINT16 	wfm[NPOINTS_MAX];
 double 	wfmf[NPOINTS_MAX];
+
 
 // Time window
 timeinf start_tm, end_tm;
@@ -230,7 +241,7 @@ void calTimebase (void)
 	calDAC ();
 	
 	// Calibrate vertical and set up time window
-	PerformVertCal ();
+	vertCal ();
 	setupTimescale ();
 }
 
@@ -596,4 +607,268 @@ void calFindDiscont (void)
 	}
 
 	calDiscLevel = calDiscLevel / rec_len;
+}
+
+// Calibrate vertical axis
+void vertCal (void)
+{
+	int ret = 0;
+	int i,n;
+	unsigned char buf[24];
+	char ch;
+	UINT8 acq_result;
+	static char cbuf[32];
+	double ymin, ymax;
+
+	int dots;
+	int nblocks;
+	int blocksok;
+	double ymind, ymaxd;
+	double vstart, vend;
+	int tempID, tempID2, calInterval, i50;
+	double temp;
+
+	if (!usb_opened)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure.");
+		return;
+	}
+
+	// Calculate offset of waveform by taking and averaging sample at 0 ns 
+	vertCalTimescale0 (CAL_WINDOW_START);
+
+	// Write the acquisition parameters 
+	if (vertCalWriteParams () <= 0)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
+		return;
+	}
+
+	// Acquire data 
+	ret = usbfifo_acquire(&acq_result, 0);
+ 
+	if (ret < 0)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
+		return;
+	}
+
+	// Read blocks of data from block numbers 0-63 (max 64, with 16384 pts)
+	blocksok = 1;
+	nblocks = rec_len / 256;
+	for (i = 0; i < nblocks; i++)
+	{
+		// Verify data integrity of block
+		int ntries = 3;
+		while ((ret = usbfifo_readblock((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
+
+		if (ret < 0)
+		{
+			blocksok = 0;
+		}
+	}
+
+	if (blocksok == 0)
+	{
+		//setCtrlVal(panelHandle, PANEL_TXT_LOG, "Read failure.");
+		return;
+	}
+
+	// Reconstruct data and find offset for acquisition
+	reconstructData (0);
+	vstart = mean_array ();
+
+	// Timescale and parameters for main acquisition
+	vertCalTimescale ();
+
+	// Write the acquisition parameters    
+	if (vertCalWriteParams() <= 0)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
+		return;
+	}
+
+	// Acquire data 
+	ret = usbfifo_acquire(&acq_result, 0);
+	
+	if (ret < 0)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
+		return;
+	}
+
+	// Read blocks of data from block numbers 0-63 (16384 pts)
+	blocksok = 1;
+	nblocks = rec_len / 256;
+	for (i = 0; i < nblocks; i++)
+	{
+		// Verify data integrity of block 
+		int ntries = 3;
+		while ((ret = usbfifo_readblock ((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
+
+		if (ret < 0)
+		{
+			blocksok = 0;
+		}
+	}
+
+	if (blocksok == 0)
+	{
+		//setCtrlVal(panelHandle, PANEL_TXT_LOG, "Read failure.");
+		return;
+	}
+
+	GetCtrlVal (panelHandle, PANEL_NUM_YMIN, &ymin);
+	GetCtrlVal (panelHandle, PANEL_NUM_YMAX, &ymax);
+	GetCtrlVal (panelHandle, PANEL_CHK_DOTS, &dots);
+
+	reconstructData (0);
+	
+	// Find the 50% crossing from vstart to approx. vstart + 1200 (step size)
+	i=0;
+
+	while (wfmf[i] < (vstart + 400.0) && (i <= 1022))
+	{
+		i = i + 1;
+	}
+
+	i50 = i;
+
+	// Compute a calibrated vstart as average of points from 0 to (i50 - CAL_GUARD) at calIncrement
+	// Normalize calIncrement to waveform index
+	calInterval = (int) (CAL_GUARD / (CAL_WINDOW / 1024));
+	
+	tempID = i50 - calInterval;
+
+	if (tempID > 1)
+	{
+		temp = 0;
+		for (i=0; i<tempID; i++)
+		{
+			temp += wfmf[i];
+		}
+		vstart = temp / tempID;
+	}
+
+	// Compute calibrated vend as average over 1ns at i50 + 2 * CAL_GUARD at calIncrement
+	tempID = i50 + calInterval;
+	
+	if (tempID > 1023)
+	{
+		tempID = 1023;
+	}
+
+	tempID2 = i50 + 3 * calInterval;
+	
+	if (tempID2 > 1023)
+	{
+		tempID2 = 1023;
+	}
+
+	temp = 0;
+	
+	for (i = tempID; i < tempID2; i++)
+	{
+		temp += wfmf[i];
+	}
+	
+	vend = temp / (tempID2 - tempID);
+
+	vampl = vend - vstart;
+	
+	// TO DO: plot waveform here?
+	// TO DO: don't do regular cal if doing it here
+}
+
+// Set timescale for vert cal at 0 ns ONLY
+void vertCalTimescale0 (double windowStart)
+{
+	double val;
+	UINT32 windowsz;
+	
+	start_tm.time = (UINT32) (windowStart / 50.0*0xFFFF);
+	
+	val = 0;
+	windowsz = (UINT32) (val / 50.0*0xFFFF);
+	
+	end_tm.time = start_tm.time + windowsz;
+}
+
+// Set timescale for vert cal
+void vertCalTimescale (void)
+{
+	double val;
+	UINT32 windowsz;
+
+	val = 10;
+	start_tm.time = (UINT32) (val / 50.0*0xFFFF);
+	
+	val = 10;
+	windowsz = (UINT32) (val / 50.0*0xFFFF);
+	
+	end_tm.time = start_tm.time + windowsz;
+}
+
+// Write parameters for vertCal
+int vertCalWriteParams (void)
+{
+	int ret;
+
+	ret = usbfifo_setparams (0, calstart, calend, start_tm, end_tm,
+							 stepcount, strobecount, 0, 1024, dac0val, dac1val, dac2val);
+
+	if (ret < 0)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Params failed.");
+		return 0;
+	}
+	else
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Params written.");
+		return 1;
+	}
+}
+
+
+// Reconstruct data into useable form
+void reconstructData (double offset)
+{
+	int i;
+	timeinf curt;
+	UINT32 incr;
+	// TO DO: is myWfm used?
+	double myWfm[1024];
+	double vel;
+	
+	vel = (double)3E8/sqrt(HL1101_diel);
+
+	incr = (end_tm.time - start_tm.time)/rec_len;
+	
+	curt.time = start_tm.time;
+	for (i=0;i<rec_len;i++)
+	{	
+		if (i < 1024)
+		{
+			myWfm[i] = wfmf[i];
+		}
+		
+		timescale[i] = ((double) curt.time) / ((double) 0xFFFF)*50.0;
+		dist_m[i] = timescale[i] * vel * 1E-9;
+		dist_ft[i] = timescale[i] * vel * 1E-9 * MtoFT;
+		curt.time += incr;
+	}
+}
+
+// Calculate offset from average 0
+double mean_array (void)
+{
+	long temp;
+	int i;
+	temp = 0;
+	for (i = 24; i < 1024; i++)
+	{
+		temp += wfmf[i];
+	}
+
+	return((double) temp / (double) 1000.0);
 }
