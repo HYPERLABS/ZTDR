@@ -40,7 +40,7 @@
 #define  PANEL_NUM_WINDOWSZ               24      /* control type: scale, callback function: onChangeWindow */
 #define  PANEL_TIMER_ACQUIRE              25      /* control type: timer, callback function: onTimer */
 #define  PANEL_NUM_DIELECTRIC             26      /* control type: scale, callback function: onChangeK */
-#define  PANEL_DECORATION_4               27      /* control type: deco, callback function: on_average */
+#define  PANEL_DECORATION_4               27      /* control type: deco, callback function: (none) */
 #define  PANEL_RING_RECLEN                28      /* control type: ring, callback function: (none) */
 #define  PANEL_COMMANDBUTTON_8            29      /* control type: command, callback function: (none) */
 #define  PANEL_MESSAGES                   30      /* control type: string, callback function: (none) */
@@ -58,7 +58,6 @@
 
      /* Callback Prototypes: */
 
-int  CVICALLBACK on_average(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onAcquire(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onCal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeAverage(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);

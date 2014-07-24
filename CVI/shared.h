@@ -60,7 +60,7 @@ void 	reconstructData (double offset);
 void	resetWaveform (void);
 void 	saveWaveform (void);
 void 	setupTimescale (void);
-void	updateCurors (void);
+void	updateCursors (void);
 void 	vertCal (void);
 void 	vertCalOffset (double windowStart);
 void 	vertCalTimescale (void);

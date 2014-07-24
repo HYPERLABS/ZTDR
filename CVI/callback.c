@@ -13,6 +13,8 @@
 // Include files
 
 #include <ansi_c.h>
+#include "shared.h"
+#include "usbfifo.h"
 #include "ZTDR.h"
 
 //==============================================================================
@@ -43,7 +45,7 @@ int CVICALLBACK onAcquire (int panel, int control, int event,
 	{
 		case EVENT_TIMER_TICK:
 		{
-			extern acquire ();
+			acquire ();
 
 			break;
 		}
@@ -65,7 +67,7 @@ int CVICALLBACK onCal (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 		{
-			extern calTimebase ();
+			calTimebase ();
 
 			break;
 		}
@@ -88,7 +90,7 @@ int CVICALLBACK onChangeAverage (int panel, int control, int event,
 		case EVENT_COMMIT:
 		{
 			
-			extern acquire();
+			void acquire ();
 			
 			break;
 		}
@@ -110,9 +112,9 @@ int CVICALLBACK onChangeK (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 		{
-			extern setupTimescale();
+			setupTimescale ();
 			
-			extern acquire ();
+			acquire ();
 			
 			break;
 		}
@@ -135,9 +137,9 @@ int CVICALLBACK onChangeStart (int panel, int control, int event,
 	{
 		case EVENT_VAL_CHANGED:
 		{
-			extern setupTimescale ();
+			setupTimescale ();
 
-			extern acquire ();
+			acquire ();
 
 			break;
 		}
@@ -159,9 +161,9 @@ int CVICALLBACK onChangeWindow (int panel, int control, int event,
 	{
 		case EVENT_VAL_CHANGED:
 		{
-			extern setupTimescale ();
+			setupTimescale ();
 
-			extern acquire ();
+			acquire ();
 
 			break;
 		}
@@ -183,11 +185,11 @@ int CVICALLBACK onChangeUnitX (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 		{
-			extern changeUnitX ();
+			changeUnitX ();
 
-			extern setupTimescale ();
+			setupTimescale ();
 
-			extern acquire ();
+			acquire ();
 
 			break;
 		}
@@ -209,16 +211,15 @@ int CVICALLBACK onChangeUnitY (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 			{
-				extern changeUnitY ();
+				changeUnitY ();
 			
-				extern acquire ();
+				acquire ();
 
 				break;
 			}
 			
 		case EVENT_RIGHT_CLICK:
-			{
-			
+			{   
 				break;
 			}
 	}
@@ -244,9 +245,9 @@ int CVICALLBACK onPanel (int panel, int event, void *callbackData,
 			
 		case EVENT_CLOSE:
 		{		
-			extern usbfifo_close();
+			usbfifo_close ();
 			
-			QuitUserInterface(0);
+			QuitUserInterface (0);
 			
 			break;
 		}
@@ -284,9 +285,9 @@ int CVICALLBACK onQuit (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 		{
-			extern usbfifo_close();
+			usbfifo_close ();
 
-			QuitUserInterface(0);
+			QuitUserInterface (0);
 
 			break;
 		}
@@ -310,9 +311,9 @@ int CVICALLBACK onRecall (int panel, int control, int event,
 		{
 		case EVENT_COMMIT:
 		{ 	
-			extern resetWaveform ();
+			resetWaveform ();
 			
-			extern recallWaveform ();
+			recallWaveform ();
 			
 			break;
 		}
@@ -334,11 +335,11 @@ int CVICALLBACK onReset (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 		{
-			extern resetWaveform ();
+			resetWaveform ();
 			
-			extern setupTimescale ();
+			setupTimescale ();
 			
-			extern acquire ();
+			acquire ();
 			
 			break;
 		}
@@ -360,7 +361,7 @@ int CVICALLBACK onSave (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 		{  	
-			extern saveWaveform ();
+			saveWaveform ();
 			
 			break;
 		}
@@ -387,7 +388,7 @@ int CVICALLBACK onTimer (int panel, int control, int event,
 
 			if (i == 1)
 			{
-				extern acquire ();
+				acquire ();
 			}
 
 			break;
@@ -410,13 +411,40 @@ int CVICALLBACK onVertCal (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 		{
-			extern vertCal();
+			vertCal ();
 			
 			break;
 		}
 		
 		case EVENT_RIGHT_CLICK:
 		{
+			break;
+		}
+	}
+	
+	return 0;
+}
+
+// Update cursors on waveform acquisition
+int CVICALLBACK onWaveform (int panel, int control, int event,
+							void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+		{
+			break;
+		}
+
+		case EVENT_VAL_CHANGED:
+		{
+			updateCursors ();
+
+			break;
+		}
+		
+		case EVENT_RIGHT_CLICK:
+		{   	
 			break;
 		}
 	}
@@ -432,11 +460,11 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 		{
-			extern zoom ();
+			zoom ();
 			
-			extern setupTimescale ();
+			setupTimescale ();
 			
-			extern acquire ();
+			acquire ();
 			
 			break;
 
@@ -451,30 +479,3 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 	return 0;
 }
 
-
-// Update cursors on waveform acquisition
-int CVICALLBACK on_waveform (int panel, int control, int event,
-							 void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-		{
-			break;
-		}
-
-		case EVENT_VAL_CHANGED:
-		{
-			extern updateCursors ();
-
-			break;
-		}
-		
-		case EVENT_RIGHT_CLICK:
-		{   	
-			break;
-		}
-	}
-	
-	return 0;
-}

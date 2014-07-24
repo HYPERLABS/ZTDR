@@ -12,6 +12,7 @@
 // Include files
 
 #include <windows.h>
+#include <utility.h>
 #include <formatio.h>
 #include <ansi_c.h>
 #include <userint.h>
@@ -176,6 +177,9 @@ double  wfm_data[NPOINTS_MAX];		// Converted to selected units
 double  wfm_data_ave[NPOINTS_MAX]; 	// After waveform averaging
 double 	wfm_ret[NPOINTS_MAX]; 		// Recalled waveform
 
+double	wfm_rho_data[NPOINTS_MAX];
+double	wfm_z_data[NPOINTS_MAX];
+
 // Waveform IDs
 static int WfmHandle;
 static int WfmRecall;
@@ -187,6 +191,10 @@ timeinf start_tm, end_tm;
 int 	panelHandle;
 
 
+// TO DO: better solution
+int		firstAcq = 0;
+
+
 //==============================================================================
 // Global functions (roughly grouped by functionality, order of call)
 
@@ -194,6 +202,7 @@ int 	panelHandle;
 void main (int argc, char *argv[])
 {
 	int i;
+	UINT8 acq_result;
 
 	// Initial values for maximum length of array
 	for (i=0; i < NPOINTS_MAX; i++)
@@ -220,28 +229,28 @@ void main (int argc, char *argv[])
 	calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 )/
 						  (((double) 50e-9) / (double) 65536.0));
 
-	// Set timescale prior to use
-	setupTimescale ();
-
 	// Set initial cursor positions
 	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, 33, 0);
 	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, 66, 0);
 
+	setupTimescale ();
+	
 	openDevice ();
 	
-	// Initial time base calibration
-	calTimebase();
-	SetCtrlVal(panelHandle, PANEL_MESSAGES, "Calibration Done");
-
+	setupTimescale ();
+	
 	RunUserInterface ();
+	
 	DiscardPanel (panelHandle);
+	
+	return 0;
 }
 
 // Scale time range of window for waveform acquisition
 void setupTimescale (void)
 {
 	int HL1101_xaxis_val;
-	int	HL1101_start;
+	double	HL1101_start;
 	double 	HL1101_windowsz;
 	double 	HL1101_diel;
 	
@@ -251,7 +260,7 @@ void setupTimescale (void)
 	GetCtrlVal (panelHandle, PANEL_RING_HORIZONTAL, &HL1101_xaxis_val);
 	GetCtrlVal (panelHandle, PANEL_NUM_STARTTM, &HL1101_start);
 	GetCtrlVal (panelHandle, PANEL_NUM_WINDOWSZ, &HL1101_windowsz);
-	GetCtrlVal (panelHandle, PANEL_NUM_WINDOWSZ, &HL1101_diel);
+	GetCtrlVal (panelHandle, PANEL_NUM_DIELECTRIC, &HL1101_diel);
 
 	// If X Axis set to time
 	if (HL1101_xaxis_val == UNIT_NS)
@@ -309,7 +318,7 @@ void calTimebase (void)
 	SetCtrlVal (panelHandle, PANEL_MESSAGES, "Calibration in progress");
 	
 	calSetParams ();
-
+	
 	// Acquire data for each of 5 data segments
 	for (i=0; i<5; i++)
 	{
@@ -323,8 +332,8 @@ void calTimebase (void)
 	calDAC ();
 	
 	// Calibrate vertical and set up time window
-	vertCal ();
 	setupTimescale ();
+	vertCal ();
 }
 
 
@@ -337,8 +346,6 @@ void calSetParams (void)
 	// Changes stimulus drive to 80MHz on the CPLD
 	UINT8 acq_result;
 	int ret;
-	double val;
-	UINT32 windowsz;
 
 	calstart = 0;
 	calend = 4095;
@@ -359,6 +366,9 @@ void calSetParams (void)
 		
 		return;
 	}
+	
+	double val;
+	UINT32 windowsz;
 	
 	// Set start and end time of cal window
 	val = 0;
@@ -708,14 +718,14 @@ void vertCal (void)
 	vertCalOffset (CAL_WINDOW_START);
 
 	// Write the acquisition parameters 
-	if (writeParams () <= 0)
+	if (vertCalWriteParams () <= 0)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
 		return;
 	}
 
 	// Acquire data 
-	ret = usbfifo_acquire(&acq_result, 0);
+	ret = usbfifo_acquire (&acq_result, 0);
  
 	if (ret < 0)
 	{
@@ -726,11 +736,12 @@ void vertCal (void)
 	// Read blocks of data from block numbers 0-63 (max 64, with 16384 pts)
 	blocksok = 1;
 	nblocks = rec_len / 256;
+	
 	for (i = 0; i < nblocks; i++)
 	{
 		// Verify data integrity of block
 		int ntries = 3;
-		while ((ret = usbfifo_readblock((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
+		while ((ret = usbfifo_readblock ((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
 
 		if (ret < 0)
 		{
@@ -846,7 +857,7 @@ void vertCal (void)
 
 	vampl = vend - vstart;
 	
-	// TO DO: plot waveform here?
+	// TO DO: plot waveform here? 
 	// TO DO: don't do regular cal if doing it here
 }
 
@@ -886,7 +897,7 @@ int vertCalWriteParams (void)
 
 	ret = usbfifo_setparams (0, calstart, calend, start_tm, end_tm,
 							 stepcount, strobecount, 0, 1024, dac0val, dac1val, dac2val);
-
+	
 	if (ret < 0)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Params failed.");
@@ -896,7 +907,7 @@ int vertCalWriteParams (void)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Params written.");
 		return 1;
-	}
+	}			 
 }
 
 
@@ -983,6 +994,14 @@ void acquire (void)
 	
 	// Timescale and parameters for main acquisition 
 	setupTimescale ();
+	
+	if (firstAcq == 0)
+	{
+		calTimebase ();
+		
+		firstAcq = 1;
+		SetCtrlVal(panelHandle, PANEL_MESSAGES, "Calibration Done");
+	}
 	
 	if (writeParams () <= 0)
 	{
@@ -1090,7 +1109,7 @@ void acquire (void)
 		   		    	
 					if(wfm_data[i] >= 500)
 					{ 
-						wfm_data[i]=500.0;
+						wfm_data[i] = 500.0;
 					}
 		  
 					if(wfm_data[i] >= 500)
@@ -1106,11 +1125,19 @@ void acquire (void)
 
 			default: // RHO, data already in this unit
 
+				if (wfm_data[i] <= -1)
+				{
+					wfm_data[i] = -0.999;
+				}	  
+				if (wfm_data[i] >= 1)
+				{
+					wfm_data[i] = 0.999;
+				}
+				
 				ymin = -1.00;
 				ymax =  1.00;
 
 				break;
-
 		}
 
 		// Set Y Axis limits if manual scaling
@@ -1206,7 +1233,7 @@ int writeParams (void)
 
 	ret = usbfifo_setparams ((UINT8) freerun_en, calstart, calend, start_tm, end_tm, stepcount, 
 							 strobecount, 0, rec_len, dac0val, dac1val, dac2val);
-
+	
 	if (ret < 0)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Params failed.");
@@ -1234,11 +1261,14 @@ void reconstructData (double offset)
 	
 	vel = (double) 3E8 / sqrt (HL1101_diel);
 
-	incr = (end_tm.time - start_tm.time)/rec_len;
+	incr = (end_tm.time - start_tm.time) / rec_len;
 	
 	curt.time = start_tm.time;
+	
 	for (i=0;i<rec_len;i++)
 	{	
+		wfmf[i] = (double) wfm[i] - offset;
+		
 		if (i < 1024)
 		{
 			myWfm[i] = wfmf[i];
