@@ -230,8 +230,8 @@ void main (int argc, char *argv[])
 						  (((double) 50e-9) / (double) 65536.0));
 
 	// Set initial cursor positions
-	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, 33, 0);
-	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, 66, 0);
+	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, 3, 0);
+	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, 6, 0);
 
 	setupTimescale ();
 	
@@ -1078,19 +1078,40 @@ void acquire (void)
 		switch (HL1101_yaxis_val)
 		{   
 			case UNIT_MV:
-
+			{
+				ymax = -500;
+				ymin = 500;
+				
 				for (i=0; i<rec_len; i++)
 				{
 					wfm_data[i] *= ampl_factor;
+					
+					if (wfm_data[i] > ymax)
+					{
+						ymax = wfm_data[i];
+					}
+					if (wfm_data[i] < ymin)
+					{
+						ymin = wfm_data[i];
+					}
 				}
-
-				ymin = -500.00;
-				ymax =  500.00;
-
+				
+				int ymax2, ymin2 = 0;
+				
+				// Round values to nearest 25
+				ymax2 = (int) RoundRealToNearestInteger (ymax / 25) * 25;
+				ymin2 = (int) RoundRealToNearestInteger (ymin / 25) * 25;
+				
+				ymax = ymax2;
+				ymin = ymin2;
+				
+				int egg = 1;
+				
 				break;
-
+			}
+			
 			case UNIT_NORM:
-
+			{
 				for (i=0; i<rec_len; i++)
 				{
 					wfm_data[i] += 1.0;
@@ -1100,9 +1121,10 @@ void acquire (void)
 				ymax =  2.00;
 
 				break;
-
+			}
+			
 			case UNIT_OHM:
-
+			{
 				for (i=0; i<rec_len; i++)
 				{   	
 					wfm_data[i] = (double) impedance * ((double) (1.0) + (double) (wfm_data[i])) / ((double) (1.0) - (double) (wfm_data[i]));
@@ -1122,9 +1144,10 @@ void acquire (void)
 				ymax = 500.00;
 
 				break;
-
+			}
+			
 			default: // RHO, data already in this unit
-
+			{
 				if (wfm_data[i] <= -1)
 				{
 					wfm_data[i] = -0.999;
@@ -1138,13 +1161,14 @@ void acquire (void)
 				ymax =  1.00;
 
 				break;
+			}
 		}
 
 		// Set Y Axis limits if manual scaling
 		GetCtrlVal (panelHandle, PANEL_TOGGLEBUTTON, &auto_flag);
 
 		// Manual scaling
-		if (auto_flag==0)
+		if (auto_flag == 0)
 		{
 			GetCtrlVal (panelHandle, PANEL_NUM_YMAX, &ymax);
 			GetCtrlVal (panelHandle, PANEL_NUM_YMIN, &ymin);
@@ -1159,24 +1183,34 @@ void acquire (void)
 		// Clear graph area
 		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, -1, VAL_IMMEDIATE_DRAW);
 		
+		// Avoid crashes on partial waveforms
+		if (ymax == ymin)
+		{
+			ymax += 1;
+			ymin -= 1;
+		}
+		else if (ymax < ymin)
+		{
+			ymin = ymax -1;
+		}
+		
 		// Set Y axis range to be used in waveform 
 		status = SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, ymin, ymax);
 		
 		// Set appropriate values in UIR limits
-		SetCtrlVal (panelHandle, PANEL_NUM_YMAX, ymax);
-		SetCtrlVal (panelHandle, PANEL_NUM_YMIN, ymin);
+		//SetCtrlVal (panelHandle, PANEL_NUM_YMAX, ymax);
+		//SetCtrlVal (panelHandle, PANEL_NUM_YMIN, ymin);
 		
+		/*
 		if (auto_flag)
 		{
-			SetAxisScalingMode( panelHandle, PANEL_WAVEFORM, VAL_XAXIS, VAL_AUTOSCALE, 0, 0);
-			SetAxisScalingMode( panelHandle, PANEL_WAVEFORM, VAL_LEFT_YAXIS, VAL_AUTOSCALE, 0, 0);
-			SetAxisScalingMode( panelHandle, PANEL_WAVEFORM, VAL_RIGHT_YAXIS, VAL_AUTOSCALE, 0, 0);
-		}
+			SetAxisScalingMode( panelHandle, PANEL_WAVEFORM, VAL_LEFT_YAXIS, VAL_MANUAL, ymin, ymax);
+		} 
 		else 
 		{
 			SetAxisScalingMode( panelHandle, PANEL_WAVEFORM, VAL_LEFT_YAXIS, VAL_MANUAL, ymin, ymax);
-			SetAxisScalingMode( panelHandle, PANEL_WAVEFORM, VAL_RIGHT_YAXIS, VAL_MANUAL, ymin, ymax);
 		}
+		*/
 	
 		// Average waveforms
 		for (i=0; i<1024; i++)
@@ -1499,7 +1533,7 @@ void saveWaveform (void)
 	
 	// TO DO: default filename, based on serial(?)
 	char filename[40];
-	sprintf (filename, ".xtdr");
+	sprintf (filename, ".ztdr");
 
 	// Save dialog
 	status = FileSelectPopup ("waveforms", filename, "ZTDR Waveform (*.ztdr)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
