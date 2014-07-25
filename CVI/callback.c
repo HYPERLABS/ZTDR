@@ -59,6 +59,31 @@ int CVICALLBACK onAcquire (int panel, int control, int event,
 	return 0;
 }
 
+// Switch between autoscale and manual
+int CVICALLBACK onAuto (int panel, int control, int event,
+						void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+		{
+			setAuto ();
+			
+			acquire ();
+			
+			break;
+
+		}
+		
+		case EVENT_RIGHT_CLICK:
+		{   	
+			break;
+		}
+	}
+	
+	return 0;
+}
+
 // Full time base calibration
 int CVICALLBACK onCal (int panel, int control, int event,
 					   void *callbackData, int eventData1, int eventData2)
@@ -224,6 +249,28 @@ int CVICALLBACK onChangeUnitY (int panel, int control, int event,
 			}
 	}
 	
+	return 0;
+}
+
+// Generic callback that just acquires a new waveform
+int CVICALLBACK onGeneric (int panel, int control, int event,
+							   void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_VAL_CHANGED:
+		{					   
+			acquire ();
+
+			break;
+		}
+
+		case EVENT_RIGHT_CLICK:
+		{
+			break;
+		}
+	}
+
 	return 0;
 }
 

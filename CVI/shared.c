@@ -799,8 +799,8 @@ void vertCal (void)
 		return;
 	}
 
-	GetCtrlVal (panelHandle, PANEL_NUM_YMIN, &ymin);
-	GetCtrlVal (panelHandle, PANEL_NUM_YMAX, &ymax);
+	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
+	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
 	GetCtrlVal (panelHandle, PANEL_CHK_DOTS, &dots);
 
 	reconstructData (0);
@@ -1015,12 +1015,12 @@ void acquire (void)
 	GetCtrlVal (panelHandle, PANEL_NUM_WFMPERSEC, &acquisition_nr);
 		
 	// Get axis limits and units
-	GetCtrlVal (panelHandle, PANEL_NUM_YMIN, &ymin);
-	GetCtrlVal (panelHandle, PANEL_NUM_YMAX, &ymax);
+	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
+	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
 	GetCtrlVal (panelHandle, PANEL_CHK_DOTS, &dots);
 
 	// Get selected units
-	GetCtrlVal (panelHandle, PANEL_RING, &HL1101_yaxis_val);
+	GetCtrlVal (panelHandle, PANEL_YUNITS, &HL1101_yaxis_val);
 	GetCtrlVal (panelHandle, PANEL_RING_HORIZONTAL, &HL1101_xaxis_val);
 	
 	// Acquire k waveforms, loop and average if k > 1
@@ -1165,13 +1165,13 @@ void acquire (void)
 		}
 
 		// Set Y Axis limits if manual scaling
-		GetCtrlVal (panelHandle, PANEL_TOGGLEBUTTON, &auto_flag);
+		GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &auto_flag);
 
 		// Manual scaling
 		if (auto_flag == 0)
 		{
-			GetCtrlVal (panelHandle, PANEL_NUM_YMAX, &ymax);
-			GetCtrlVal (panelHandle, PANEL_NUM_YMIN, &ymin);
+			GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
+			GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
 
 			// Compensate if min > max
 			if((double) ymin >= (double) ymax)
@@ -1194,24 +1194,9 @@ void acquire (void)
 			ymin = ymax -1;
 		}
 		
-		// Set Y axis range to be used in waveform 
+		// Set axis ranges to be used in waveform 
 		status = SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, ymin, ymax);
 		
-		// Set appropriate values in UIR limits
-		//SetCtrlVal (panelHandle, PANEL_NUM_YMAX, ymax);
-		//SetCtrlVal (panelHandle, PANEL_NUM_YMIN, ymin);
-		
-		/*
-		if (auto_flag)
-		{
-			SetAxisScalingMode( panelHandle, PANEL_WAVEFORM, VAL_LEFT_YAXIS, VAL_MANUAL, ymin, ymax);
-		} 
-		else 
-		{
-			SetAxisScalingMode( panelHandle, PANEL_WAVEFORM, VAL_LEFT_YAXIS, VAL_MANUAL, ymin, ymax);
-		}
-		*/
-	
 		// Average waveforms
 		for (i=0; i<1024; i++)
 		{
@@ -1243,21 +1228,7 @@ void acquire (void)
 	RefreshGraph (panelHandle, PANEL_WAVEFORM);
 	
 	// Position cursors and update control reading
-	double c1x, c1y, c2x, c2y;
-	c1x = c1y = c2x = c2y = 0;
-	
-	GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
-    GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
-	
-	sprintf (buf, "%.2f    %.2f", c1x, c1y);
-	SetCtrlVal (panelHandle, PANEL_STR_CURS1, buf);
-	
-	sprintf (buf, "%.2f    %.2f", c2x, c2y);
-	SetCtrlVal (panelHandle, PANEL_STR_CURS2, buf);
-	
-	sprintf (buf, "%.2f    %.2f", c2x-c1x, c2y-c1y);
-	SetCtrlVal (panelHandle, PANEL_STR_DELTA, buf);
-
+	updateCursors ();
 }
 
 // Write parameters to device
@@ -1356,13 +1327,32 @@ void changeUnitX (void)
 	// status = SetCtrlAttribute (panelHandle, PANEL_*****, ATTR_LABEL_TEXT, label_dist[x_axis]);	
 }
 
+// Toggle dimming of controls based on autoscale
+void setAuto (void)
+{
+	int v;
+			
+	GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &v);
+	
+	if (v == 1)
+	{
+		SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 1);
+		SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 1);
+	}
+	else
+	{
+		SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
+		SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 0);
+	}
+}
+
 // Set vertical labels
 void changeUnitY (void)
 {
 	int status;
 	int y_axis;
 	
-	GetCtrlVal (panelHandle, PANEL_RING, &y_axis);
+	GetCtrlVal (panelHandle, PANEL_YUNITS, &y_axis);
 	
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, y_label[y_axis]);
 }
@@ -1463,13 +1453,13 @@ void recallWaveform (void)
 	status = SetCtrlVal (panelHandle, PANEL_NUM_STARTTM, (double) start_tm.time);
 	status = SetCtrlVal (panelHandle, PANEL_NUM_WINDOWSZ, (double) windowsz);
 	status = SetCtrlVal (panelHandle, PANEL_NUM_DIELECTRIC, vel);
-	status = SetCtrlVal (panelHandle, PANEL_RING, y_axis);
-	status = SetCtrlVal (panelHandle, PANEL_NUM_YMAX, ymax);
-	status = SetCtrlVal (panelHandle, PANEL_NUM_YMIN, ymin);
+	status = SetCtrlVal (panelHandle, PANEL_YUNITS, y_axis);
+	status = SetCtrlVal (panelHandle, PANEL_YMAX, ymax);
+	status = SetCtrlVal (panelHandle, PANEL_YMIN, ymin);
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, x_label[x_axis]);
 	
 	// TO DO: beneficial to disable auto-acquire?
-	status = SetCtrlVal (panelHandle, PANEL_TOGGLEBUTTON, 0);
+	status = SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 0);
 	
 	// Scale waveform acquisition window
 	SetAxisScalingMode (panelHandle, PANEL_WAVEFORM, VAL_LEFT_YAXIS, VAL_MANUAL, (double) ymin, (double) ymax);
@@ -1505,13 +1495,13 @@ void recallWaveform (void)
 						VAL_EMPTY_SQUARE, VAL_SOLID, 1, VAL_GREEN);
 
 	// Dim controls
-	status = SetCtrlAttribute (panelHandle, PANEL_RING, ATTR_DIMMED, 1);
+	status = SetCtrlAttribute (panelHandle, PANEL_YUNITS, ATTR_DIMMED, 1);
 	status = SetCtrlAttribute (panelHandle, PANEL_NUM_WINDOWSZ, ATTR_DIMMED, 1);
 	status = SetCtrlAttribute (panelHandle, PANEL_NUM_STARTTM, ATTR_DIMMED, 1);
 	status = SetCtrlAttribute (panelHandle, PANEL_COMMANDBUTTON, ATTR_DIMMED, 1);
-	status = SetCtrlAttribute (panelHandle, PANEL_NUM_YMAX, ATTR_DIMMED, 1);
-	status = SetCtrlAttribute (panelHandle, PANEL_NUM_YMIN, ATTR_DIMMED, 1);
-	status = SetCtrlAttribute (panelHandle, PANEL_TOGGLEBUTTON, ATTR_DIMMED, 1);
+	status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 1);
+	status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 1);
+	status = SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 1);
 
 	return;
 }
@@ -1567,9 +1557,9 @@ void saveWaveform (void)
 	GetCtrlVal (panelHandle, PANEL_NUM_WINDOWSZ, &windowsize);
 	GetCtrlVal (panelHandle, PANEL_RING_HORIZONTAL, &x_axis);
 	GetCtrlVal (panelHandle, PANEL_NUM_DIELECTRIC, &diel);
-	GetCtrlVal (panelHandle, PANEL_RING, &y_axis);
-	GetCtrlVal (panelHandle, PANEL_NUM_YMIN, &ymin);
-	GetCtrlVal (panelHandle, PANEL_NUM_YMAX, &ymax);
+	GetCtrlVal (panelHandle, PANEL_YUNITS, &y_axis);
+	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
+	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
 
 	// Store X limits, units, and K
 	for (i = 0; i < BUF_REC_LEN; i++)
@@ -1599,17 +1589,17 @@ void resetWaveform (void)
 {
 	int status;
 
-	status = SetCtrlAttribute (panelHandle, PANEL_RING, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_YUNITS, ATTR_DIMMED, 0);
 	status = SetCtrlAttribute (panelHandle, PANEL_NUM_WINDOWSZ, ATTR_DIMMED, 0);
 	status = SetCtrlAttribute (panelHandle, PANEL_NUM_STARTTM, ATTR_DIMMED, 0);
 
 	status = SetCtrlAttribute (panelHandle, PANEL_COMMANDBUTTON, ATTR_DIMMED, 0);
 
-	status = SetCtrlAttribute (panelHandle, PANEL_NUM_YMAX, ATTR_DIMMED, 0);
-	status = SetCtrlAttribute (panelHandle, PANEL_NUM_YMIN, ATTR_DIMMED, 0);
-	status = SetCtrlAttribute (panelHandle, PANEL_TOGGLEBUTTON, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 0);
 
-	SetCtrlVal (panelHandle, PANEL_TOGGLEBUTTON, 1);
+	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 1);
 
 	DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmRecall, VAL_IMMEDIATE_DRAW);
 }
