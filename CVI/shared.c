@@ -222,6 +222,12 @@ void main (int argc, char *argv[])
 	}
 
 	DisplayPanel (panelHandle);
+	
+	// Show software version
+	char version[64];
+	sprintf (version, "-- ZTDR Version %s --\n\n", _TARGET_PRODUCT_VERSION_);
+	SetCtrlVal (panelHandle, PANEL_MESSAGES, version);
+	
 
 	// Set 50 ns timescale
 	calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 )/
@@ -237,7 +243,7 @@ void main (int argc, char *argv[])
 	
 	setupTimescale ();
 	
-	RunUserInterface ();
+	RunUserInterface ();	
 	
 	DiscardPanel (panelHandle);
 	
@@ -313,7 +319,8 @@ void calTimebase (void)
 {
 	int i;
 
-	SetCtrlVal (panelHandle, PANEL_MESSAGES, "Calibration in progress");
+	// Start basic calibration message
+	SetCtrlVal (panelHandle, PANEL_MESSAGES, "Calibration ...");
 	
 	calSetParams ();
 	
@@ -535,7 +542,12 @@ void calFindStepcount (void)
 	if ((min < 1) || (max > 4094))
 	{
 		// TO DO: better message here
-		SetCtrlVal (panelHandle, PANEL_MESSAGES, "Calibration failed");
+		SetCtrlVal (panelHandle, PANEL_MESSAGES, " FAILED.\n");
+	}
+	else
+	{
+		// TO DO: make more meaningful (i.e. cover more scenarios)
+		SetCtrlVal (panelHandle, PANEL_MESSAGES, " DONE.\n");
 	}
 
 	val = (max - min) / 4 + min;
@@ -998,7 +1010,6 @@ void acquire (void)
 		calTimebase ();
 		
 		firstAcq = 1;
-		SetCtrlVal(panelHandle, PANEL_MESSAGES, "Calibration Done");
 	}
 	
 	if (writeParams () <= 0)
