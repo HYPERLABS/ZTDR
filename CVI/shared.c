@@ -256,9 +256,9 @@ void setupTimescale (void)
 	UINT32 windowsz;
 
 	GetCtrlVal (panelHandle, PANEL_XUNITS, &HL1101_xaxis_val);
-	GetCtrlVal (panelHandle, PANEL_NUM_STARTTM, &HL1101_start);
-	GetCtrlVal (panelHandle, PANEL_NUM_WINDOWSZ, &HL1101_windowsz);
-	GetCtrlVal (panelHandle, PANEL_NUM_DIELECTRIC, &HL1101_diel);
+	GetCtrlVal (panelHandle, PANEL_START, &HL1101_start);
+	GetCtrlVal (panelHandle, PANEL_WINDOW, &HL1101_windowsz);
+	GetCtrlVal (panelHandle, PANEL_DIEL, &HL1101_diel);
 
 	// If X Axis set to time
 	if (HL1101_xaxis_val == UNIT_NS)
@@ -799,7 +799,7 @@ void vertCal (void)
 
 	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
 	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
-	GetCtrlVal (panelHandle, PANEL_CHK_DOTS, &dots);
+	GetCtrlVal (panelHandle, PANEL_DOTS, &dots);
 
 	reconstructData (0);
 	
@@ -1010,14 +1010,14 @@ void acquire (void)
 	//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquiring...");
 	
 	// Number of waveforms to average
-	GetCtrlVal (panelHandle, PANEL_NUM_WFMPERSEC, &acquisition_nr);
+	GetCtrlVal (panelHandle, PANEL_AVERAGE, &acquisition_nr);
 		
 	// Get axis limits and units
 	
 	// TO DO: are these overwritten later?
 	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
 	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
-	GetCtrlVal (panelHandle, PANEL_CHK_DOTS, &dots);
+	GetCtrlVal (panelHandle, PANEL_DOTS, &dots);
 
 	// Get selected units
 	GetCtrlVal (panelHandle, PANEL_YUNITS, &HL1101_yaxis_val);
@@ -1356,7 +1356,7 @@ void reconstructData (double offset)
 	double vel;
 	double HL1101_diel;
 	
-	GetCtrlVal (panelHandle, PANEL_NUM_DIELECTRIC, &HL1101_diel);
+	GetCtrlVal (panelHandle, PANEL_DIEL, &HL1101_diel);
 	
 	vel = (double) 3E8 / sqrt (HL1101_diel);
 
@@ -1408,14 +1408,14 @@ void changeUnitX (void)
 	
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, x_label[x_axis]);
 	
-	status = SetCtrlAttribute (panelHandle, PANEL_NUM_STARTTM, ATTR_LABEL_TEXT, x_label_start[x_axis]);
-	status = SetCtrlAttribute (panelHandle, PANEL_NUM_WINDOWSZ, ATTR_LABEL_TEXT, x_label_windowsz[x_axis]);
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_LABEL_TEXT, x_label_start[x_axis]);
+	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_LABEL_TEXT, x_label_windowsz[x_axis]);
 	
-	status = SetCtrlAttribute (panelHandle, PANEL_NUM_STARTTM, ATTR_MAX_VALUE, x_max_range[x_axis]);
-	status = SetCtrlAttribute (panelHandle, PANEL_NUM_WINDOWSZ, ATTR_MAX_VALUE, x_max_range[x_axis]);
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MAX_VALUE, x_max_range[x_axis]);
+	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_MAX_VALUE, x_max_range[x_axis]);
 	
-	status = SetCtrlVal (panelHandle, PANEL_NUM_STARTTM, x_dflt_start[x_axis]);
-	status = SetCtrlVal (panelHandle, PANEL_NUM_WINDOWSZ, x_dflt_windowsz[x_axis]);
+	status = SetCtrlVal (panelHandle, PANEL_START, x_dflt_start[x_axis]);
+	status = SetCtrlVal (panelHandle, PANEL_WINDOW, x_dflt_windowsz[x_axis]);
 	
 	// TO DO: better label for DIST
 	// status = SetCtrlAttribute (panelHandle, PANEL_*****, ATTR_LABEL_TEXT, label_dist[x_axis]);	
@@ -1574,9 +1574,9 @@ void recallWaveform (void)
 	// Set control values from stored waveform
 	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 0);
 	SetCtrlVal (panelHandle, PANEL_XUNITS, x_axis);
-	SetCtrlVal (panelHandle, PANEL_NUM_STARTTM, (double) start_tm.time);
-	SetCtrlVal (panelHandle, PANEL_NUM_WINDOWSZ, (double) windowsz);
-	SetCtrlVal (panelHandle, PANEL_NUM_DIELECTRIC, diel);
+	SetCtrlVal (panelHandle, PANEL_START, (double) start_tm.time);
+	SetCtrlVal (panelHandle, PANEL_WINDOW, (double) windowsz);
+	SetCtrlVal (panelHandle, PANEL_DIEL, diel);
 	SetCtrlVal (panelHandle, PANEL_YUNITS, y_axis);
 	SetCtrlVal (panelHandle, PANEL_YMAX, (double) ymax);
 	SetCtrlVal (panelHandle, PANEL_YMIN, (double) ymin);
@@ -1597,9 +1597,9 @@ void recallWaveform (void)
 
 	// Dim controls
 	SetCtrlAttribute (panelHandle, PANEL_YUNITS, ATTR_DIMMED, 1);
-	SetCtrlAttribute (panelHandle, PANEL_NUM_WINDOWSZ, ATTR_DIMMED, 1);
-	SetCtrlAttribute (panelHandle, PANEL_NUM_STARTTM, ATTR_DIMMED, 1);
-	SetCtrlAttribute (panelHandle, PANEL_COMMANDBUTTON, ATTR_DIMMED, 1);
+	SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_DIMMED, 1);
+	SetCtrlAttribute (panelHandle, PANEL_START, ATTR_DIMMED, 1);
+	SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_DIMMED, 1);
 	SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 1);
 	SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 1);
 	SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 1);
@@ -1660,13 +1660,13 @@ void storeWaveform (void)
 	double ymin, ymax;
 	double diel;
 	
-	GetCtrlVal (panelHandle, PANEL_NUM_STARTTM, &windowstart);
-	GetCtrlVal (panelHandle, PANEL_NUM_WINDOWSZ, &windowsize);
+	GetCtrlVal (panelHandle, PANEL_START, &windowstart);
+	GetCtrlVal (panelHandle, PANEL_WINDOW, &windowsize);
 	GetCtrlVal (panelHandle, PANEL_XUNITS, &x_axis);
 	GetCtrlVal (panelHandle, PANEL_YUNITS, &y_axis);
 	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
 	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
-	GetCtrlVal (panelHandle, PANEL_NUM_DIELECTRIC, &diel);
+	GetCtrlVal (panelHandle, PANEL_DIEL, &diel);
 	
 	// Store Y limits, units, K
 	sprintf (buf," %e %e %d %e",windowstart, windowsize, x_axis, diel);
@@ -1685,9 +1685,9 @@ void storeWaveform (void)
 void resetWaveform (void)
 {
 	SetCtrlAttribute (panelHandle, PANEL_YUNITS, ATTR_DIMMED, 0);
-	SetCtrlAttribute (panelHandle, PANEL_NUM_WINDOWSZ, ATTR_DIMMED, 0);
-	SetCtrlAttribute (panelHandle, PANEL_NUM_STARTTM, ATTR_DIMMED, 0);
-	SetCtrlAttribute (panelHandle, PANEL_COMMANDBUTTON, ATTR_DIMMED, 0);
+	SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_DIMMED, 0);
+	SetCtrlAttribute (panelHandle, PANEL_START, ATTR_DIMMED, 0);
+	SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_DIMMED, 0);
 	SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
 	SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 0);
 	SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 0);
@@ -1714,13 +1714,13 @@ void updateCursors (void)
 	GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
 
 	sprintf (buf, "%.2f    %.2f", c1x, c1y);
-	SetCtrlVal (panelHandle, PANEL_STR_CURS1,  buf);
+	SetCtrlVal (panelHandle, PANEL_CURSOR1,  buf);
 
 	sprintf (buf, "%.2f    %.2f", c2x, c2y);
-	SetCtrlVal (panelHandle, PANEL_STR_CURS2, buf);
+	SetCtrlVal (panelHandle, PANEL_CURSOR2, buf);
 
 	sprintf(buf, "%.2f    %.2f", c2x-c1x, c2y-c1y);
-	SetCtrlVal(panelHandle, PANEL_STR_DELTA, buf);
+	SetCtrlVal(panelHandle, PANEL_DELTA, buf);
 }
 
 // Cursor-based zoom
@@ -1733,13 +1733,13 @@ void zoom (void)
 
 	if (c1x < c2x)
 	{
-		SetCtrlVal(panelHandle, PANEL_NUM_STARTTM, c1x);
+		SetCtrlVal(panelHandle, PANEL_START, c1x);
 	}
 	else
 	{
-		SetCtrlVal(panelHandle, PANEL_NUM_STARTTM, c2x);
+		SetCtrlVal(panelHandle, PANEL_START, c2x);
 	}
 	
 	// Update window size
-	SetCtrlVal (panelHandle, PANEL_NUM_WINDOWSZ, fabs (c2x - c1x));
+	SetCtrlVal (panelHandle, PANEL_WINDOW, fabs (c2x - c1x));
 }
