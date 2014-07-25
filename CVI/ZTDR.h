@@ -33,7 +33,7 @@
 #define  PANEL_onPNG                      17      /* control type: command, callback function: (none) */
 #define  PANEL_COMMANDBUTTON_10           18      /* control type: command, callback function: onPrint */
 #define  PANEL_QUIT                       19      /* control type: command, callback function: onQuit */
-#define  PANEL_RING_HORIZONTAL            20      /* control type: ring, callback function: onChangeUnitX */
+#define  PANEL_XUNITS                     20      /* control type: ring, callback function: onChangeUnitX */
 #define  PANEL_NUM_STARTTM                21      /* control type: numeric, callback function: onChangeStart */
 #define  PANEL_NUM_WINDOWSZ               22      /* control type: scale, callback function: onChangeWindow */
 #define  PANEL_TIMER_ACQUIRE              23      /* control type: timer, callback function: onTimer */

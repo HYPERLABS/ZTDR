@@ -50,9 +50,9 @@
 
 // Vertical units
 #define UNIT_MV 0
-#define UNIT_NORM 1
-#define UNIT_RHO 2 
-#define UNIT_OHM 3
+#define UNIT_NORM 1  
+#define UNIT_OHM 2
+#define UNIT_RHO 3
 
 // Conversion
 #define MtoFT 3.2808
@@ -86,31 +86,31 @@ int 	usb_opened = 0;
 // Unit labels and ranges
 char *y_label[] =
      {
-      "MVOLT",
-      "NORM ",
-      "RHO  ",
-      "OHM  " 
+      "VOLTS (mV)",
+      "NORMALIZED",
+      "IMPEDANCE (Ohm)",
+      "REFLECT COEFF (Rho)" 
 	 };
 
 char *x_label[] =
      {
-      "Round Trip (m) ",
-      "Round Trip (ns)",
-      "Round Trip (ft)" 
+      "ROUNDTRIP (m)",
+      "ROUNDTRIP (ns)",
+      "ROUNDTRIP (ft)" 
 	 };
 
 char *x_label_start[] =
      {
-      "Start (m)   ",
-      "Start (ns)" ,
-      "Start (ft)  "
+      "START (m)",
+      "START (ns)" ,
+      "START (ft)"
 	 };
       
 char *x_label_windowsz[] =
      {
-      "Window (m)",
-      "Window (ns)",
-      "Window (ft)" 
+      "WINDOW (m)",
+      "WINDOW (ns)",
+      "WINDOW (ft)" 
 	 }; 		
       
 float x_dflt_start[] =
@@ -257,7 +257,7 @@ void setupTimescale (void)
 	double val1, val2, vel;
 	UINT32 windowsz;
 
-	GetCtrlVal (panelHandle, PANEL_RING_HORIZONTAL, &HL1101_xaxis_val);
+	GetCtrlVal (panelHandle, PANEL_XUNITS, &HL1101_xaxis_val);
 	GetCtrlVal (panelHandle, PANEL_NUM_STARTTM, &HL1101_start);
 	GetCtrlVal (panelHandle, PANEL_NUM_WINDOWSZ, &HL1101_windowsz);
 	GetCtrlVal (panelHandle, PANEL_NUM_DIELECTRIC, &HL1101_diel);
@@ -1021,7 +1021,7 @@ void acquire (void)
 
 	// Get selected units
 	GetCtrlVal (panelHandle, PANEL_YUNITS, &HL1101_yaxis_val);
-	GetCtrlVal (panelHandle, PANEL_RING_HORIZONTAL, &HL1101_xaxis_val);
+	GetCtrlVal (panelHandle, PANEL_XUNITS, &HL1101_xaxis_val);
 	
 	// Acquire k waveforms, loop and average if k > 1
 	for (k = 0; k < acquisition_nr; k++) 
@@ -1381,7 +1381,7 @@ void changeUnitX (void)
 	int status;
 	int x_axis;
 	
-	GetCtrlVal (panelHandle, PANEL_RING_HORIZONTAL, &x_axis);
+	GetCtrlVal (panelHandle, PANEL_XUNITS, &x_axis);
 	
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, x_label[x_axis]);
 	
@@ -1520,7 +1520,7 @@ void recallWaveform (void)
 	minMax (wfm_ret, 1024, &wfm_ret_min, &wfm_ret_max);
 	
 	// Set control values from stored waveform
-	status = SetCtrlVal (panelHandle, PANEL_RING_HORIZONTAL, x_axis);
+	status = SetCtrlVal (panelHandle, PANEL_XUNITS, x_axis);
 	status = SetCtrlVal (panelHandle, PANEL_NUM_STARTTM, (double) start_tm.time);
 	status = SetCtrlVal (panelHandle, PANEL_NUM_WINDOWSZ, (double) windowsz);
 	status = SetCtrlVal (panelHandle, PANEL_NUM_DIELECTRIC, vel);
@@ -1630,7 +1630,7 @@ void saveWaveform (void)
 	// Get control information to be saved
 	GetCtrlVal (panelHandle, PANEL_NUM_STARTTM, &windowstart);
 	GetCtrlVal (panelHandle, PANEL_NUM_WINDOWSZ, &windowsize);
-	GetCtrlVal (panelHandle, PANEL_RING_HORIZONTAL, &x_axis);
+	GetCtrlVal (panelHandle, PANEL_XUNITS, &x_axis);
 	GetCtrlVal (panelHandle, PANEL_NUM_DIELECTRIC, &diel);
 	GetCtrlVal (panelHandle, PANEL_YUNITS, &y_axis);
 	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
