@@ -1013,6 +1013,8 @@ void acquire (void)
 	GetCtrlVal (panelHandle, PANEL_NUM_WFMPERSEC, &acquisition_nr);
 		
 	// Get axis limits and units
+	
+	// TO DO: are these overwritten later?
 	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
 	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
 	GetCtrlVal (panelHandle, PANEL_CHK_DOTS, &dots);
@@ -1256,12 +1258,6 @@ void acquire (void)
 				ymin= (double) ymax - (double) 1.0;
 			}
 		}
-
-		// Clear existing WfmHandle, don't affect recalled waveforms
-		if (WfmHandle)
-		{
-			DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmHandle, VAL_IMMEDIATE_DRAW);
-		}
 		
 		// Avoid crashes on partial waveforms
 		if (ymax == ymin)
@@ -1280,11 +1276,18 @@ void acquire (void)
 			wfm_data_ave[i] = (k* wfm_data_ave[i] + wfm_data[i])/(k+1);
 		}
 	}
-	
+
 	// Set range if not constrained by recalled waveform
 	if (!WfmRecall)
 	{
 		SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, ymin, ymax);
+	}
+
+	// Clear existing WfmHandle, don't affect recalled waveforms
+	if (WfmHandle)
+	{
+		// Delay draw so there is no flicker before next waveform is plotted
+		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmHandle, VAL_DELAYED_DRAW);
 	}
 	
 	// Horizontal units in time
@@ -1315,6 +1318,7 @@ void acquire (void)
 	WfmHandle = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_x, wfm_data_ave, rec_len, VAL_DOUBLE, VAL_DOUBLE,
 						dots? VAL_SCATTER : VAL_FAT_LINE, VAL_SOLID_DIAMOND, VAL_SOLID, 1, dots? VAL_MAGENTA : VAL_MAGENTA);
 	
+	// Trigger the DELAYED_DRAW
 	RefreshGraph (panelHandle, PANEL_WAVEFORM);
 	
 	// Position cursors and update control reading
