@@ -165,10 +165,8 @@ UINT16 	rec_len=1024;
 double 	dist_ft[NPOINTS_MAX]; 
 double 	dist_m[NPOINTS_MAX];
 double 	timescale[NPOINTS_MAX];
+double 	wfm_x[NPOINTS_MAX];			// Passed to graph
 double 	wfm_dist[NPOINTS_MAX]; 		// Recalled waveform
-
-// Min/max of recalled waveform
-double	wfm_ret_min, wfm_ret_max;
 
 // Vertical values in different modes
 UINT16 	wfm[NPOINTS_MAX]; 			// Raw data
@@ -1276,36 +1274,46 @@ void acquire (void)
 			ymin = ymax -1;
 		}
 		
-		// Set axis ranges to be used in waveform 
-		status = SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, ymin, ymax);
-		
 		// Average waveforms
-		for (i=0; i<1024; i++)
+		for (i = 0; i< rec_len; i++)
 		{
 			wfm_data_ave[i] = (k* wfm_data_ave[i] + wfm_data[i])/(k+1);
 		}
 	}
 	
+	// Set range if not constrained by recalled waveform
+	if (!WfmRecall)
+	{
+		SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, ymin, ymax);
+	}
+	
 	// Horizontal units in time
 	if (HL1101_xaxis_val == UNIT_NS)
 	{
-		WfmHandle = PlotXY (panelHandle, PANEL_WAVEFORM, timescale, wfm_data_ave, rec_len, VAL_DOUBLE, VAL_DOUBLE, 
-							dots? VAL_SCATTER : VAL_FAT_LINE, VAL_SOLID_DIAMOND, VAL_SOLID, 1, dots? VAL_MAGENTA : VAL_MAGENTA);
+		for (i = 0; i < rec_len; i++)
+		{
+			wfm_x[i] = timescale[i];
+		}
 	}
-
 	// Horizontal units in meters
 	else if (HL1101_xaxis_val == UNIT_M) 
 	{
-		WfmHandle = PlotXY (panelHandle, PANEL_WAVEFORM, dist_m, wfm_data_ave, rec_len, VAL_DOUBLE, VAL_DOUBLE, 
-							dots? VAL_SCATTER : VAL_FAT_LINE, VAL_SOLID_DIAMOND, VAL_SOLID, 1, dots? VAL_MAGENTA : VAL_MAGENTA);
+		for (i = 0; i < rec_len; i++)
+		{
+			wfm_x[i] = dist_m[i];
+		}
 	}
-	
 	// Horizontal units in feet
 	else 
 	{
-		WfmHandle = PlotXY (panelHandle, PANEL_WAVEFORM, dist_ft, wfm_data_ave, rec_len, VAL_DOUBLE, VAL_DOUBLE,
-							dots? VAL_SCATTER : VAL_FAT_LINE, VAL_SOLID_DIAMOND, VAL_SOLID, 1, dots? VAL_MAGENTA : VAL_MAGENTA);
+		for (i = 0; i < rec_len; i++)
+		{
+			wfm_x[i] = dist_ft[i];
+		}
 	}
+	
+	WfmHandle = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_x, wfm_data_ave, rec_len, VAL_DOUBLE, VAL_DOUBLE,
+						dots? VAL_SCATTER : VAL_FAT_LINE, VAL_SOLID_DIAMOND, VAL_SOLID, 1, dots? VAL_MAGENTA : VAL_MAGENTA);
 	
 	RefreshGraph (panelHandle, PANEL_WAVEFORM);
 	
@@ -1361,7 +1369,7 @@ void reconstructData (double offset)
 			myWfm[i] = wfmf[i];
 		}
 		
-		timescale[i] = ((double) curt.time) / ((double) 0xFFFF)*50.0;
+		timescale[i] = ((double) curt.time) / ((double) 0xFFFF) * 50.0;
 		dist_m[i] = timescale[i] * vel * 1E-9;
 		dist_ft[i] = timescale[i] * vel * 1E-9 * MtoFT;
 		curt.time += incr;
@@ -1479,230 +1487,189 @@ void changeUnitY (void)
 	}
 }
 
-// Set min/max of retrieved waveform
-void minMax( double a[], int len, double *min, double *max)
-{
-	int i;
-	
-	for (i=0; i<len; i++)
-	{
-		if (a[i] < *min) *min = a[i];
-		if (a[i] > *max) *max = a[i];
-	}
-}
-
 // Recall stored waveform
 void recallWaveform (void)
 {
-	// TO DO: clean up variables
-	int fd, n, status, i;
-	float d1, d2, d3, d4, diel;
-	int ld1;
-	float ld2, ld3;
-	int x_axis, y_axis;
-	double windowstart, windowsize;
-	double ymin, ymax;
-	double vel;
-
-	double temp_start, temp_end, temp;
-	char buf[1024];
-	int no_data = rec_len;
-
-	UINT32 windowsz;
+	int status;
 	
-	char save_file[MAX_SAVE_FILE + 160];
-
 	// Select file
+	char save_file[MAX_SAVE_FILE + 160];
+	
 	status = FileSelectPopup ("waveforms","*.ztdr","ZTDR Waveform (*.ztdr)","Select File to Retrieve", VAL_SELECT_BUTTON, 0, 0, 1, 1, save_file);
 
+	// Don't crash if user cancels
 	if (status == VAL_NO_FILE_SELECTED)
 	{
 		return;
 	}
-
+	
+	// Open file for reading
+	int fd;
+	
 	fd = OpenFile (save_file, VAL_READ_WRITE, VAL_OPEN_AS_IS, VAL_ASCII);
-
-	// Read vertical values
+	
+	// Set up data buffer
+	int n, i;
+	char buf[1024];
+	int no_data = rec_len;
+	
+	// Read vertical values (4 per row)
 	for(i = 0; i < no_data; i += 4)
 	{
 		n = ReadFile(fd, buf,(unsigned) BUF_REC_LEN);
 
-		sscanf(buf," %f %f %f %f ", &d1, &d2, &d3, &d4);
+		float y1, y2, y3, y4;
+		
+		sscanf(buf," %f %f %f %f ", &y1, &y2, &y3, &y4);
 
-		wfm_ret[i+0] = (double) d1;
-		wfm_ret[i+1] = (double) d2;
-		wfm_ret[i+2] = (double) d3;
-		wfm_ret[i+3] = (double) d4;
+		wfm_ret[i + 0] = (double) y1;
+		wfm_ret[i + 1] = (double) y2;
+		wfm_ret[i + 2] = (double) y3;
+		wfm_ret[i + 3] = (double) y4;
 	}
-
-	// Read horizontal values
+	
+	// Read horizontal values (4 per row)
 	for(i = 0; i < no_data; i += 4)
 	{
 		n = ReadFile (fd, buf,(unsigned) BUF_REC_LEN);
 
-		sscanf(buf," %f %f %f %f ", &d1,&d2,&d3,&d4);
+		float x1, x2, x3, x4;
+		
+		sscanf(buf," %f %f %f %f ", &x1, &x2, &x3, &x4);
 
-		wfm_dist[i+0] = (double) d1;
-		wfm_dist[i+1] = (double) d2;
-		wfm_dist[i+2] = (double) d3;
-		wfm_dist[i+3] = (double) d4;
+		wfm_dist[i + 0] = (double) x1;
+		wfm_dist[i + 1] = (double) x2;
+		wfm_dist[i + 2] = (double) x3;
+		wfm_dist[i + 3] = (double) x4;
 	}
 
-	n = ReadFile (fd,buf,(unsigned) BUF_REC_LEN);
-
 	// Read X limits, units, K
+	float windowstart, windowsize;
+	int x_axis;
+	float diel;
+	double vc;
+	n = ReadFile (fd, buf, (unsigned) BUF_REC_LEN);
 	sscanf (buf," %f %f %d %e", &windowstart, &windowsize, &x_axis, &diel);
-	vel = (double) 3E8 / sqrt (diel);
-
-	n = ReadFile (fd,buf,(unsigned) BUF_REC_LEN);
-
+	vc = (double) 3E8 / sqrt (diel);
+	
 	// Read Y limits, units
-	sscanf (buf," %d %e %e ", &y_axis, &ymin, &ymax);
-
+	int y_axis;
+	float ymin, ymax;
+	n = ReadFile (fd,buf,(unsigned) BUF_REC_LEN);
+	sscanf (buf," %d %e %e ", &y_axis, &ymin, &ymax); 
+	
+	// Data read finished
 	n=CloseFile(fd);
-
+	
+	// Convert data to usable values
+	UINT32 windowsz;
 	start_tm.time = (UINT32) windowstart;
 	windowsz = (UINT32) windowsize;
 	end_tm.time = start_tm.time + windowsz;
 	
-	// Find min/max values of recalled waveform
-	wfm_ret_min  =  3000.00;
-	wfm_ret_max  = -3000.00;				   
-	minMax (wfm_ret, 1024, &wfm_ret_min, &wfm_ret_max);
-	
 	// Set control values from stored waveform
-	status = SetCtrlVal (panelHandle, PANEL_XUNITS, x_axis);
-	status = SetCtrlVal (panelHandle, PANEL_NUM_STARTTM, (double) start_tm.time);
-	status = SetCtrlVal (panelHandle, PANEL_NUM_WINDOWSZ, (double) windowsz);
-	status = SetCtrlVal (panelHandle, PANEL_NUM_DIELECTRIC, vel);
-	status = SetCtrlVal (panelHandle, PANEL_YUNITS, y_axis);
-	status = SetCtrlVal (panelHandle, PANEL_YMAX, ymax);
-	status = SetCtrlVal (panelHandle, PANEL_YMIN, ymin);
-	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, x_label[x_axis]);
-	
-	// TO DO: beneficial to disable auto-acquire?
-	status = SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 0);
-	
-	// Scale waveform acquisition window
-	SetAxisScalingMode (panelHandle, PANEL_WAVEFORM, VAL_LEFT_YAXIS, VAL_MANUAL, (double) ymin, (double) ymax);
-	SetAxisScalingMode (panelHandle, PANEL_WAVEFORM, VAL_RIGHT_YAXIS, VAL_MANUAL, (double) ymin, (double) ymax);
+	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 0);
+	SetCtrlVal (panelHandle, PANEL_XUNITS, x_axis);
+	SetCtrlVal (panelHandle, PANEL_NUM_STARTTM, (double) start_tm.time);
+	SetCtrlVal (panelHandle, PANEL_NUM_WINDOWSZ, (double) windowsz);
+	SetCtrlVal (panelHandle, PANEL_NUM_DIELECTRIC, diel);
+	SetCtrlVal (panelHandle, PANEL_YUNITS, y_axis);
+	SetCtrlVal (panelHandle, PANEL_YMAX, (double) ymax);
+	SetCtrlVal (panelHandle, PANEL_YMIN, (double) ymin);
+	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, x_label[x_axis]);
 	
 	// Remove any other recalled waveforms
 	if (WfmRecall)
 	{
 		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmRecall, VAL_IMMEDIATE_DRAW);
 	}
-
-	// Set horizontal values based on unit
-	if (x_axis == UNIT_NS)
-	{
-		for (i = 0; i < no_data; i++)
-		{
-			wfm_dist[i] = wfm_dist[i];
-		}
-	}
-	else if (x_axis == UNIT_M)
-	{
-		for (i = 0; i < no_data; i++)
-		{
-			wfm_dist[i] = wfm_dist[i] * vel * 1E-9;
-		}
-	}
-	else
-	{
-		for (i = 0; i < no_data; i++)
-		{
-			wfm_dist[i] = wfm_dist[i] * vel* 1E-9 * MtoFT;
-		}
-	}
-
-
-	WfmRecall = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_dist, wfm_ret, 1024, VAL_DOUBLE, VAL_DOUBLE, VAL_FAT_LINE,
-						VAL_EMPTY_SQUARE, VAL_SOLID, 1, VAL_GREEN);
+	
+	// Scale waveform acquisition window
+	SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, (double) ymin, (double) ymax);
+	
+	// Plot waveform
+	WfmRecall = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_dist, wfm_ret, rec_len, VAL_DOUBLE, VAL_DOUBLE, 
+						VAL_FAT_LINE, VAL_EMPTY_SQUARE, VAL_SOLID, 1, VAL_GREEN);
 
 	// Dim controls
-	status = SetCtrlAttribute (panelHandle, PANEL_YUNITS, ATTR_DIMMED, 1);
-	status = SetCtrlAttribute (panelHandle, PANEL_NUM_WINDOWSZ, ATTR_DIMMED, 1);
-	status = SetCtrlAttribute (panelHandle, PANEL_NUM_STARTTM, ATTR_DIMMED, 1);
-	status = SetCtrlAttribute (panelHandle, PANEL_COMMANDBUTTON, ATTR_DIMMED, 1);
-	status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 1);
-	status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 1);
-	status = SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 1);
+	SetCtrlAttribute (panelHandle, PANEL_YUNITS, ATTR_DIMMED, 1);
+	SetCtrlAttribute (panelHandle, PANEL_NUM_WINDOWSZ, ATTR_DIMMED, 1);
+	SetCtrlAttribute (panelHandle, PANEL_NUM_STARTTM, ATTR_DIMMED, 1);
+	SetCtrlAttribute (panelHandle, PANEL_COMMANDBUTTON, ATTR_DIMMED, 1);
+	SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 1);
+	SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 1);
+	SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 1);
 
 	return;
 }
 
 // Store waveform to file
-void saveWaveform (void)
+void storeWaveform (void)
 {   
-	// TO DO: clean up variables
-	int fd, n, status, i;
-	char buf[BUF_REC_LEN];
-	int no_data = rec_len;
+	int status;
 	
-	double windowstart, windowsize;
-	int x_axis, y_axis;
-	double ymin, ymax;
-	double diel;
-	
+	// File setup
 	char save_file[MAX_SAVE_FILE + 160];
 	
 	// TO DO: default filename, based on serial(?)
 	char filename[40];
 	sprintf (filename, ".ztdr");
-
+	
 	// Save dialog
 	status = FileSelectPopup ("waveforms", filename, "ZTDR Waveform (*.ztdr)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
 
 	// Don't attempt to save if user cancels
-	if (status == VAL_NO_FILE_SELECTED || StringLength (save_file) == 0)
+	if (status == VAL_NO_FILE_SELECTED)
 	{
 		return;
-	}
+	}	
+	
+	// Open selected file for write
+	int fd;
+	fd = OpenFile (save_file, VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
+	
 
-	fd = OpenFile (save_file, VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII); 
-
-	// Store Y values of waveform
-	for(i = 0; i < no_data; i += 4)
+	// Set up data buffer	
+	int i, n;
+	char buf[BUF_REC_LEN];
+	int no_data = rec_len;
+	
+	// Store Y values of waveform (4 per row)
+	for (i = 0; i < no_data; i += 4)
 	{
 		sprintf (buf," %e %e %e %e ", wfm_data[i], wfm_data[i+1], wfm_data[i+2], wfm_data[i+3]);
 		buf[BUF_REC_LEN-1] = '\n';
-		n = WriteFile (fd,buf, (unsigned) BUF_REC_LEN);
+		n = WriteFile (fd, buf, (unsigned) BUF_REC_LEN);
 	}
-
-	// Store X values of waveform
+	
+	// Store X values of waveform (4 per row)
 	for(i = 0; i < no_data; i += 4)
 	{
-		sprintf (buf," %e %e %e %e ", timescale[i], timescale[i+1], timescale[i+2], timescale[i+3]);
+		sprintf (buf," %e %e %e %e ", wfm_x[i], wfm_x[i+1], wfm_x[i+2], wfm_x[i+3]);
 		buf[BUF_REC_LEN-1] = '\n';
-		n = WriteFile (fd, buf,(unsigned) BUF_REC_LEN);
+		n = WriteFile (fd, buf, (unsigned) BUF_REC_LEN);
 	}
-
+	
 	// Get control information to be saved
+	double windowstart, windowsize;
+	int x_axis, y_axis;
+	double ymin, ymax;
+	double diel;
+	
 	GetCtrlVal (panelHandle, PANEL_NUM_STARTTM, &windowstart);
 	GetCtrlVal (panelHandle, PANEL_NUM_WINDOWSZ, &windowsize);
 	GetCtrlVal (panelHandle, PANEL_XUNITS, &x_axis);
-	GetCtrlVal (panelHandle, PANEL_NUM_DIELECTRIC, &diel);
 	GetCtrlVal (panelHandle, PANEL_YUNITS, &y_axis);
 	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
 	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
-
-	// Store X limits, units, and K
-	for (i = 0; i < BUF_REC_LEN; i++)
-	{
-		buf[i] = ' ';
-	}
-
+	GetCtrlVal (panelHandle, PANEL_NUM_DIELECTRIC, &diel);
+	
+	// Store Y limits, units, K
 	sprintf (buf," %e %e %d %e",windowstart, windowsize, x_axis, diel);
 	buf[BUF_REC_LEN-1] = '\n';
 	n = WriteFile (fd, buf,(unsigned) BUF_REC_LEN);
 
 	// Store Y limits, units
-	for (i=0; i < BUF_REC_LEN; i++)
-	{
-		buf[i] = ' ';
-	}
-	
 	sprintf(buf, " %d %e %e ", y_axis, ymin, ymax);
 	buf[BUF_REC_LEN-1] = '\n';
 	n = WriteFile (fd, buf,(unsigned) BUF_REC_LEN);
@@ -1713,18 +1680,15 @@ void saveWaveform (void)
 // Reset plot area and clear recalled waveform
 void resetWaveform (void)
 {
-	int status;
+	SetCtrlAttribute (panelHandle, PANEL_YUNITS, ATTR_DIMMED, 0);
+	SetCtrlAttribute (panelHandle, PANEL_NUM_WINDOWSZ, ATTR_DIMMED, 0);
+	SetCtrlAttribute (panelHandle, PANEL_NUM_STARTTM, ATTR_DIMMED, 0);
+	SetCtrlAttribute (panelHandle, PANEL_COMMANDBUTTON, ATTR_DIMMED, 0);
+	SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
+	SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 0);
+	SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 0);
 
-	status = SetCtrlAttribute (panelHandle, PANEL_YUNITS, ATTR_DIMMED, 0);
-	status = SetCtrlAttribute (panelHandle, PANEL_NUM_WINDOWSZ, ATTR_DIMMED, 0);
-	status = SetCtrlAttribute (panelHandle, PANEL_NUM_STARTTM, ATTR_DIMMED, 0);
-
-	status = SetCtrlAttribute (panelHandle, PANEL_COMMANDBUTTON, ATTR_DIMMED, 0);
-
-	status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
-	status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 0);
-	status = SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 0);
-
+	// TO DO: is this desired behavior?
 	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 1);
 
 	// Remove any other recalled waveforms

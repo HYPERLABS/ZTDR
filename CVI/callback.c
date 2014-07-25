@@ -358,8 +358,6 @@ int CVICALLBACK onRecall (int panel, int control, int event,
 		{
 		case EVENT_COMMIT:
 		{ 	
-			resetWaveform ();
-			
 			recallWaveform ();
 			
 			break;
@@ -401,14 +399,14 @@ int CVICALLBACK onReset (int panel, int control, int event,
 }
 
 // Store waveform
-int CVICALLBACK onSave (int panel, int control, int event,
+int CVICALLBACK onStore (int panel, int control, int event,
 						void *callbackData, int eventData1, int eventData2)
 {
 	switch (event)
 	{
 		case EVENT_COMMIT:
 		{  	
-			saveWaveform ();
+			storeWaveform ();
 			
 			break;
 		}
