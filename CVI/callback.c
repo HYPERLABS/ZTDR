@@ -43,7 +43,7 @@ int CVICALLBACK onAcquire (int panel, int control, int event,
 {
 	switch (event)
 	{
-		case EVENT_TIMER_TICK:
+		case EVENT_COMMIT:
 		{
 			acquire ();
 

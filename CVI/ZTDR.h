@@ -29,22 +29,23 @@
 #define  PANEL_COMMANDBUTTON_7            13      /* control type: command, callback function: onSave */
 #define  PANEL_COMMANDBUTTON_6            14      /* control type: command, callback function: onRecall */
 #define  PANEL_COMMANDBUTTON_9            15      /* control type: command, callback function: onReset */
-#define  PANEL_COMMANDBUTTON_10           16      /* control type: command, callback function: onPrint */
-#define  PANEL_QUIT                       17      /* control type: command, callback function: onQuit */
-#define  PANEL_RING_HORIZONTAL            18      /* control type: ring, callback function: onChangeUnitX */
-#define  PANEL_NUM_STARTTM                19      /* control type: numeric, callback function: onChangeStart */
-#define  PANEL_NUM_WINDOWSZ               20      /* control type: scale, callback function: onChangeWindow */
-#define  PANEL_TIMER_ACQUIRE              21      /* control type: timer, callback function: onTimer */
-#define  PANEL_NUM_DIELECTRIC             22      /* control type: numeric, callback function: onChangeK */
-#define  PANEL_MESSAGES                   23      /* control type: textBox, callback function: (none) */
-#define  PANEL_DECORATION_2               24      /* control type: deco, callback function: (none) */
-#define  PANEL_DECORATION                 25      /* control type: deco, callback function: (none) */
-#define  PANEL_STR_CURS1                  26      /* control type: textMsg, callback function: (none) */
-#define  PANEL_STR_CURS2                  27      /* control type: textMsg, callback function: (none) */
-#define  PANEL_AUTOSCALE                  28      /* control type: radioButton, callback function: onAuto */
-#define  PANEL_DECORATION_3               29      /* control type: deco, callback function: (none) */
-#define  PANEL_TEXTMSG                    30      /* control type: textMsg, callback function: (none) */
-#define  PANEL_STR_DELTA                  31      /* control type: textMsg, callback function: (none) */
+#define  PANEL_onPNG_2                    16      /* control type: command, callback function: (none) */
+#define  PANEL_onPNG                      17      /* control type: command, callback function: (none) */
+#define  PANEL_COMMANDBUTTON_10           18      /* control type: command, callback function: onPrint */
+#define  PANEL_QUIT                       19      /* control type: command, callback function: onQuit */
+#define  PANEL_RING_HORIZONTAL            20      /* control type: ring, callback function: onChangeUnitX */
+#define  PANEL_NUM_STARTTM                21      /* control type: numeric, callback function: onChangeStart */
+#define  PANEL_NUM_WINDOWSZ               22      /* control type: scale, callback function: onChangeWindow */
+#define  PANEL_TIMER_ACQUIRE              23      /* control type: timer, callback function: onTimer */
+#define  PANEL_NUM_DIELECTRIC             24      /* control type: numeric, callback function: onChangeK */
+#define  PANEL_MESSAGES                   25      /* control type: textBox, callback function: (none) */
+#define  PANEL_DECORATION_2               26      /* control type: deco, callback function: (none) */
+#define  PANEL_DECORATION                 27      /* control type: deco, callback function: (none) */
+#define  PANEL_STR_CURS1                  28      /* control type: textMsg, callback function: (none) */
+#define  PANEL_STR_CURS2                  29      /* control type: textMsg, callback function: (none) */
+#define  PANEL_AUTOSCALE                  30      /* control type: radioButton, callback function: onAuto */
+#define  PANEL_DECORATION_3               31      /* control type: deco, callback function: (none) */
+#define  PANEL_STR_DELTA                  32      /* control type: textMsg, callback function: (none) */
 
 
      /* Control Arrays: */
