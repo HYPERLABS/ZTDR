@@ -1079,10 +1079,11 @@ void acquire (void)
 		{   
 			case UNIT_MV:
 			{
+				// Values certain to be overwritten immediately
 				ymax = -500;
 				ymin = 500;
 				
-				for (i=0; i<rec_len; i++)
+				for (i = 0; i < rec_len; i++)
 				{
 					wfm_data[i] *= ampl_factor;
 					
@@ -1090,6 +1091,7 @@ void acquire (void)
 					{
 						ymax = wfm_data[i];
 					}
+					
 					if (wfm_data[i] < ymin)
 					{
 						ymin = wfm_data[i];
@@ -1099,33 +1101,60 @@ void acquire (void)
 				int ymax2, ymin2 = 0;
 				
 				// Round values to nearest 25
-				ymax2 = (int) RoundRealToNearestInteger (ymax / 25) * 25;
-				ymin2 = (int) RoundRealToNearestInteger (ymin / 25) * 25;
+				ymax2 = (int) (RoundRealToNearestInteger (ymax / 25) * 25) + 25;
+				ymin2 = (int) (RoundRealToNearestInteger (ymin / 25) * 25) - 25;
 				
 				ymax = ymax2;
 				ymin = ymin2;
-				
-				int egg = 1;
 				
 				break;
 			}
 			
 			case UNIT_NORM:
-			{
-				for (i=0; i<rec_len; i++)
+			{   
+				// Values certain to be overwritten immediately
+				ymin = 2.00;
+				ymax =  0.00;
+				
+				for (i = 0; i < rec_len; i++)
 				{
 					wfm_data[i] += 1.0;
+					
+					if (wfm_data[i] < 0)
+					{
+						wfm_data[i] = 0;
+					}
+					
+					if (wfm_data[i] > ymax)
+					{
+						ymax = wfm_data[i];
+					}
+					
+					if (wfm_data[i] < ymin)
+					{
+						ymin = wfm_data[i];
+					}
 				}
-
-				ymin = 0.00;
-				ymax =  2.00;
+				
+				double ymax2, ymin2 = 0.0;
+				
+				// Round values to nearest 0.1
+				ymax2 = (double) (RoundRealToNearestInteger (ymax / 0.1) * 0.1) + 0.1;
+				ymin2 = (double) (RoundRealToNearestInteger (ymin / 0.1) * 0.1) - 0.1;
+				
+				ymax = ymax2;
+				ymin = ymin2;
 
 				break;
 			}
 			
 			case UNIT_OHM:
 			{
-				for (i=0; i<rec_len; i++)
+				 // Values certain to be overwritten immediately
+				ymin = 500.00;
+				ymax =  0.00;
+				
+				for (i = 0; i < rec_len; i++)
 				{   	
 					wfm_data[i] = (double) impedance * ((double) (1.0) + (double) (wfm_data[i])) / ((double) (1.0) - (double) (wfm_data[i]));
 		   		    	
@@ -1133,32 +1162,71 @@ void acquire (void)
 					{ 
 						wfm_data[i] = 500.0;
 					}
-		  
-					if(wfm_data[i] >= 500)
+					else if(wfm_data[i] < 0)
 					{ 
-						wfm_data[i] = 500.0;
+						wfm_data[i] = 0;
+					}
+					
+					if (wfm_data[i] > ymax)
+					{
+						ymax = wfm_data[i];
+					}
+					
+					if (wfm_data[i] < ymin)
+					{
+						ymin = wfm_data[i];
 					}
 				}
-
-				ymin =   0.00;
-				ymax = 500.00;
+				
+				int ymax2, ymin2 = 0;
+				
+				// Round values to nearest 5
+				ymax2 = (int) (RoundRealToNearestInteger (ymax / 5) * 5) + 5;
+				ymin2 = (int) (RoundRealToNearestInteger (ymin / 5) * 5) - 5;
+				
+				ymax = ymax2;
+				ymin = ymin2;
 
 				break;
 			}
 			
 			default: // RHO, data already in this unit
 			{
-				if (wfm_data[i] <= -1)
-				{
-					wfm_data[i] = -0.999;
-				}	  
-				if (wfm_data[i] >= 1)
-				{
-					wfm_data[i] = 0.999;
+				// Values certain to be overwritten immediately
+				ymin = 1.00;
+				ymax =  -1.00;
+				
+				for (i=0; i < rec_len; i++)
+				{ 
+					if (wfm_data[i] <= -1)
+					{
+						wfm_data[i] = -0.999;
+					}
+				
+					if (wfm_data[i] >= 1)
+					{
+						wfm_data[i] = 0.999;
+					}
+					
+					if (wfm_data[i] > ymax)
+					{
+						ymax = wfm_data[i];
+					}
+				
+					if (wfm_data[i] < ymin)
+					{
+						ymin = wfm_data[i];
+					}
 				}
 				
-				ymin = -1.00;
-				ymax =  1.00;
+				double ymax2, ymin2 = 0.0;
+				
+				// Round values to nearest 0.1
+				ymax2 = (double) (RoundRealToNearestInteger (ymax / 0.1) * 0.1) + 0.1;
+				ymin2 = (double) (RoundRealToNearestInteger (ymin / 0.1) * 0.1) - 0.1;
+				
+				ymax = ymax2;
+				ymin = ymin2;
 
 				break;
 			}
@@ -1180,8 +1248,11 @@ void acquire (void)
 			}
 		}
 
-		// Clear graph area
-		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, -1, VAL_IMMEDIATE_DRAW);
+		// Clear existing WfmHandle, don't affect recalled waveforms
+		if (WfmHandle)
+		{
+			DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmHandle, VAL_IMMEDIATE_DRAW);
+		}
 		
 		// Avoid crashes on partial waveforms
 		if (ymax == ymin)
@@ -1465,7 +1536,11 @@ void recallWaveform (void)
 	SetAxisScalingMode (panelHandle, PANEL_WAVEFORM, VAL_LEFT_YAXIS, VAL_MANUAL, (double) ymin, (double) ymax);
 	SetAxisScalingMode (panelHandle, PANEL_WAVEFORM, VAL_RIGHT_YAXIS, VAL_MANUAL, (double) ymin, (double) ymax);
 	
-	DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, -1, VAL_IMMEDIATE_DRAW);
+	// Remove any other recalled waveforms
+	if (WfmRecall)
+	{
+		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmRecall, VAL_IMMEDIATE_DRAW);
+	}
 
 	// Set horizontal values based on unit
 	if (x_axis == UNIT_NS)
@@ -1601,7 +1676,11 @@ void resetWaveform (void)
 
 	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 1);
 
-	DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmRecall, VAL_IMMEDIATE_DRAW);
+	// Remove any other recalled waveforms
+	if (WfmRecall)
+	{
+		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmRecall, VAL_IMMEDIATE_DRAW);
+	}
 }
 
 // Update cursor readings
