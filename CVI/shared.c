@@ -1426,6 +1426,28 @@ void changeUnitY (void)
 	GetCtrlVal (panelHandle, PANEL_YUNITS, &y_axis);
 	
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, y_label[y_axis]);
+	
+	// Set proper manual scale values
+	if (y_axis == UNIT_MV)
+	{
+		SetCtrlVal (panelHandle, PANEL_YMAX, 250.00);
+		SetCtrlVal (panelHandle, PANEL_YMIN, -250.00);
+	}
+	else if (y_axis == UNIT_NORM)
+	{
+		SetCtrlVal (panelHandle, PANEL_YMAX, 2.00);
+		SetCtrlVal (panelHandle, PANEL_YMIN, 0.00);
+	}
+	else if (y_axis == UNIT_OHM)
+	{
+		SetCtrlVal (panelHandle, PANEL_YMAX, 250.00);
+		SetCtrlVal (panelHandle, PANEL_YMIN, 0.00);
+	}
+	else if (y_axis == UNIT_RHO)
+	{
+		SetCtrlVal (panelHandle, PANEL_YMAX, 1.00);
+		SetCtrlVal (panelHandle, PANEL_YMIN, -1.00);
+	}
 }
 
 // Set min/max of retrieved waveform
