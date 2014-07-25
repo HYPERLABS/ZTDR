@@ -1155,9 +1155,20 @@ void acquire (void)
 				ymax =  0.00;
 				
 				for (i = 0; i < rec_len; i++)
-				{   	
+				{   
+					// Make sure Rho values are in range for conversion
+					if (wfm_data[i] <= -1)
+					{
+						wfm_data[i] = -0.999;
+					}
+					else if (wfm_data[i] >= 1)
+					{
+						wfm_data[i] = 0.999;
+					}
+					
+					// Convert to impedance from Rho
 					wfm_data[i] = (double) impedance * ((double) (1.0) + (double) (wfm_data[i])) / ((double) (1.0) - (double) (wfm_data[i]));
-		   		    	
+		   		    
 					if(wfm_data[i] >= 500)
 					{ 
 						wfm_data[i] = 500.0;
@@ -1375,7 +1386,7 @@ double mean_array (void)
 //==============================================================================
 // Functions triggered by UIR callbacks
 
-// Set horizontal labels
+// Set horizontal environmental variables
 void changeUnitX (void)
 {
 	int status;
@@ -1417,36 +1428,54 @@ void setAuto (void)
 	}
 }
 
-// Set vertical labels
+// Change vertical environmental variables
 void changeUnitY (void)
 {
 	int status;
 	int y_axis;
 	
 	GetCtrlVal (panelHandle, PANEL_YUNITS, &y_axis);
-	
+
+	// 
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, y_label[y_axis]);
 	
-	// Set proper manual scale values
+	// TO DO: move to definitions (like X)
+	// Update environmental variables
 	if (y_axis == UNIT_MV)
 	{
+		// Set manual scale defaults 
 		SetCtrlVal (panelHandle, PANEL_YMAX, 250.00);
 		SetCtrlVal (panelHandle, PANEL_YMIN, -250.00);
+		
+		// Set precision of Y axis
+		SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YPRECISION, 0);
 	}
 	else if (y_axis == UNIT_NORM)
 	{
+		// Set manual scale defaults 
 		SetCtrlVal (panelHandle, PANEL_YMAX, 2.00);
 		SetCtrlVal (panelHandle, PANEL_YMIN, 0.00);
+		
+		// Set precision of Y axis
+		SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YPRECISION, 2);
 	}
 	else if (y_axis == UNIT_OHM)
 	{
-		SetCtrlVal (panelHandle, PANEL_YMAX, 250.00);
+		// Set manual scale defaults 
+		SetCtrlVal (panelHandle, PANEL_YMAX, 500.00);
 		SetCtrlVal (panelHandle, PANEL_YMIN, 0.00);
+		
+		// Set precision of Y axis
+		SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YPRECISION, 0);
 	}
 	else if (y_axis == UNIT_RHO)
 	{
+		// Set manual scale defaults
 		SetCtrlVal (panelHandle, PANEL_YMAX, 1.00);
-		SetCtrlVal (panelHandle, PANEL_YMIN, -1.00);
+		SetCtrlVal (panelHandle, PANEL_YMIN, -1.00);					   
+		
+		// Set precision of Y axis
+		SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YPRECISION, 2);
 	}
 }
 
