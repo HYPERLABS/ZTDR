@@ -230,15 +230,22 @@ void main (int argc, char *argv[])
 	calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 )/
 						  (((double) 50e-9) / (double) 65536.0));
 
-	// Set initial cursor positions
-	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, 3, 0);
-	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, 6, 0);
+	
 
+	// Set up and calibrate instrument
 	setupTimescale ();
-	
 	openDevice ();
+	calTimebase ();
 	
-	setupTimescale ();
+	// Run first acquisition
+	acquire ();				
+	
+	// Set initial cursor positions roughly to baseline and internal reference
+	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, 2, -250);
+	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, 3, 0);
+	
+	// Start timer for subsequent acquisitions
+	SetCtrlAttribute (panelHandle, PANEL_TIMER, ATTR_ENABLED, 1);
 	
 	RunUserInterface ();	
 	
@@ -246,6 +253,414 @@ void main (int argc, char *argv[])
 	
 	return 0;
 }
+
+// TO DO: move back to better place
+// Main acquisition function
+void acquire (void)
+{
+	int ret = 0;
+	int i,n,k;
+	int status;
+	int acquisition_nr = 1;
+	
+	unsigned char buf[24];
+	char ch;
+	UINT8 acq_result;
+	static char cbuf[32];
+	
+	int dots;
+	double ymax, ymin;
+	int nblocks;
+	int blocksok;
+	
+	double impedance = 50;
+	double ampl_factor = 250.0;
+	
+	int	HL1101_xaxis_val, HL1101_yaxis_val;
+	int	auto_flag;
+
+	double wfmf_debug[1024];
+	double wfm_data_debug[1024];
+	
+	double offset = 0;
+	
+	if (!usb_opened)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure.");
+		return;
+	}
+	
+	// Set window to acquire offset at 0 ns
+	vertCalOffset (OFFSET_ACQ_POS);
+	
+	// Write the acquisition parameters
+	if (vertCalWriteParams () <= 0)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
+		return;
+	}
+	
+	// Acquire data
+	ret = usbfifo_acquire (&acq_result, 0);
+	
+	if (ret < 0)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
+		return;
+	}
+	
+	// Read blocks of data from block numbers 0-63 (max 64 blocks and 16384 pts)
+	blocksok = 1;
+	nblocks = rec_len / 256;
+	
+	for (i=0; i < nblocks; i++)
+	{
+		// Verify data integrity of block
+		int ntries = 3;
+		while ((ret = usbfifo_readblock ((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
+		
+		if (ret < 0)
+			blocksok = 0;
+	}
+	
+	if (blocksok == 0)
+	{
+		//setCtrlVal(panelHandle, PANEL_TXT_LOG, "Read failure.");
+		return;
+	}
+	
+	// Reconstruct data and find offset for acquisition
+	reconstructData (0); 
+	offset = mean_array();
+	
+	// Timescale and parameters for main acquisition 
+	setupTimescale ();
+	
+	if (writeParams () <= 0)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
+		return;
+	}
+	
+	//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquiring...");
+	
+	// Number of waveforms to average
+	GetCtrlVal (panelHandle, PANEL_AVERAGE, &acquisition_nr);
+		
+	// Get axis limits and units
+	
+	// TO DO: are these overwritten later?
+	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
+	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
+	GetCtrlVal (panelHandle, PANEL_DOTS, &dots);
+
+	// Get selected units
+	GetCtrlVal (panelHandle, PANEL_YUNITS, &HL1101_yaxis_val);
+	GetCtrlVal (panelHandle, PANEL_XUNITS, &HL1101_xaxis_val);
+	
+	// Acquire k waveforms, loop and average if k > 1
+	for (k = 0; k < acquisition_nr; k++) 
+	{ 
+		ret = usbfifo_acquire (&acq_result, 0);
+		
+		if (ret < 0)
+		{
+			//printf("Failed to run the acquisition sequence (did not get '.')");
+			//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
+			return;
+		}
+	
+		// Read blocks of data from block numbers 0-63 (max 64 blocks and 16384 pts)
+		blocksok = 1;
+		nblocks = rec_len / 256;
+		
+		for (i = 0; i < nblocks; i++)
+		{
+			// Verify data integrity of block 
+			int ntries = 3;
+			while ((ret = usbfifo_readblock((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
+		
+			if (ret < 0)
+			{
+				blocksok = 0;
+			}
+		}
+	
+		if (blocksok == 0)
+		{
+			//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Read failure.");
+			return;
+		}
+	
+		// Reconstruct data and account for offset
+		reconstructData (offset);
+ 		
+		// Store data, perform rho conversion
+		for (i = 0; i < rec_len; i++)
+		{ 
+			if (i < 1024)
+			{
+				// Store pre-conversion values for debug purposes
+				wfmf_debug[i] = wfmf[i];
+				wfm_data_debug[i] = wfm_data[i];
+			}
+			
+			// Convert first to Rho (baseline unit for conversions)
+			wfm_data[i] = (double) (wfmf[i]) / (double) vampl - 1.0;
+		}
+
+		// Y Axis scaling based on selected unit
+		switch (HL1101_yaxis_val)
+		{   
+			case UNIT_MV:
+			{
+				// Values certain to be overwritten immediately
+				ymax = -500;
+				ymin = 500;
+				
+				for (i = 0; i < rec_len; i++)
+				{
+					wfm_data[i] *= ampl_factor;
+					
+					if (wfm_data[i] > ymax)
+					{
+						ymax = wfm_data[i];
+					}
+					
+					if (wfm_data[i] < ymin)
+					{
+						ymin = wfm_data[i];
+					}
+				}
+				
+				int ymax2, ymin2 = 0;
+				
+				// Round values to nearest 25
+				ymax2 = (int) (RoundRealToNearestInteger (ymax / 25) * 25) + 25;
+				ymin2 = (int) (RoundRealToNearestInteger (ymin / 25) * 25) - 25;
+				
+				ymax = ymax2;
+				ymin = ymin2;
+				
+				break;
+			}
+			
+			case UNIT_NORM:
+			{   
+				// Values certain to be overwritten immediately
+				ymin = 2.00;
+				ymax =  0.00;
+				
+				for (i = 0; i < rec_len; i++)
+				{
+					wfm_data[i] += 1.0;
+					
+					if (wfm_data[i] < 0)
+					{
+						wfm_data[i] = 0;
+					}
+					
+					if (wfm_data[i] > ymax)
+					{
+						ymax = wfm_data[i];
+					}
+					
+					if (wfm_data[i] < ymin)
+					{
+						ymin = wfm_data[i];
+					}
+				}
+				
+				double ymax2, ymin2 = 0.0;
+				
+				// Round values to nearest 0.1
+				ymax2 = (double) (RoundRealToNearestInteger (ymax / 0.1) * 0.1) + 0.1;
+				ymin2 = (double) (RoundRealToNearestInteger (ymin / 0.1) * 0.1) - 0.1;
+				
+				ymax = ymax2;
+				ymin = ymin2;
+
+				break;
+			}
+			
+			case UNIT_OHM:
+			{
+				 // Values certain to be overwritten immediately
+				ymin = 500.00;
+				ymax =  0.00;
+				
+				for (i = 0; i < rec_len; i++)
+				{   
+					// Make sure Rho values are in range for conversion
+					if (wfm_data[i] <= -1)
+					{
+						wfm_data[i] = -0.999;
+					}
+					else if (wfm_data[i] >= 1)
+					{
+						wfm_data[i] = 0.999;
+					}
+					
+					// Convert to impedance from Rho
+					wfm_data[i] = (double) impedance * ((double) (1.0) + (double) (wfm_data[i])) / ((double) (1.0) - (double) (wfm_data[i]));
+		   		    
+					if(wfm_data[i] >= 500)
+					{ 
+						wfm_data[i] = 500.0;
+					}
+					else if(wfm_data[i] < 0)
+					{ 
+						wfm_data[i] = 0;
+					}
+					
+					if (wfm_data[i] > ymax)
+					{
+						ymax = wfm_data[i];
+					}
+					
+					if (wfm_data[i] < ymin)
+					{
+						ymin = wfm_data[i];
+					}
+				}
+				
+				int ymax2, ymin2 = 0;
+				
+				// Round values to nearest 5
+				ymax2 = (int) (RoundRealToNearestInteger (ymax / 5) * 5) + 5;
+				ymin2 = (int) (RoundRealToNearestInteger (ymin / 5) * 5) - 5;
+				
+				ymax = ymax2;
+				ymin = ymin2;
+
+				break;
+			}
+			
+			default: // RHO, data already in this unit
+			{
+				// Values certain to be overwritten immediately
+				ymin = 1.00;
+				ymax =  -1.00;
+				
+				for (i=0; i < rec_len; i++)
+				{ 
+					if (wfm_data[i] <= -1)
+					{
+						wfm_data[i] = -0.999;
+					}
+				
+					if (wfm_data[i] >= 1)
+					{
+						wfm_data[i] = 0.999;
+					}
+					
+					if (wfm_data[i] > ymax)
+					{
+						ymax = wfm_data[i];
+					}
+				
+					if (wfm_data[i] < ymin)
+					{
+						ymin = wfm_data[i];
+					}
+				}
+				
+				double ymax2, ymin2 = 0.0;
+				
+				// Round values to nearest 0.1
+				ymax2 = (double) (RoundRealToNearestInteger (ymax / 0.1) * 0.1) + 0.1;
+				ymin2 = (double) (RoundRealToNearestInteger (ymin / 0.1) * 0.1) - 0.1;
+				
+				ymax = ymax2;
+				ymin = ymin2;
+
+				break;
+			}
+		}
+
+		// Set Y Axis limits if manual scaling
+		GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &auto_flag);
+
+		// Manual scaling
+		if (auto_flag == 0)
+		{
+			GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
+			GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
+
+			// Compensate if min > max
+			if((double) ymin >= (double) ymax)
+			{
+				ymin= (double) ymax - (double) 1.0;
+			}
+		}
+		
+		// Avoid crashes on partial waveforms
+		if (ymax == ymin)
+		{
+			ymax += 1;
+			ymin -= 1;
+		}
+		else if (ymax < ymin)
+		{
+			ymin = ymax -1;
+		}
+		
+		// Average waveforms
+		for (i = 0; i< rec_len; i++)
+		{
+			wfm_data_ave[i] = (k* wfm_data_ave[i] + wfm_data[i])/(k+1);
+		}
+	}
+
+	// Set range if not constrained by recalled waveform
+	if (!WfmRecall)
+	{
+		SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, ymin, ymax);
+	}
+
+	// Clear existing WfmHandle, don't affect recalled waveforms
+	if (WfmHandle)
+	{
+		// Delay draw so there is no flicker before next waveform is plotted
+		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmHandle, VAL_DELAYED_DRAW);
+	}
+	
+	// Horizontal units in time
+	if (HL1101_xaxis_val == UNIT_NS)
+	{
+		for (i = 0; i < rec_len; i++)
+		{
+			wfm_x[i] = timescale[i];
+		}
+	}
+	// Horizontal units in meters
+	else if (HL1101_xaxis_val == UNIT_M) 
+	{
+		for (i = 0; i < rec_len; i++)
+		{
+			wfm_x[i] = dist_m[i];
+		}
+	}
+	// Horizontal units in feet
+	else 
+	{
+		for (i = 0; i < rec_len; i++)
+		{
+			wfm_x[i] = dist_ft[i];
+		}
+	}
+	
+	WfmHandle = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_x, wfm_data_ave, rec_len, VAL_DOUBLE, VAL_DOUBLE,
+						dots? VAL_SCATTER : VAL_FAT_LINE, VAL_SOLID_DIAMOND, VAL_SOLID, 1, dots? VAL_MAGENTA : VAL_MAGENTA);
+	
+	// Trigger the DELAYED_DRAW
+	RefreshGraph (panelHandle, PANEL_WAVEFORM);
+	
+	// Position cursors and update control reading
+	updateCursors ();
+}
+
+
 
 // Scale time range of window for waveform acquisition
 void setupTimescale (void)
@@ -920,418 +1335,6 @@ int vertCalWriteParams (void)
 
 //==============================================================================
 // General acquisition and processing
-
-// Main acquisition function
-void acquire (void)
-{
-	int ret = 0;
-	int i,n,k;
-	int status;
-	int acquisition_nr = 1;
-	
-	unsigned char buf[24];
-	char ch;
-	UINT8 acq_result;
-	static char cbuf[32];
-	
-	int dots;
-	double ymax, ymin;
-	int nblocks;
-	int blocksok;
-	
-	double impedance = 50;
-	double ampl_factor = 250.0;
-	
-	int	HL1101_xaxis_val, HL1101_yaxis_val;
-	int	auto_flag;
-
-	double wfmf_debug[1024];
-	double wfm_data_debug[1024];
-	
-	double offset = 0;
-	
-	if (!usb_opened)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure.");
-		return;
-	}
-	
-	// Set window to acquire offset at 0 ns
-	vertCalOffset (OFFSET_ACQ_POS);
-	
-	// Write the acquisition parameters
-	if (vertCalWriteParams () <= 0)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
-		return;
-	}
-	
-	// Acquire data
-	ret = usbfifo_acquire (&acq_result, 0);
-	
-	if (ret < 0)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
-		return;
-	}
-	
-	// Read blocks of data from block numbers 0-63 (max 64 blocks and 16384 pts)
-	blocksok = 1;
-	nblocks = rec_len / 256;
-	
-	for (i=0; i < nblocks; i++)
-	{
-		// Verify data integrity of block
-		int ntries = 3;
-		while ((ret = usbfifo_readblock ((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
-		
-		if (ret < 0)
-			blocksok = 0;
-	}
-	
-	if (blocksok == 0)
-	{
-		//setCtrlVal(panelHandle, PANEL_TXT_LOG, "Read failure.");
-		return;
-	}
-	
-	// Reconstruct data and find offset for acquisition
-	reconstructData (0); 
-	offset = mean_array();
-	
-	// Timescale and parameters for main acquisition 
-	setupTimescale ();
-	
-	if (firstAcq == 0)
-	{
-		calTimebase ();
-		
-		firstAcq = 1;
-	}
-	
-	if (writeParams () <= 0)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
-		return;
-	}
-	
-	//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquiring...");
-	
-	// Number of waveforms to average
-	GetCtrlVal (panelHandle, PANEL_AVERAGE, &acquisition_nr);
-		
-	// Get axis limits and units
-	
-	// TO DO: are these overwritten later?
-	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
-	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
-	GetCtrlVal (panelHandle, PANEL_DOTS, &dots);
-
-	// Get selected units
-	GetCtrlVal (panelHandle, PANEL_YUNITS, &HL1101_yaxis_val);
-	GetCtrlVal (panelHandle, PANEL_XUNITS, &HL1101_xaxis_val);
-	
-	// Acquire k waveforms, loop and average if k > 1
-	for (k = 0; k < acquisition_nr; k++) 
-	{ 
-		ret = usbfifo_acquire (&acq_result, 0);
-		
-		if (ret < 0)
-		{
-			//printf("Failed to run the acquisition sequence (did not get '.')");
-			//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
-			return;
-		}
-	
-		// Read blocks of data from block numbers 0-63 (max 64 blocks and 16384 pts)
-		blocksok = 1;
-		nblocks = rec_len / 256;
-		
-		for (i = 0; i < nblocks; i++)
-		{
-			// Verify data integrity of block 
-			int ntries = 3;
-			while ((ret = usbfifo_readblock((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
-		
-			if (ret < 0)
-			{
-				blocksok = 0;
-			}
-		}
-	
-		if (blocksok == 0)
-		{
-			//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Read failure.");
-			return;
-		}
-	
-		// Reconstruct data and account for offset
-		reconstructData (offset);
- 		
-		// Store data, perform rho conversion
-		for (i = 0; i < rec_len; i++)
-		{ 
-			if (i < 1024)
-			{
-				// Store pre-conversion values for debug purposes
-				wfmf_debug[i] = wfmf[i];
-				wfm_data_debug[i] = wfm_data[i];
-			}
-			
-			// Convert first to Rho (baseline unit for conversions)
-			wfm_data[i] = (double) (wfmf[i]) / (double) vampl - 1.0;
-		}
-
-		// Y Axis scaling based on selected unit
-		switch (HL1101_yaxis_val)
-		{   
-			case UNIT_MV:
-			{
-				// Values certain to be overwritten immediately
-				ymax = -500;
-				ymin = 500;
-				
-				for (i = 0; i < rec_len; i++)
-				{
-					wfm_data[i] *= ampl_factor;
-					
-					if (wfm_data[i] > ymax)
-					{
-						ymax = wfm_data[i];
-					}
-					
-					if (wfm_data[i] < ymin)
-					{
-						ymin = wfm_data[i];
-					}
-				}
-				
-				int ymax2, ymin2 = 0;
-				
-				// Round values to nearest 25
-				ymax2 = (int) (RoundRealToNearestInteger (ymax / 25) * 25) + 25;
-				ymin2 = (int) (RoundRealToNearestInteger (ymin / 25) * 25) - 25;
-				
-				ymax = ymax2;
-				ymin = ymin2;
-				
-				break;
-			}
-			
-			case UNIT_NORM:
-			{   
-				// Values certain to be overwritten immediately
-				ymin = 2.00;
-				ymax =  0.00;
-				
-				for (i = 0; i < rec_len; i++)
-				{
-					wfm_data[i] += 1.0;
-					
-					if (wfm_data[i] < 0)
-					{
-						wfm_data[i] = 0;
-					}
-					
-					if (wfm_data[i] > ymax)
-					{
-						ymax = wfm_data[i];
-					}
-					
-					if (wfm_data[i] < ymin)
-					{
-						ymin = wfm_data[i];
-					}
-				}
-				
-				double ymax2, ymin2 = 0.0;
-				
-				// Round values to nearest 0.1
-				ymax2 = (double) (RoundRealToNearestInteger (ymax / 0.1) * 0.1) + 0.1;
-				ymin2 = (double) (RoundRealToNearestInteger (ymin / 0.1) * 0.1) - 0.1;
-				
-				ymax = ymax2;
-				ymin = ymin2;
-
-				break;
-			}
-			
-			case UNIT_OHM:
-			{
-				 // Values certain to be overwritten immediately
-				ymin = 500.00;
-				ymax =  0.00;
-				
-				for (i = 0; i < rec_len; i++)
-				{   
-					// Make sure Rho values are in range for conversion
-					if (wfm_data[i] <= -1)
-					{
-						wfm_data[i] = -0.999;
-					}
-					else if (wfm_data[i] >= 1)
-					{
-						wfm_data[i] = 0.999;
-					}
-					
-					// Convert to impedance from Rho
-					wfm_data[i] = (double) impedance * ((double) (1.0) + (double) (wfm_data[i])) / ((double) (1.0) - (double) (wfm_data[i]));
-		   		    
-					if(wfm_data[i] >= 500)
-					{ 
-						wfm_data[i] = 500.0;
-					}
-					else if(wfm_data[i] < 0)
-					{ 
-						wfm_data[i] = 0;
-					}
-					
-					if (wfm_data[i] > ymax)
-					{
-						ymax = wfm_data[i];
-					}
-					
-					if (wfm_data[i] < ymin)
-					{
-						ymin = wfm_data[i];
-					}
-				}
-				
-				int ymax2, ymin2 = 0;
-				
-				// Round values to nearest 5
-				ymax2 = (int) (RoundRealToNearestInteger (ymax / 5) * 5) + 5;
-				ymin2 = (int) (RoundRealToNearestInteger (ymin / 5) * 5) - 5;
-				
-				ymax = ymax2;
-				ymin = ymin2;
-
-				break;
-			}
-			
-			default: // RHO, data already in this unit
-			{
-				// Values certain to be overwritten immediately
-				ymin = 1.00;
-				ymax =  -1.00;
-				
-				for (i=0; i < rec_len; i++)
-				{ 
-					if (wfm_data[i] <= -1)
-					{
-						wfm_data[i] = -0.999;
-					}
-				
-					if (wfm_data[i] >= 1)
-					{
-						wfm_data[i] = 0.999;
-					}
-					
-					if (wfm_data[i] > ymax)
-					{
-						ymax = wfm_data[i];
-					}
-				
-					if (wfm_data[i] < ymin)
-					{
-						ymin = wfm_data[i];
-					}
-				}
-				
-				double ymax2, ymin2 = 0.0;
-				
-				// Round values to nearest 0.1
-				ymax2 = (double) (RoundRealToNearestInteger (ymax / 0.1) * 0.1) + 0.1;
-				ymin2 = (double) (RoundRealToNearestInteger (ymin / 0.1) * 0.1) - 0.1;
-				
-				ymax = ymax2;
-				ymin = ymin2;
-
-				break;
-			}
-		}
-
-		// Set Y Axis limits if manual scaling
-		GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &auto_flag);
-
-		// Manual scaling
-		if (auto_flag == 0)
-		{
-			GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
-			GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
-
-			// Compensate if min > max
-			if((double) ymin >= (double) ymax)
-			{
-				ymin= (double) ymax - (double) 1.0;
-			}
-		}
-		
-		// Avoid crashes on partial waveforms
-		if (ymax == ymin)
-		{
-			ymax += 1;
-			ymin -= 1;
-		}
-		else if (ymax < ymin)
-		{
-			ymin = ymax -1;
-		}
-		
-		// Average waveforms
-		for (i = 0; i< rec_len; i++)
-		{
-			wfm_data_ave[i] = (k* wfm_data_ave[i] + wfm_data[i])/(k+1);
-		}
-	}
-
-	// Set range if not constrained by recalled waveform
-	if (!WfmRecall)
-	{
-		SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, ymin, ymax);
-	}
-
-	// Clear existing WfmHandle, don't affect recalled waveforms
-	if (WfmHandle)
-	{
-		// Delay draw so there is no flicker before next waveform is plotted
-		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmHandle, VAL_DELAYED_DRAW);
-	}
-	
-	// Horizontal units in time
-	if (HL1101_xaxis_val == UNIT_NS)
-	{
-		for (i = 0; i < rec_len; i++)
-		{
-			wfm_x[i] = timescale[i];
-		}
-	}
-	// Horizontal units in meters
-	else if (HL1101_xaxis_val == UNIT_M) 
-	{
-		for (i = 0; i < rec_len; i++)
-		{
-			wfm_x[i] = dist_m[i];
-		}
-	}
-	// Horizontal units in feet
-	else 
-	{
-		for (i = 0; i < rec_len; i++)
-		{
-			wfm_x[i] = dist_ft[i];
-		}
-	}
-	
-	WfmHandle = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_x, wfm_data_ave, rec_len, VAL_DOUBLE, VAL_DOUBLE,
-						dots? VAL_SCATTER : VAL_FAT_LINE, VAL_SOLID_DIAMOND, VAL_SOLID, 1, dots? VAL_MAGENTA : VAL_MAGENTA);
-	
-	// Trigger the DELAYED_DRAW
-	RefreshGraph (panelHandle, PANEL_WAVEFORM);
-	
-	// Position cursors and update control reading
-	updateCursors ();
-}
 
 // Write parameters to device
 int writeParams (void)
