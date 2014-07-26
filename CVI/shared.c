@@ -224,10 +224,7 @@ void main (int argc, char *argv[])
 	DisplayPanel (panelHandle);
 	
 	// Show software version
-	char version[64];
-	sprintf (version, "-- ZTDR Version %s --\n\n", _TARGET_PRODUCT_VERSION_);
-	SetCtrlVal (panelHandle, PANEL_MESSAGES, version);
-	
+	showVersion ();
 
 	// Set 50 ns timescale
 	calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 )/
@@ -320,7 +317,7 @@ void calTimebase (void)
 	int i;
 
 	// Start basic calibration message
-	SetCtrlVal (panelHandle, PANEL_MESSAGES, "Calibration ...");
+	SetCtrlVal (panelHandle, PANEL_MESSAGES, "> Calibration ...");
 	
 	calSetParams ();
 	
@@ -1407,7 +1404,7 @@ double mean_array (void)
 
 
 //==============================================================================
-// Functions triggered by UIR callbacks
+// Other functions triggered by UIR callbacks
 
 // Set horizontal environmental variables
 void changeUnitX (void)
@@ -1697,6 +1694,42 @@ void resetWaveform (void)
 	{
 		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmRecall, VAL_IMMEDIATE_DRAW);
 	}
+}
+
+// Print current waveform
+void printWaveform (void)
+{
+	// Get timestamp of request
+	char timestamp[64];
+	int	month, day, year;
+	int	hours, minutes, seconds;
+	
+	GetSystemDate (&month, &day, &year);
+	GetSystemTime (&hours, &minutes, &seconds);
+	
+	(int) sprintf (timestamp, "> DATE: %02d/%02d/%02d\n> TIME: %02d:%02d:%02d\n", month, day, year, hours, minutes, seconds);
+	
+	// Set optimal printer settings
+	SetPrintAttribute (ATTR_PRINT_AREA_HEIGHT, VAL_USE_ENTIRE_PAPER);
+	SetPrintAttribute (ATTR_PRINT_AREA_WIDTH, VAL_INTEGRAL_SCALE);
+
+	// Show version, timestamp and print
+	showVersion ();
+	SetCtrlVal (panelHandle, PANEL_MESSAGES, timestamp);
+	
+	PrintPanel (panelHandle, "", 1, VAL_FULL_PANEL, 1);
+	
+	// Reset textbox to remove timestamp
+	showVersion ();
+}
+
+// Format and show current instrument and version
+void showVersion (void)
+{
+	char version[64];
+	sprintf (version, "-- HYPERLABS  HL1101 --\n-- ZTDR Version %s --\n\n", _TARGET_PRODUCT_VERSION_);
+	
+	ResetTextBox (panelHandle, PANEL_MESSAGES, version);
 }
 
 // Update cursor readings

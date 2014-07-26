@@ -311,7 +311,7 @@ int CVICALLBACK onPrint (int panel, int control, int event,
 		{
 		case EVENT_COMMIT:
 		{
-			PrintPanel(panel, "", 1, VAL_FULL_PANEL, 1);
+			printWaveform ();
 			
 			break;
 		}
