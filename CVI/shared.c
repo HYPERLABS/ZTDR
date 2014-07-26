@@ -100,12 +100,28 @@ char *x_label[] =
       "ROUNDTRIP (ft)" 
 	 };
 
+char *y_short[] =
+     {
+      "mV",
+      "Norm",
+      "Ohm",
+      "Rho" 
+	 };
+
+char *x_short[] =
+     {
+      "m",
+      "ns",
+      "ft" 
+	 };
+
 char *x_label_start[] =
      {
       "START (m)",
       "START (ns)" ,
       "START (ft)"
 	 };
+
       
 char *x_label_windowsz[] =
      {
@@ -216,6 +232,7 @@ void main (int argc, char *argv[])
 		return -1;	/* out of memory */
 	}
 
+	// TO DO: clean this routine up!
 	// Load UI
 	if ((panelHandle = LoadPanel (0, "ZTDR.uir", PANEL)) < 0)
 	{
@@ -243,8 +260,8 @@ void main (int argc, char *argv[])
 	acquire ();				
 	
 	// Set initial cursor positions roughly to baseline and internal reference
-	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, 2, -250);
-	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, 3, 0);
+	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, 2.25, -250);
+	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, 3.25, 0);
 	
 	// Start timer for subsequent acquisitions
 	SetCtrlAttribute (panelHandle, PANEL_TIMER, ATTR_ENABLED, 1);
@@ -653,7 +670,7 @@ void acquire (void)
 	}
 	
 	WfmHandle = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_x, wfm_data_ave, rec_len, VAL_DOUBLE, VAL_DOUBLE,
-						dots? VAL_SCATTER : VAL_FAT_LINE, VAL_SOLID_DIAMOND, VAL_SOLID, 1, dots? VAL_MAGENTA : VAL_MAGENTA);
+						dots? VAL_SCATTER : VAL_THIN_LINE, VAL_SMALL_SOLID_SQUARE, VAL_SOLID, 1, dots? MakeColor (113, 233, 70) : MakeColor (113, 233, 70));
 	
 	// Trigger the DELAYED_DRAW
 	RefreshGraph (panelHandle, PANEL_WAVEFORM);
@@ -1594,7 +1611,7 @@ void recallWaveform (void)
 	
 	// Plot waveform
 	WfmRecall = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_dist, wfm_ret, rec_len, VAL_DOUBLE, VAL_DOUBLE, 
-						VAL_FAT_LINE, VAL_EMPTY_SQUARE, VAL_SOLID, 1, VAL_GREEN);
+						VAL_THIN_LINE, VAL_EMPTY_SQUARE, VAL_SOLID, 1, MakeColor (233, 113, 233));
 
 	// Dim controls
 	SetCtrlAttribute (panelHandle, PANEL_YUNITS, ATTR_DIMMED, 1);
@@ -1812,23 +1829,30 @@ void showVersion (void)
 
 // Update cursor readings
 void updateCursors (void)
-{
+{   
+	
+	
+	int x_units, y_units;
 	double c1x, c1y, c2x, c2y;
 	static char buf[128];
 
 	c1x = c1y = c2x = c2y = 0;
 
+	GetCtrlVal (panelHandle, PANEL_XUNITS, &x_units);
+	GetCtrlVal (panelHandle, PANEL_YUNITS, &y_units);
+	
 	GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
 	GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
 
-	sprintf (buf, "%.2f    %.2f", c1x, c1y);
+	sprintf (buf, " %.2f %s, %.2f %s", c1x, x_short[x_units], c1y, y_short[y_units]);
 	SetCtrlVal (panelHandle, PANEL_CURSOR1,  buf);
 
-	sprintf (buf, "%.2f    %.2f", c2x, c2y);
+	sprintf (buf, " %.2f %s, %.2f %s", c2x, x_short[x_units], c2y, y_short[y_units]);
 	SetCtrlVal (panelHandle, PANEL_CURSOR2, buf);
 
-	sprintf(buf, "%.2f    %.2f", c2x-c1x, c2y-c1y);
+	sprintf(buf, " %.2f %s, %.2f %s", c2x-c1x, x_short[x_units], c2y-c1y, y_short[y_units]);
 	SetCtrlVal(panelHandle, PANEL_DELTA, buf);
+
 }
 
 // Cursor-based zoom

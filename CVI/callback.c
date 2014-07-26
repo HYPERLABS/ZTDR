@@ -280,6 +280,17 @@ int CVICALLBACK onPanel (int panel, int event, void *callbackData,
 {
 	switch (event)
 	{
+		case EVENT_PANEL_SIZE: 
+		{
+			int width, height;
+			
+			GetPanelAttribute(panel, ATTR_WIDTH, &width);
+			GetPanelAttribute(panel, ATTR_HEIGHT, &height);
+			
+			SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_WIDTH, width - 100);
+			SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_HEIGHT, height - 100);
+		}
+			
 		case EVENT_GOT_FOCUS:
 		{
 			break;
