@@ -406,7 +406,29 @@ int CVICALLBACK onStore (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 		{  	
-			storeWaveform ();
+			storeWaveform (1);
+			
+			break;
+		}
+		
+		case EVENT_RIGHT_CLICK:
+		{   	
+			break;
+		}
+	}
+	
+	return 0;
+}
+
+// Store waveform
+int CVICALLBACK onStoreCSV (int panel, int control, int event,
+							void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+		{  	
+			storeWaveform (0);
 			
 			break;
 		}

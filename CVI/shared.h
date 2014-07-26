@@ -58,7 +58,7 @@ void 	openDevice (void);
 void 	recallWaveform (void);
 void 	reconstructData (double offset);
 void	resetWaveform (void);
-void 	storeWaveform (void);
+void 	storeWaveform (int format);
 void 	setAuto (void);
 void 	setupTimescale (void);
 void	updateCursors (void);

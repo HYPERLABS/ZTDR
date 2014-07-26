@@ -36,7 +36,7 @@
 #define  PANEL_STORE                      20      /* control type: command, callback function: onStore */
 #define  PANEL_RECALL                     21      /* control type: command, callback function: onRecall */
 #define  PANEL_RESET                      22      /* control type: command, callback function: onReset */
-#define  PANEL_CSV                        23      /* control type: command, callback function: (none) */
+#define  PANEL_CSV                        23      /* control type: command, callback function: onStoreCSV */
 #define  PANEL_MESSAGES                   24      /* control type: textBox, callback function: (none) */
 #define  PANEL_TIMER                      25      /* control type: timer, callback function: onTimer */
 #define  PANEL_PANECURSOR                 26      /* control type: deco, callback function: (none) */
@@ -76,6 +76,7 @@ int  CVICALLBACK onQuit(int panel, int control, int event, void *callbackData, i
 int  CVICALLBACK onRecall(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onReset(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onStore(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onStoreCSV(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onTimer(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onVertCal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onWaveform(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);

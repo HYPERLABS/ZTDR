@@ -1600,8 +1600,8 @@ void recallWaveform (void)
 	return;
 }
 
-// Store waveform to file
-void storeWaveform (void)
+// Store waveform to file as ZTDR (format = 1) or CSV (= 0)
+void storeWaveform (int format)
 {   
 	int status;
 	
@@ -1610,10 +1610,18 @@ void storeWaveform (void)
 	
 	// TO DO: default filename, based on serial(?)
 	char filename[40];
-	sprintf (filename, ".ztdr");
 	
 	// Save dialog
-	status = FileSelectPopup ("waveforms", filename, "ZTDR Waveform (*.ztdr)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+	if (format == 1)
+	{
+		sprintf (filename, ".ztdr");
+		status = FileSelectPopup ("waveforms", filename, "ZTDR Waveform (*.ztdr)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+	}
+	else
+	{
+		sprintf (filename, ".csv");
+		status = FileSelectPopup ("waveforms", filename, "CSV File (*.csv)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+	}
 
 	// Don't attempt to save if user cancels
 	if (status == VAL_NO_FILE_SELECTED)
@@ -1625,7 +1633,6 @@ void storeWaveform (void)
 	int fd;
 	fd = OpenFile (save_file, VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
 	
-
 	// Set up data buffer	
 	int i, n;
 	char buf[128];
@@ -1646,7 +1653,15 @@ void storeWaveform (void)
 	GetCtrlVal (panelHandle, PANEL_DIEL, &diel);;
 	
 	// Write header row
-	sprintf (buf + strlen(buf),"%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.3f\n", x_axis, y_axis, windowstart, windowsize, ymin, ymax, diel);
+	if (format == 1)
+	{
+		sprintf (buf + strlen(buf),"%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.3f\n", y_axis, x_axis, windowstart, windowsize, ymin, ymax, diel);
+	}
+	else
+	{
+		sprintf (buf + strlen(buf),"%s, %s\n", y_label[y_axis], x_label[x_axis]);
+	}
+	
 	n = WriteFile (fd, buf, strlen(buf));
 	
 	// Log X/Y data
