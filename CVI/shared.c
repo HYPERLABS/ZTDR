@@ -1717,12 +1717,13 @@ void resetWaveform (void)
 	}
 }
 
-// Print current waveform
+// Print current waveform and controles
 void printWaveform (void)
 {
 	// Disable automatic acquisition during save
 	SuspendTimerCallbacks ();
 	
+	// TO DO: combine with PNG function, figure how to pass strings back
 	// Get timestamp of request
 	char timestamp[64];
 	int	month, day, year;
@@ -1743,6 +1744,56 @@ void printWaveform (void)
 	
 	PrintPanel (panelHandle, "", 1, VAL_FULL_PANEL, 1);
 	
+	// Reset textbox to remove timestamp
+	showVersion ();
+	
+	// Re-enable automatic acquisition 
+	ResumeTimerCallbacks ();
+}
+
+// Save waveform and controls to PNG
+void savePNG (void)
+{
+	// Disable automatic acquisition during save
+	SuspendTimerCallbacks ();
+
+	// Select file to save
+	int status;
+	char filename[64];
+	char save_file[MAX_SAVE_FILE+160];
+	sprintf (filename, ".png");
+	status = FileSelectPopup ("images", filename, "PNG (*.png)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+
+	// Don't attempt to save if user cancels
+	if (status == VAL_NO_FILE_SELECTED)
+	{
+		// Re-enable automatic acquisition 
+		ResumeTimerCallbacks ();
+		
+		return;
+	}
+
+	// Get timestamp of request
+	char timestamp[64];
+	int	month, day, year;
+	int	hours, minutes, seconds;
+	
+	GetSystemDate (&month, &day, &year);
+	GetSystemTime (&hours, &minutes, &seconds);
+	
+	(int) sprintf (timestamp, "> DATE: %02d/%02d/%02d\n> TIME: %02d:%02d:%02d\n", month, day, year, hours, minutes, seconds);
+	
+	// Show version, timestamp
+	showVersion ();
+	SetCtrlVal (panelHandle, PANEL_MESSAGES, timestamp);
+	
+	// TO DO: add some functionality for serial number?
+	
+	// Prepare image file
+	int imageFile;
+	GetPanelDisplayBitmap (panelHandle, VAL_FULL_PANEL, VAL_ENTIRE_OBJECT, &imageFile);
+	SaveBitmapToPNGFile (imageFile, save_file);
+   
 	// Reset textbox to remove timestamp
 	showVersion ();
 	

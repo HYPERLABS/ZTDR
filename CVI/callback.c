@@ -304,6 +304,27 @@ int CVICALLBACK onPanel (int panel, int event, void *callbackData,
 }
 
 // Print panel and waveform
+int CVICALLBACK onPNG (int panel, int control, int event,
+					   void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+		{
+		case EVENT_COMMIT:
+		{
+			savePNG ();
+			
+			break;
+		}
+			
+		case EVENT_RIGHT_CLICK:
+		{
+			break;
+		}
+	}
+	return 0;
+}
+
+// Print panel and waveform
 int CVICALLBACK onPrint (int panel, int control, int event,
 						 void *callbackData, int eventData1, int eventData2)
 {

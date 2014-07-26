@@ -32,7 +32,7 @@
 #define  PANEL_ZOOM                       16      /* control type: command, callback function: onZoom */
 #define  PANEL_DOTS                       17      /* control type: radioButton, callback function: (none) */
 #define  PANEL_PRINT                      18      /* control type: command, callback function: onPrint */
-#define  PANEL_PNG                        19      /* control type: command, callback function: (none) */
+#define  PANEL_PNG                        19      /* control type: command, callback function: onPNG */
 #define  PANEL_STORE                      20      /* control type: command, callback function: onStore */
 #define  PANEL_RECALL                     21      /* control type: command, callback function: onRecall */
 #define  PANEL_RESET                      22      /* control type: command, callback function: onReset */
@@ -71,6 +71,7 @@ int  CVICALLBACK onChangeUnitY(int panel, int control, int event, void *callback
 int  CVICALLBACK onChangeWindow(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onGeneric(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onPanel(int panel, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onPNG(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onPrint(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onQuit(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onRecall(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);

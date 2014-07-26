@@ -60,6 +60,7 @@ void	printWaveform (void);
 void 	recallWaveform (void);
 void 	reconstructData (double offset);
 void	resetWaveform (void);
+void 	savePNG (void);
 void 	storeWaveform (int format);
 void 	setAuto (void);
 void 	setupTimescale (void);
