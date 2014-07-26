@@ -12,6 +12,7 @@
 // Include files
 
 #include <windows.h>
+#include "toolbox.h"
 #include <utility.h>
 #include <formatio.h>
 #include <ansi_c.h>
@@ -223,14 +224,15 @@ void main (int argc, char *argv[])
 
 	DisplayPanel (panelHandle);
 	
+	// Make sure relevant output directories exist
+	checkDirs ();
+	
 	// Show software version
 	showVersion ();
 
 	// Set 50 ns timescale
 	calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 )/
 						  (((double) 50e-9) / (double) 65536.0));
-
-	
 
 	// Set up and calibrate instrument
 	setupTimescale ();
@@ -1505,6 +1507,9 @@ void changeUnitY (void)
 // Recall stored waveform
 void recallWaveform (void)
 {
+	// Disable automatic acquisition during save
+	SuspendTimerCallbacks ();
+	
 	int status;
 	
 	// Select file
@@ -1515,6 +1520,9 @@ void recallWaveform (void)
 	// Don't crash if user cancels
 	if (status == VAL_NO_FILE_SELECTED)
 	{
+		// Re-enable automatic acquisition 
+		ResumeTimerCallbacks ();
+		
 		return;
 	}
 	
@@ -1597,12 +1605,16 @@ void recallWaveform (void)
 	SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 1);
 	SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 1);
 
-	return;
+	// Re-enable automatic acquisition 
+	ResumeTimerCallbacks ();
 }
 
 // Store waveform to file as ZTDR (format = 1) or CSV (= 0)
 void storeWaveform (int format)
 {   
+	// Disable automatic acquisition during save
+	SuspendTimerCallbacks ();
+	
 	int status;
 	
 	// File setup
@@ -1620,12 +1632,15 @@ void storeWaveform (int format)
 	else
 	{
 		sprintf (filename, ".csv");
-		status = FileSelectPopup ("waveforms", filename, "CSV File (*.csv)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+		status = FileSelectPopup ("logs", filename, "CSV File (*.csv)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
 	}
 
 	// Don't attempt to save if user cancels
 	if (status == VAL_NO_FILE_SELECTED)
 	{
+		// Re-enable automatic acquisition 
+		ResumeTimerCallbacks ();
+		
 		return;
 	}	
 	
@@ -1676,6 +1691,9 @@ void storeWaveform (int format)
 	}
 	
 	n = CloseFile (fd);
+	
+	// Re-enable automatic acquisition 
+	ResumeTimerCallbacks ();
 }
 
 // Reset plot area and clear recalled waveform
@@ -1702,6 +1720,9 @@ void resetWaveform (void)
 // Print current waveform
 void printWaveform (void)
 {
+	// Disable automatic acquisition during save
+	SuspendTimerCallbacks ();
+	
 	// Get timestamp of request
 	char timestamp[64];
 	int	month, day, year;
@@ -1724,6 +1745,9 @@ void printWaveform (void)
 	
 	// Reset textbox to remove timestamp
 	showVersion ();
+	
+	// Re-enable automatic acquisition 
+	ResumeTimerCallbacks ();
 }
 
 // Format and show current instrument and version
@@ -1775,4 +1799,33 @@ void zoom (void)
 	
 	// Update window size
 	SetCtrlVal (panelHandle, PANEL_WINDOW, fabs (c2x - c1x));
+}
+
+void checkDirs (void)
+{
+	int existsDir;
+	int existsImages = FileExists ("images", &existsDir);
+	int existsWaveforms = FileExists ("waveforms", &existsDir);
+	int existsSettings = FileExists ("settings", &existsDir);
+	int existsLogs = FileExists ("logs", &existsDir);
+	
+	if (existsImages == 0) 
+	{
+		MakeDir ("images");
+	}
+	
+	if (existsWaveforms == 0) 
+	{
+		MakeDir ("waveforms");
+	}
+	
+	if (existsSettings == 0) 
+	{
+		MakeDir ("settings");
+	}
+	
+	if (existsLogs == 0) 
+	{
+		MakeDir ("logs");
+	}
 }

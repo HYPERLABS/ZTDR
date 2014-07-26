@@ -49,9 +49,8 @@ void 	calSetParams (void);
 void 	calSetupTimescale (void);
 void 	calTimebase (void);
 void 	changeUnitX (void);
-void 	changeUnitY (void); 
-// TO DO: this still here?
-void 	FindOptimalStepCount (void);
+void 	changeUnitY (void);
+void 	checkDirs (void);
 char	getTimestamp (void);
 void	main (int argc, char *argv[]);
 double 	mean_array (void);
