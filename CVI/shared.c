@@ -1525,56 +1525,38 @@ void recallWaveform (void)
 	
 	// Set up data buffer
 	int n, i;
-	char buf[1024];
-	int no_data = rec_len;
+	char buf[128];
+	int buf_len = 128;
+	buf[0] = 0;
+												
 	
-	// Read vertical values (4 per row)
-	for(i = 0; i < no_data; i += 4)
-	{
-		n = ReadFile(fd, buf,(unsigned) BUF_REC_LEN);
-
-		float y1, y2, y3, y4;
-		
-		sscanf(buf," %f %f %f %f ", &y1, &y2, &y3, &y4);
-
-		wfm_ret[i + 0] = (double) y1;
-		wfm_ret[i + 1] = (double) y2;
-		wfm_ret[i + 2] = (double) y3;
-		wfm_ret[i + 3] = (double) y4;
-	}
-	
-	// Read horizontal values (4 per row)
-	for(i = 0; i < no_data; i += 4)
-	{
-		n = ReadFile (fd, buf,(unsigned) BUF_REC_LEN);
-
-		float x1, x2, x3, x4;
-		
-		sscanf(buf," %f %f %f %f ", &x1, &x2, &x3, &x4);
-
-		wfm_dist[i + 0] = (double) x1;
-		wfm_dist[i + 1] = (double) x2;
-		wfm_dist[i + 2] = (double) x3;
-		wfm_dist[i + 3] = (double) x4;
-	}
-
-	// Read X limits, units, K
+	// Read header row for environmental variables
+	int x_axis, y_axis;
 	float windowstart, windowsize;
-	int x_axis;
+	float ymin, ymax;
 	float diel;
 	double vc;
-	n = ReadFile (fd, buf, (unsigned) BUF_REC_LEN);
-	sscanf (buf," %f %f %d %e", &windowstart, &windowsize, &x_axis, &diel);
-	vc = (double) 3E8 / sqrt (diel);
 	
-	// Read Y limits, units
-	int y_axis;
-	float ymin, ymax;
-	n = ReadFile (fd,buf,(unsigned) BUF_REC_LEN);
-	sscanf (buf," %d %e %e ", &y_axis, &ymin, &ymax); 
+	// TO DO: why is it "n"?
+	// Read header line
+	n = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%d, %d, %f, %f, %f, %f, %f", &x_axis, &y_axis, &windowstart, &windowsize, &ymin, &ymax, &diel);
+	vc = (double) 3E8 / sqrt (diel);
+							   
+	// Read X, Y values
+	for(i = 0; i < rec_len; i++)
+	{  
+		float x, y;
+		
+		n = ReadLine (fd, buf, buf_len - 1);
+		sscanf(buf,"%f, %f", &y, &x);
+
+		wfm_ret[i] = (double) y;
+		wfm_dist[i] = (double) x;
+	}
 	
 	// Data read finished
-	n=CloseFile(fd);
+	n = CloseFile(fd);
 	
 	// Convert data to usable values
 	UINT32 windowsz;
@@ -1646,49 +1628,38 @@ void storeWaveform (void)
 
 	// Set up data buffer	
 	int i, n;
-	char buf[BUF_REC_LEN];
-	int no_data = rec_len;
-	
-	// Store Y values of waveform (4 per row)
-	for (i = 0; i < no_data; i += 4)
-	{
-		sprintf (buf," %e %e %e %e ", wfm_data[i], wfm_data[i+1], wfm_data[i+2], wfm_data[i+3]);
-		buf[BUF_REC_LEN-1] = '\n';
-		n = WriteFile (fd, buf, (unsigned) BUF_REC_LEN);
-	}
-	
-	// Store X values of waveform (4 per row)
-	for(i = 0; i < no_data; i += 4)
-	{
-		sprintf (buf," %e %e %e %e ", wfm_x[i], wfm_x[i+1], wfm_x[i+2], wfm_x[i+3]);
-		buf[BUF_REC_LEN-1] = '\n';
-		n = WriteFile (fd, buf, (unsigned) BUF_REC_LEN);
-	}
-	
-	// Get control information to be saved
-	double windowstart, windowsize;
+	char buf[128];
+	buf[0] = 0;
+
+	// Create header row (also includes unlabeled environmental variables)
 	int x_axis, y_axis;
+	double windowstart, windowsize;
 	double ymin, ymax;
 	double diel;
 	
-	GetCtrlVal (panelHandle, PANEL_START, &windowstart);
-	GetCtrlVal (panelHandle, PANEL_WINDOW, &windowsize);
 	GetCtrlVal (panelHandle, PANEL_XUNITS, &x_axis);
 	GetCtrlVal (panelHandle, PANEL_YUNITS, &y_axis);
+	GetCtrlVal (panelHandle, PANEL_START, &windowstart);
+	GetCtrlVal (panelHandle, PANEL_WINDOW, &windowsize);
 	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
 	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
-	GetCtrlVal (panelHandle, PANEL_DIEL, &diel);
+	GetCtrlVal (panelHandle, PANEL_DIEL, &diel);;
 	
-	// Store Y limits, units, K
-	sprintf (buf," %e %e %d %e",windowstart, windowsize, x_axis, diel);
-	buf[BUF_REC_LEN-1] = '\n';
-	n = WriteFile (fd, buf,(unsigned) BUF_REC_LEN);
-
-	// Store Y limits, units
-	sprintf(buf, " %d %e %e ", y_axis, ymin, ymax);
-	buf[BUF_REC_LEN-1] = '\n';
-	n = WriteFile (fd, buf,(unsigned) BUF_REC_LEN);
-
+	// Write header row
+	sprintf (buf + strlen(buf),"%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.3f\n", x_axis, y_axis, windowstart, windowsize, ymin, ymax, diel);
+	n = WriteFile (fd, buf, strlen(buf));
+	
+	// Log X/Y data
+	for (i = 0; i < rec_len; i++)
+	{
+		// Reset buffer
+		buf[0] = 0;
+	
+		sprintf (buf + strlen(buf), "%3.10f, %3.10f\n", wfm_data[i], wfm_x[i]);
+		
+		n = WriteFile (fd, buf, strlen(buf));
+	}
+	
 	n = CloseFile (fd);
 }
 
