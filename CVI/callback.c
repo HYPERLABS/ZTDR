@@ -202,32 +202,6 @@ int CVICALLBACK onChangeWindow (int panel, int control, int event,
 	return 0;
 }
 
-// Horizontal units changed
-int CVICALLBACK onChangeUnitX (int panel, int control, int event,
-							   void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-		{
-			changeUnitX ();
-
-			setupTimescale ();
-
-			acquire ();
-
-			break;
-		}
-
-		case EVENT_RIGHT_CLICK:
-		{
-			break;
-		}
-	}
-	
-	return 0;
-}
-
 // Vertical units changed
 int CVICALLBACK onChangeUnitY (int panel, int control, int event,
 							   void *callbackData, int eventData1, int eventData2)
@@ -579,13 +553,14 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 }
 
 
+//==============================================================================
+// Global functions from menu commands (sorted alphabetically)
 
-// TO DO: Organize menu based commands
 // Horizontal units changed to M
 void CVICALLBACK onChangeX1 (int menuBar, int menuItem, void *callbackData, 
 							int panel)
 {
-	changeX (1);
+	changeUnitX (0);
 	
 	setupTimescale ();
 
@@ -598,7 +573,7 @@ void CVICALLBACK onChangeX1 (int menuBar, int menuItem, void *callbackData,
 void CVICALLBACK onChangeX2 (int menuBar, int menuItem, void *callbackData, 
 							int panel)
 {
-	changeX (1);
+	changeUnitX (1);
 	
 	setupTimescale ();
 
@@ -611,7 +586,7 @@ void CVICALLBACK onChangeX2 (int menuBar, int menuItem, void *callbackData,
 void CVICALLBACK onChangeX3 (int menuBar, int menuItem, void *callbackData, 
 							int panel)
 {
-	changeX (2);
+	changeUnitX (2);
 	
 	setupTimescale ();
 

@@ -101,8 +101,8 @@ char *y_label[] =
 char *x_label[] =
      {
       "ROUNDTRIP (m)",
-      "ROUNDTRIP (ns)",
-      "ROUNDTRIP (ft)" 
+      "ROUNDTRIP (ft)",
+      "ROUNDTRIP (ns)" 
 	 };
 
 char *y_short[] =
@@ -116,23 +116,23 @@ char *y_short[] =
 char *x_short[] =
      {
       "m",
-      "ns",
-      "ft" 
+      "ft",
+      "ns" 
 	 };
 
 char *x_label_start[] =
      {
       "START (m)",
-      "START (ns)" ,
-      "START (ft)"
+      "START (ft)" ,
+      "START (ns)"
 	 };
 
       
 char *x_label_windowsz[] =
      {
       "WINDOW (m)",
-      "WINDOW (ns)",
-      "WINDOW (ft)" 
+      "WINDOW (ft)",
+      "WINDOW (ns)" 
 	 }; 		
       
 float x_dflt_start[] =
@@ -145,15 +145,15 @@ float x_dflt_start[] =
 float x_dflt_windowsz[]  =
      {
       10.0,
-      50.0,
-      33.3
+      33.3,
+      50.0
 	 };
 
 float x_max_range[] =
      {
       400.0,
-      2000.0,
-      1332
+      1332,
+      2000.0
 	 };
 
 char *label_dist[] =
@@ -303,7 +303,7 @@ void acquire (void)
 	double impedance = 50;
 	double ampl_factor = 250.0;
 	
-	int	HL1101_xaxis_val, HL1101_yaxis_val;
+	int	HL1101_yaxis_val;
 	int	auto_flag;
 
 	double wfmf_debug[1024];
@@ -383,7 +383,6 @@ void acquire (void)
 
 	// Get selected units
 	GetCtrlVal (panelHandle, PANEL_YUNITS, &HL1101_yaxis_val);
-	GetCtrlVal (panelHandle, PANEL_XUNITS, &HL1101_xaxis_val);
 	
 	// Acquire k waveforms, loop and average if k > 1
 	for (k = 0; k < acquisition_nr; k++) 
@@ -653,7 +652,7 @@ void acquire (void)
 	}
 	
 	// Horizontal units in time
-	if (HL1101_xaxis_val == UNIT_NS)
+	if (xUnits == UNIT_NS)
 	{
 		for (i = 0; i < rec_len; i++)
 		{
@@ -661,7 +660,7 @@ void acquire (void)
 		}
 	}
 	// Horizontal units in meters
-	else if (HL1101_xaxis_val == UNIT_M) 
+	else if (xUnits == UNIT_M) 
 	{
 		for (i = 0; i < rec_len; i++)
 		{
@@ -692,7 +691,6 @@ void acquire (void)
 // Scale time range of window for waveform acquisition
 void setupTimescale (void)
 {
-	int HL1101_xaxis_val;
 	double	HL1101_start;
 	double 	HL1101_windowsz;
 	double 	HL1101_diel;
@@ -700,13 +698,12 @@ void setupTimescale (void)
 	double val1, val2, vel;
 	UINT32 windowsz;
 
-	GetCtrlVal (panelHandle, PANEL_XUNITS, &HL1101_xaxis_val);
 	GetCtrlVal (panelHandle, PANEL_START, &HL1101_start);
 	GetCtrlVal (panelHandle, PANEL_WINDOW, &HL1101_windowsz);
 	GetCtrlVal (panelHandle, PANEL_DIEL, &HL1101_diel);
 
 	// If X Axis set to time
-	if (HL1101_xaxis_val == UNIT_NS)
+	if (xUnits == UNIT_NS)
 	{
 		val1 = HL1101_start;
 		val2 = HL1101_windowsz;
@@ -721,7 +718,7 @@ void setupTimescale (void)
 		val2 = HL1101_windowsz * 1E9 / vel;
 
 		// Calculate distance in feet, if selected
-		if (HL1101_xaxis_val == UNIT_FT)
+		if (xUnits == UNIT_FT)
 		{
 			val1 = val1 / MtoFT;
 			val2 = val2 / MtoFT;
@@ -1436,29 +1433,6 @@ double mean_array (void)
 //==============================================================================
 // Other functions triggered by UIR callbacks
 
-// TO DO: remove this, depricated
-void changeUnitX (void)
-{
-	int status;
-	int x_axis;
-	
-	GetCtrlVal (panelHandle, PANEL_XUNITS, &x_axis);
-	
-	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, x_label[x_axis]);
-	
-	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_LABEL_TEXT, x_label_start[x_axis]);
-	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_LABEL_TEXT, x_label_windowsz[x_axis]);
-	
-	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MAX_VALUE, x_max_range[x_axis]);
-	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_MAX_VALUE, x_max_range[x_axis]);
-	
-	status = SetCtrlVal (panelHandle, PANEL_START, x_dflt_start[x_axis]);
-	status = SetCtrlVal (panelHandle, PANEL_WINDOW, x_dflt_windowsz[x_axis]);
-	
-	// TO DO: better label for DIST
-	// status = SetCtrlAttribute (panelHandle, PANEL_*****, ATTR_LABEL_TEXT, label_dist[x_axis]);	
-}
-
 // Toggle dimming of controls based on autoscale
 void setAuto (void)
 {
@@ -1564,7 +1538,8 @@ void recallWaveform (void)
 												
 	
 	// Read header row for environmental variables
-	int x_axis, y_axis;
+	// TO DO: change names of local variables
+	int xStored, y_axis;
 	float windowstart, windowsize;
 	float ymin, ymax;
 	float diel;
@@ -1573,7 +1548,7 @@ void recallWaveform (void)
 	// TO DO: why is it "n"?
 	// Read header line
 	n = ReadLine (fd, buf, buf_len - 1);
-	sscanf (buf, "%d, %d, %f, %f, %f, %f, %f", &x_axis, &y_axis, &windowstart, &windowsize, &ymin, &ymax, &diel);
+	sscanf (buf, "%d, %d, %f, %f, %f, %f, %f", &xStored, &y_axis, &windowstart, &windowsize, &ymin, &ymax, &diel);
 	vc = (double) 3E8 / sqrt (diel);
 							   
 	// Read X, Y values
@@ -1599,14 +1574,18 @@ void recallWaveform (void)
 	
 	// Set control values from stored waveform
 	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 0);
-	SetCtrlVal (panelHandle, PANEL_XUNITS, x_axis);
+	
+	
+	changeUnitX (xStored);
+	
+	
 	SetCtrlVal (panelHandle, PANEL_START, (double) start_tm.time);
 	SetCtrlVal (panelHandle, PANEL_WINDOW, (double) windowsz);
 	SetCtrlVal (panelHandle, PANEL_DIEL, diel);
 	SetCtrlVal (panelHandle, PANEL_YUNITS, y_axis);
 	SetCtrlVal (panelHandle, PANEL_YMAX, (double) ymax);
 	SetCtrlVal (panelHandle, PANEL_YMIN, (double) ymin);
-	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, x_label[x_axis]);
+	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, x_label[xUnits]);
 	
 	// Remove any other recalled waveforms
 	if (WfmRecall)
@@ -1679,12 +1658,11 @@ void storeWaveform (int format)
 	buf[0] = 0;
 
 	// Create header row (also includes unlabeled environmental variables)
-	int x_axis, y_axis;
+	int y_axis;
 	double windowstart, windowsize;
 	double ymin, ymax;
 	double diel;
 	
-	GetCtrlVal (panelHandle, PANEL_XUNITS, &x_axis);
 	GetCtrlVal (panelHandle, PANEL_YUNITS, &y_axis);
 	GetCtrlVal (panelHandle, PANEL_START, &windowstart);
 	GetCtrlVal (panelHandle, PANEL_WINDOW, &windowsize);
@@ -1695,11 +1673,11 @@ void storeWaveform (int format)
 	// Write header row
 	if (format == 1)
 	{
-		sprintf (buf + strlen(buf),"%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.3f\n", y_axis, x_axis, windowstart, windowsize, ymin, ymax, diel);
+		sprintf (buf + strlen(buf),"%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.3f\n", y_axis, xUnits, windowstart, windowsize, ymin, ymax, diel);
 	}
 	else
 	{
-		sprintf (buf + strlen(buf),"%s, %s\n", y_label[y_axis], x_label[x_axis]);
+		sprintf (buf + strlen(buf),"%s, %s\n", y_label[y_axis], x_label[xUnits]);
 	}
 	
 	n = WriteFile (fd, buf, strlen(buf));
@@ -1840,25 +1818,24 @@ void updateCursors (void)
 {   
 	
 	
-	int x_units, y_units;
+	int y_units;
 	double c1x, c1y, c2x, c2y;
 	static char buf[128];
 
 	c1x = c1y = c2x = c2y = 0;
 
-	GetCtrlVal (panelHandle, PANEL_XUNITS, &x_units);
 	GetCtrlVal (panelHandle, PANEL_YUNITS, &y_units);
 	
 	GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
 	GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
 
-	sprintf (buf, " %.2f %s, %.2f %s", c1x, x_short[x_units], c1y, y_short[y_units]);
+	sprintf (buf, " %.2f %s, %.2f %s", c1x, x_short[xUnits], c1y, y_short[y_units]);
 	SetCtrlVal (panelHandle, PANEL_CURSOR1,  buf);
 
-	sprintf (buf, " %.2f %s, %.2f %s", c2x, x_short[x_units], c2y, y_short[y_units]);
+	sprintf (buf, " %.2f %s, %.2f %s", c2x, x_short[xUnits], c2y, y_short[y_units]);
 	SetCtrlVal (panelHandle, PANEL_CURSOR2, buf);
 
-	sprintf(buf, " %.2f %s, %.2f %s", c2x-c1x, x_short[x_units], c2y-c1y, y_short[y_units]);
+	sprintf(buf, " %.2f %s, %.2f %s", c2x-c1x, x_short[xUnits], c2y-c1y, y_short[y_units]);
 	SetCtrlVal(panelHandle, PANEL_DELTA, buf);
 
 }
@@ -1919,7 +1896,7 @@ void checkDirs (void)
 // TO DO: below this, functions totally cleaned up and validated
 
 // Change horizontal units
-void changeX (int unit)
+void changeUnitX (int unit)
 {
 	int status;																			   
 	
@@ -1930,7 +1907,9 @@ void changeX (int unit)
 		
 		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS1, ATTR_CHECKED, 1);
 		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS2, ATTR_CHECKED, 0);
-		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS3, ATTR_CHECKED, 0);	
+		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS3, ATTR_CHECKED, 0);
+		
+		
 	}
 	else if (unit == 1)
 	{
@@ -1948,6 +1927,16 @@ void changeX (int unit)
 		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS2, ATTR_CHECKED, 0);
 		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS3, ATTR_CHECKED, 1);
 	}
-
-	int egg = 1;
+	
+	// Update X labels and limits
+	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, x_label[xUnits]);
+	
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_LABEL_TEXT, x_label_start[xUnits]);
+	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_LABEL_TEXT, x_label_windowsz[xUnits]);
+	
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MAX_VALUE, x_max_range[xUnits]);
+	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_MAX_VALUE, x_max_range[xUnits]);
+	
+	status = SetCtrlVal (panelHandle, PANEL_START, x_dflt_start[xUnits]);
+	status = SetCtrlVal (panelHandle, PANEL_WINDOW, x_dflt_windowsz[xUnits]);
 }
