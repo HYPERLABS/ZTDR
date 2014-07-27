@@ -84,28 +84,6 @@ int CVICALLBACK onAuto (int panel, int control, int event,
 	return 0;
 }
 
-// Full time base calibration
-int CVICALLBACK onCal (int panel, int control, int event,
-					   void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-		{
-			calTimebase ();
-
-			break;
-		}
-		
-		case EVENT_RIGHT_CLICK:
-		{
-			break;
-		}
-	}
-	
-	return 0;
-}
-
 // Waveform averaging changed
 int CVICALLBACK onChangeAverage (int panel, int control, int event,
 								 void *callbackData, int eventData1, int eventData2)
@@ -404,28 +382,6 @@ int CVICALLBACK onTimer (int panel, int control, int event,
 	return 0;
 }
 
-// Vertical calibration only
-int CVICALLBACK onVertCal (int panel, int control, int event,
-						   void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-		{
-			vertCal ();
-			
-			break;
-		}
-		
-		case EVENT_RIGHT_CLICK:
-		{
-			break;
-		}
-	}
-	
-	return 0;
-}
-
 // Update cursors on waveform acquisition
 int CVICALLBACK onWaveform (int panel, int control, int event,
 							void *callbackData, int eventData1, int eventData2)
@@ -583,6 +539,28 @@ void CVICALLBACK onExit (int menuBar, int menuItem, void *callbackData,
 	usbfifo_close ();
 
 	QuitUserInterface (0);
+	
+	return 0;	
+}
+
+// Timebase calibration
+void CVICALLBACK onTimeCal (int menuBar, int menuItem, void *callbackData,
+							 int panel)
+{  
+	calTimebase ();
+	
+	acquire ();
+	
+	return 0;
+}
+
+// Vertical calibration
+void CVICALLBACK onVertCal (int menuBar, int menuItem, void *callbackData, 
+							int panel)
+{
+	vertCal ();
+	
+	acquire ();
 	
 	return 0;	
 }

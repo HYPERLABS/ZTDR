@@ -768,7 +768,7 @@ void calTimebase (void)
 
 	calDAC ();
 	
-	// Calibrate vertical and set up time window
+	// Set up time window and calibrate vertical
 	setupTimescale ();
 	vertCal ();
 }
