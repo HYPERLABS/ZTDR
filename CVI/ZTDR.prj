@@ -9,7 +9,7 @@ IVI Standard Root Dir = "/C/Program Files (x86)/IVI Foundation/IVI"
 VXIplug&play Framework Dir = "/C/Program Files (x86)/IVI Foundation/VISA/winnt"
 IVI Standard Root 64-bit Dir = "/C/Program Files/IVI Foundation/IVI"
 VXIplug&play Framework 64-bit Dir = "/C/Program Files/IVI Foundation/VISA/win64"
-Number of Files = 12
+Number of Files = 14
 Target Type = "Executable"
 Flags = 16
 Copied From Locked InstrDrv Directory = False
@@ -57,8 +57,8 @@ File Type = "Include"
 Res Id = 3
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "shared.h"
-Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/shared.h"
+Path Rel Path = "menu.h"
+Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/menu.h"
 Exclude = False
 Project Flags = 0
 Folder = "Include Files"
@@ -69,8 +69,8 @@ File Type = "Include"
 Res Id = 4
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "usbfifo.h"
-Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/usbfifo.h"
+Path Rel Path = "shared.h"
+Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/shared.h"
 Exclude = False
 Project Flags = 0
 Folder = "Include Files"
@@ -81,8 +81,8 @@ File Type = "Include"
 Res Id = 5
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "usbfifodll.h"
-Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/usbfifodll.h"
+Path Rel Path = "usbfifo.h"
+Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/usbfifo.h"
 Exclude = False
 Project Flags = 0
 Folder = "Include Files"
@@ -93,6 +93,18 @@ File Type = "Include"
 Res Id = 6
 Path Is Rel = True
 Path Rel To = "Project"
+Path Rel Path = "usbfifodll.h"
+Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/usbfifodll.h"
+Exclude = False
+Project Flags = 0
+Folder = "Include Files"
+Folder Id = 1
+
+[File 0007]
+File Type = "Include"
+Res Id = 7
+Path Is Rel = True
+Path Rel To = "Project"
 Path Rel Path = "ZTDR.h"
 Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/ZTDR.h"
 Exclude = False
@@ -100,9 +112,9 @@ Project Flags = 0
 Folder = "Include Files"
 Folder Id = 1
 
-[File 0007]
+[File 0008]
 File Type = "CSource"
-Res Id = 7
+Res Id = 8
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "callback.c"
@@ -113,9 +125,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0008]
+[File 0009]
 File Type = "CSource"
-Res Id = 8
+Res Id = 9
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "HL1101.c"
@@ -126,26 +138,13 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0009]
-File Type = "CSource"
-Res Id = 9
-Path Is Rel = True
-Path Rel To = "Project"
-Path Rel Path = "shared.c"
-Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/shared.c"
-Exclude = False
-Compile Into Object File = False
-Project Flags = 0
-Folder = "Source Files"
-Folder Id = 2
-
 [File 0010]
 File Type = "CSource"
 Res Id = 10
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "usbfifo.c"
-Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/usbfifo.c"
+Path Rel Path = "menu.c"
+Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/menu.c"
 Exclude = False
 Compile Into Object File = False
 Project Flags = 0
@@ -157,6 +156,32 @@ File Type = "CSource"
 Res Id = 11
 Path Is Rel = True
 Path Rel To = "Project"
+Path Rel Path = "shared.c"
+Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/shared.c"
+Exclude = False
+Compile Into Object File = False
+Project Flags = 0
+Folder = "Source Files"
+Folder Id = 2
+
+[File 0012]
+File Type = "CSource"
+Res Id = 12
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path = "usbfifo.c"
+Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/usbfifo.c"
+Exclude = False
+Compile Into Object File = False
+Project Flags = 0
+Folder = "Source Files"
+Folder Id = 2
+
+[File 0013]
+File Type = "CSource"
+Res Id = 13
+Path Is Rel = True
+Path Rel To = "Project"
 Path Rel Path = "usbfifodll.c"
 Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/usbfifodll.c"
 Exclude = True
@@ -165,9 +190,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0012]
+[File 0014]
 File Type = "Library"
-Res Id = 12
+Res Id = 14
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "FTD2XX.lib"

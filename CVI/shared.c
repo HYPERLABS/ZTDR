@@ -1,6 +1,6 @@
 //==============================================================================
 //
-// Title:		ZTDR.c
+// Title:		shared.c
 // Purpose:		Main functionality for HL11xx TDR instruments
 //
 // Created on:	7/22/2014 at 8:40:39 PM by Brian Doxey.
@@ -46,8 +46,8 @@
 
 // Horizontal units
 #define UNIT_M 0
-#define UNIT_NS 1
-#define UNIT_FT 2
+#define UNIT_FT 1
+#define UNIT_NS 2
 
 // Vertical units
 #define UNIT_MV 0
@@ -80,6 +80,11 @@
 // Global variables (roughly grouped by function)
 
 // TO DO: significant cleanup of section
+
+// Control states
+int xUnits = 0;
+int yUnits = 0;
+
 
 // Initialization
 int 	usb_opened = 0;
@@ -203,7 +208,7 @@ static int WfmRecall;
 timeinf start_tm, end_tm;
 
 // User interface and states
-int 	panelHandle;
+int 	panelHandle, menuHandle;
 
 
 // TO DO: better solution
@@ -238,6 +243,9 @@ void main (int argc, char *argv[])
 	{
 		return -1;
 	}
+	// Load menu bar
+	menuHandle = LoadMenuBar (panelHandle, "ZTDR.uir", MENUBAR);
+	
 
 	DisplayPanel (panelHandle);
 	
@@ -1428,7 +1436,7 @@ double mean_array (void)
 //==============================================================================
 // Other functions triggered by UIR callbacks
 
-// Set horizontal environmental variables
+// TO DO: remove this, depricated
 void changeUnitX (void)
 {
 	int status;
@@ -1903,4 +1911,43 @@ void checkDirs (void)
 	{
 		MakeDir ("logs");
 	}
+}
+
+// TO DO: move cal functions to "driver" or something?
+
+
+// TO DO: below this, functions totally cleaned up and validated
+
+// Change horizontal units
+void changeX (int unit)
+{
+	int status;																			   
+	
+	// Change unit selection and update menu
+	if (unit == 0)
+	{
+		xUnits = UNIT_M;
+		
+		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS1, ATTR_CHECKED, 1);
+		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS2, ATTR_CHECKED, 0);
+		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS3, ATTR_CHECKED, 0);	
+	}
+	else if (unit == 1)
+	{
+		xUnits = UNIT_FT;
+		
+		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS1, ATTR_CHECKED, 0);
+		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS2, ATTR_CHECKED, 1);
+		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS3, ATTR_CHECKED, 0);
+	}
+	else if (unit == 2)
+	{
+		xUnits = UNIT_NS;
+		
+		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS1, ATTR_CHECKED, 0);
+		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS2, ATTR_CHECKED, 0);
+		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS3, ATTR_CHECKED, 1);
+	}
+
+	int egg = 1;
 }

@@ -578,3 +578,44 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 	return 0;
 }
 
+
+
+// TO DO: Organize menu based commands
+// Horizontal units changed to M
+void CVICALLBACK onChangeX1 (int menuBar, int menuItem, void *callbackData, 
+							int panel)
+{
+	changeX (1);
+	
+	setupTimescale ();
+
+	acquire ();
+	
+	return 0;	
+}
+
+// Horizontal units changed to FT
+void CVICALLBACK onChangeX2 (int menuBar, int menuItem, void *callbackData, 
+							int panel)
+{
+	changeX (1);
+	
+	setupTimescale ();
+
+	acquire ();
+	
+	return 0;	
+}
+
+// Horizontal units changed to NS
+void CVICALLBACK onChangeX3 (int menuBar, int menuItem, void *callbackData, 
+							int panel)
+{
+	changeX (2);
+	
+	setupTimescale ();
+
+	acquire ();
+	
+	return 0;	
+}
