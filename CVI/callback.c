@@ -306,32 +306,6 @@ int CVICALLBACK onPrint (int panel, int control, int event,
 	return 0;
 }
 
-// Close UI and exit
-int CVICALLBACK onQuit (int panel, int control, int event,
-						void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-		{
-			usbfifo_close ();
-
-			QuitUserInterface (0);
-
-			break;
-		}
-
-		case EVENT_RIGHT_CLICK:
-		{
-
-			break;
-		}
-
-	}
-	
-	return 0;
-}
-
 // Recall stored waveform
 int CVICALLBACK onRecall (int panel, int control, int event,
 						  void *callbackData, int eventData1, int eventData2)
@@ -598,6 +572,17 @@ void CVICALLBACK onCSV (int menuBar, int menuItem, void *callbackData,
 							int panel)
 {
 	storeWaveform (0);
+	
+	return 0;	
+}
+
+// Exit program
+void CVICALLBACK onExit (int menuBar, int menuItem, void *callbackData, 
+							int panel)
+{
+	usbfifo_close ();
+
+	QuitUserInterface (0);
 	
 	return 0;	
 }
