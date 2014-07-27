@@ -363,7 +363,7 @@ int CVICALLBACK onTimer (int panel, int control, int event,
 		case EVENT_TIMER_TICK:
 		{
 			int i;
-			GetCtrlVal (panel, PANEL_CONTINUOUS, &i);
+			GetCtrlVal (panel, PANEL_AUTOACQUIRE, &i);
 
 			if (i == 1)
 			{
