@@ -33,20 +33,19 @@
 #define  PANEL_STORE                      17      /* control type: command, callback function: onStore */
 #define  PANEL_RECALL                     18      /* control type: command, callback function: onRecall */
 #define  PANEL_RESET                      19      /* control type: command, callback function: onReset */
-#define  PANEL_CSV                        20      /* control type: command, callback function: onStoreCSV */
-#define  PANEL_MESSAGES                   21      /* control type: textBox, callback function: (none) */
-#define  PANEL_TIMER                      22      /* control type: timer, callback function: onTimer */
-#define  PANEL_PANECURSOR                 23      /* control type: deco, callback function: (none) */
-#define  PANEL_C1                         24      /* control type: textMsg, callback function: (none) */
-#define  PANEL_CURSOR1                    25      /* control type: textMsg, callback function: (none) */
-#define  PANEL_C2                         26      /* control type: textMsg, callback function: (none) */
-#define  PANEL_CURSOR2                    27      /* control type: textMsg, callback function: (none) */
-#define  PANEL_D2                         28      /* control type: textMsg, callback function: (none) */
-#define  PANEL_PANETOP                    29      /* control type: deco, callback function: (none) */
-#define  PANEL_PANEBOTTOM                 30      /* control type: deco, callback function: (none) */
-#define  PANEL_QUIT                       31      /* control type: command, callback function: onQuit */
-#define  PANEL_DELTA                      32      /* control type: textMsg, callback function: (none) */
-#define  PANEL_WAVEFORM                   33      /* control type: graph, callback function: onWaveform */
+#define  PANEL_MESSAGES                   20      /* control type: textBox, callback function: (none) */
+#define  PANEL_TIMER                      21      /* control type: timer, callback function: onTimer */
+#define  PANEL_PANECURSOR                 22      /* control type: deco, callback function: (none) */
+#define  PANEL_C1                         23      /* control type: textMsg, callback function: (none) */
+#define  PANEL_CURSOR1                    24      /* control type: textMsg, callback function: (none) */
+#define  PANEL_C2                         25      /* control type: textMsg, callback function: (none) */
+#define  PANEL_CURSOR2                    26      /* control type: textMsg, callback function: (none) */
+#define  PANEL_D2                         27      /* control type: textMsg, callback function: (none) */
+#define  PANEL_PANETOP                    28      /* control type: deco, callback function: (none) */
+#define  PANEL_PANEBOTTOM                 29      /* control type: deco, callback function: (none) */
+#define  PANEL_QUIT                       30      /* control type: command, callback function: onQuit */
+#define  PANEL_DELTA                      31      /* control type: textMsg, callback function: (none) */
+#define  PANEL_WAVEFORM                   32      /* control type: graph, callback function: onWaveform */
 
 
      /* Control Arrays: */
@@ -58,15 +57,21 @@
 
 #define  MENUBAR                          1
 #define  MENUBAR_FILE                     2
-#define  MENUBAR_XUNITS                   3
-#define  MENUBAR_XUNITS_XUNITS1           4       /* callback function: onChangeX1 */
-#define  MENUBAR_XUNITS_XUNITS2           5       /* callback function: onChangeX2 */
-#define  MENUBAR_XUNITS_XUNITS3           6       /* callback function: onChangeX3 */
-#define  MENUBAR_YUNITS                   7
-#define  MENUBAR_YUNITS_YUNITS1           8       /* callback function: onChangeY1 */
-#define  MENUBAR_YUNITS_YUNITS2           9       /* callback function: onChangeY2 */
-#define  MENUBAR_YUNITS_YUNITS3           10      /* callback function: onChangeY3 */
-#define  MENUBAR_YUNITS_YUNITS4           11      /* callback function: onChangeY4 */
+#define  MENUBAR_DATA                     3
+#define  MENUBAR_DATA_SAVECSV             4       /* callback function: onCSV */
+#define  MENUBAR_DATA_SAVEPNG             5
+#define  MENUBAR_DATA_SEPARATOR           6
+#define  MENUBAR_DATA_STORE               7
+#define  MENUBAR_DATA_RECALL              8
+#define  MENUBAR_XUNITS                   9
+#define  MENUBAR_XUNITS_XUNITS1           10      /* callback function: onChangeX1 */
+#define  MENUBAR_XUNITS_XUNITS2           11      /* callback function: onChangeX2 */
+#define  MENUBAR_XUNITS_XUNITS3           12      /* callback function: onChangeX3 */
+#define  MENUBAR_YUNITS                   13
+#define  MENUBAR_YUNITS_YUNITS1           14      /* callback function: onChangeY1 */
+#define  MENUBAR_YUNITS_YUNITS2           15      /* callback function: onChangeY2 */
+#define  MENUBAR_YUNITS_YUNITS3           16      /* callback function: onChangeY3 */
+#define  MENUBAR_YUNITS_YUNITS4           17      /* callback function: onChangeY4 */
 
 
      /* Callback Prototypes: */
@@ -85,6 +90,7 @@ void CVICALLBACK onChangeY1(int menubar, int menuItem, void *callbackData, int p
 void CVICALLBACK onChangeY2(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangeY3(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangeY4(int menubar, int menuItem, void *callbackData, int panel);
+void CVICALLBACK onCSV(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onGeneric(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onPanel(int panel, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onPNG(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
@@ -93,7 +99,6 @@ int  CVICALLBACK onQuit(int panel, int control, int event, void *callbackData, i
 int  CVICALLBACK onRecall(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onReset(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onStore(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK onStoreCSV(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onTimer(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onVertCal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onWaveform(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);

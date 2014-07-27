@@ -402,28 +402,6 @@ int CVICALLBACK onStore (int panel, int control, int event,
 	return 0;
 }
 
-// Store waveform
-int CVICALLBACK onStoreCSV (int panel, int control, int event,
-							void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-		{  	
-			storeWaveform (0);
-			
-			break;
-		}
-		
-		case EVENT_RIGHT_CLICK:
-		{   	
-			break;
-		}
-	}
-	
-	return 0;
-}
-
 // Timer-based acquisition, if set to auto-acquire
 int CVICALLBACK onTimer (int panel, int control, int event,
 						 void *callbackData, int eventData1, int eventData2)
@@ -611,6 +589,15 @@ void CVICALLBACK onChangeY4 (int menuBar, int menuItem, void *callbackData,
 	changeUnitY (3);
 	
 	acquire ();
+	
+	return 0;	
+}
+
+// Save CSV file
+void CVICALLBACK onCSV (int menuBar, int menuItem, void *callbackData, 
+							int panel)
+{
+	storeWaveform (0);
 	
 	return 0;	
 }

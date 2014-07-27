@@ -1559,10 +1559,12 @@ void recallWaveform (void)
 // Store waveform to file as ZTDR (format = 1) or CSV (= 0)
 void storeWaveform (int format)
 {   
-	// Disable automatic acquisition during save
-	SuspendTimerCallbacks ();
+	// TO DO: finish cleaning this routine up!
 	
 	int status;
+
+	// Disable automatic acquisition during save
+	status = SuspendTimerCallbacks ();
 	
 	// File setup
 	char save_file[MAX_SAVE_FILE + 160];
@@ -1573,12 +1575,12 @@ void storeWaveform (int format)
 	// Save dialog
 	if (format == 1)
 	{
-		sprintf (filename, ".ztdr");
+		status = sprintf (filename, ".ztdr");
 		status = FileSelectPopup ("waveforms", filename, "ZTDR Waveform (*.ztdr)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
 	}
 	else
 	{
-		sprintf (filename, ".csv");
+		status = sprintf (filename, ".csv");
 		status = FileSelectPopup ("logs", filename, "CSV File (*.csv)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
 	}
 
@@ -1586,7 +1588,7 @@ void storeWaveform (int format)
 	if (status == VAL_NO_FILE_SELECTED)
 	{
 		// Re-enable automatic acquisition 
-		ResumeTimerCallbacks ();
+		status = ResumeTimerCallbacks ();
 		
 		return;
 	}	
@@ -1596,7 +1598,7 @@ void storeWaveform (int format)
 	fd = OpenFile (save_file, VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
 	
 	// Set up data buffer	
-	int i, n;
+	int i;
 	char buf[128];
 	buf[0] = 0;
 
@@ -1615,15 +1617,15 @@ void storeWaveform (int format)
 	if (format == 1)
 	{
 		// Header for .ZTDR
-		sprintf (buf + strlen(buf),"%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.3f\n", yUnits, xUnits, windowstart, windowsize, ymin, ymax, diel);
+		status = sprintf (buf + strlen(buf), "%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.3f\n", yUnits, xUnits, windowstart, windowsize, ymin, ymax, diel);
 	}
 	else
 	{
 		// Header for .CSV
-		sprintf (buf + strlen(buf),"%s, %s\n", y_label[yUnits], x_label[xUnits]);
+		status = sprintf (buf + strlen(buf), "%s, %s\n", y_label[yUnits], x_label[xUnits]);
 	}
 	
-	n = WriteFile (fd, buf, strlen(buf));
+	status = WriteFile (fd, buf, strlen(buf));
 	
 	// Log X/Y data
 	for (i = 0; i < rec_len; i++)
@@ -1631,15 +1633,15 @@ void storeWaveform (int format)
 		// Reset buffer
 		buf[0] = 0;
 	
-		sprintf (buf + strlen(buf), "%3.10f, %3.10f\n", wfm_data[i], wfm_x[i]);
+		status = sprintf (buf + strlen(buf), "%3.10f, %3.10f\n", wfm_data[i], wfm_x[i]);
 		
-		n = WriteFile (fd, buf, strlen(buf));
+		status = WriteFile (fd, buf, strlen(buf));
 	}
 	
-	n = CloseFile (fd);
+	status = CloseFile (fd);
 	
 	// Re-enable automatic acquisition 
-	ResumeTimerCallbacks ();
+	status = ResumeTimerCallbacks ();
 }
 
 // Reset plot area and clear recalled waveform
