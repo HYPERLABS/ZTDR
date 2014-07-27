@@ -202,30 +202,6 @@ int CVICALLBACK onChangeWindow (int panel, int control, int event,
 	return 0;
 }
 
-// Vertical units changed
-int CVICALLBACK onChangeUnitY (int panel, int control, int event,
-							   void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-			{
-				changeUnitY ();
-			
-				acquire ();
-
-				break;
-			}
-			
-		case EVENT_RIGHT_CLICK:
-			{   
-				break;
-			}
-	}
-	
-	return 0;
-}
-
 // Generic callback that just acquires a new waveform
 int CVICALLBACK onGeneric (int panel, int control, int event,
 							   void *callbackData, int eventData1, int eventData2)
@@ -590,6 +566,50 @@ void CVICALLBACK onChangeX3 (int menuBar, int menuItem, void *callbackData,
 	
 	setupTimescale ();
 
+	acquire ();
+	
+	return 0;	
+}
+
+// Vertical units changed to mV
+void CVICALLBACK onChangeY1 (int menuBar, int menuItem, void *callbackData, 
+							int panel)
+{
+	changeUnitY (0);
+	
+	acquire ();
+	
+	return 0;	
+}
+
+// Vertical units changed to Norm
+void CVICALLBACK onChangeY2 (int menuBar, int menuItem, void *callbackData, 
+							int panel)
+{
+	changeUnitY (1);
+	
+	acquire ();
+	
+	return 0;	
+}
+
+// Vertical units changed to Ohm
+void CVICALLBACK onChangeY3 (int menuBar, int menuItem, void *callbackData, 
+							int panel)
+{
+	changeUnitY (2);
+	
+	acquire ();
+	
+	return 0;	
+}
+
+// Vertical units changed to Rho
+void CVICALLBACK onChangeY4 (int menuBar, int menuItem, void *callbackData, 
+							int panel)
+{
+	changeUnitY (3);
+	
 	acquire ();
 	
 	return 0;	

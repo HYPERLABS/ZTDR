@@ -48,7 +48,7 @@ void 	calReconstructData (void);
 void 	calSetParams (void);
 void 	calSetupTimescale (void);
 void 	calTimebase (void);
-void 	changeUnitY (void);
+void 	changeUnitY (int unit);
 void 	changeUnitX (int unit);
 void 	checkDirs (void);
 char	getTimestamp (void);

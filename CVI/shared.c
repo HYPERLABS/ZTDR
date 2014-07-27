@@ -303,7 +303,6 @@ void acquire (void)
 	double impedance = 50;
 	double ampl_factor = 250.0;
 	
-	int	HL1101_yaxis_val;
 	int	auto_flag;
 
 	double wfmf_debug[1024];
@@ -380,9 +379,6 @@ void acquire (void)
 	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
 	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
 	GetCtrlVal (panelHandle, PANEL_DOTS, &dots);
-
-	// Get selected units
-	GetCtrlVal (panelHandle, PANEL_YUNITS, &HL1101_yaxis_val);
 	
 	// Acquire k waveforms, loop and average if k > 1
 	for (k = 0; k < acquisition_nr; k++) 
@@ -436,7 +432,7 @@ void acquire (void)
 		}
 
 		// Y Axis scaling based on selected unit
-		switch (HL1101_yaxis_val)
+		switch (yUnits)
 		{   
 			case UNIT_MV:
 			{
@@ -1452,57 +1448,6 @@ void setAuto (void)
 	}
 }
 
-// Change vertical environmental variables
-void changeUnitY (void)
-{
-	int status;
-	int y_axis;
-	
-	GetCtrlVal (panelHandle, PANEL_YUNITS, &y_axis);
-
-	// 
-	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, y_label[y_axis]);
-	
-	// TO DO: move to definitions (like X)
-	// Update environmental variables
-	if (y_axis == UNIT_MV)
-	{
-		// Set manual scale defaults 
-		SetCtrlVal (panelHandle, PANEL_YMAX, 250.00);
-		SetCtrlVal (panelHandle, PANEL_YMIN, -250.00);
-		
-		// Set precision of Y axis
-		SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YPRECISION, 0);
-	}
-	else if (y_axis == UNIT_NORM)
-	{
-		// Set manual scale defaults 
-		SetCtrlVal (panelHandle, PANEL_YMAX, 2.00);
-		SetCtrlVal (panelHandle, PANEL_YMIN, 0.00);
-		
-		// Set precision of Y axis
-		SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YPRECISION, 2);
-	}
-	else if (y_axis == UNIT_OHM)
-	{
-		// Set manual scale defaults 
-		SetCtrlVal (panelHandle, PANEL_YMAX, 500.00);
-		SetCtrlVal (panelHandle, PANEL_YMIN, 0.00);
-		
-		// Set precision of Y axis
-		SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YPRECISION, 0);
-	}
-	else if (y_axis == UNIT_RHO)
-	{
-		// Set manual scale defaults
-		SetCtrlVal (panelHandle, PANEL_YMAX, 1.00);
-		SetCtrlVal (panelHandle, PANEL_YMIN, -1.00);					   
-		
-		// Set precision of Y axis
-		SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YPRECISION, 2);
-	}
-}
-
 // Recall stored waveform
 void recallWaveform (void)
 {
@@ -1539,7 +1484,7 @@ void recallWaveform (void)
 	
 	// Read header row for environmental variables
 	// TO DO: change names of local variables
-	int xStored, y_axis;
+	int xStored, yStored;
 	float windowstart, windowsize;
 	float ymin, ymax;
 	float diel;
@@ -1548,7 +1493,7 @@ void recallWaveform (void)
 	// TO DO: why is it "n"?
 	// Read header line
 	n = ReadLine (fd, buf, buf_len - 1);
-	sscanf (buf, "%d, %d, %f, %f, %f, %f, %f", &xStored, &y_axis, &windowstart, &windowsize, &ymin, &ymax, &diel);
+	sscanf (buf, "%d, %d, %f, %f, %f, %f, %f", &xStored, &yStored, &windowstart, &windowsize, &ymin, &ymax, &diel);
 	vc = (double) 3E8 / sqrt (diel);
 							   
 	// Read X, Y values
@@ -1582,7 +1527,6 @@ void recallWaveform (void)
 	SetCtrlVal (panelHandle, PANEL_START, (double) start_tm.time);
 	SetCtrlVal (panelHandle, PANEL_WINDOW, (double) windowsz);
 	SetCtrlVal (panelHandle, PANEL_DIEL, diel);
-	SetCtrlVal (panelHandle, PANEL_YUNITS, y_axis);
 	SetCtrlVal (panelHandle, PANEL_YMAX, (double) ymax);
 	SetCtrlVal (panelHandle, PANEL_YMIN, (double) ymin);
 	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, x_label[xUnits]);
@@ -1601,7 +1545,6 @@ void recallWaveform (void)
 						VAL_THIN_LINE, VAL_EMPTY_SQUARE, VAL_SOLID, 1, MakeColor (233, 113, 233));
 
 	// Dim controls
-	SetCtrlAttribute (panelHandle, PANEL_YUNITS, ATTR_DIMMED, 1);
 	SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_DIMMED, 1);
 	SetCtrlAttribute (panelHandle, PANEL_START, ATTR_DIMMED, 1);
 	SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_DIMMED, 1);
@@ -1658,12 +1601,10 @@ void storeWaveform (int format)
 	buf[0] = 0;
 
 	// Create header row (also includes unlabeled environmental variables)
-	int y_axis;
 	double windowstart, windowsize;
 	double ymin, ymax;
 	double diel;
 	
-	GetCtrlVal (panelHandle, PANEL_YUNITS, &y_axis);
 	GetCtrlVal (panelHandle, PANEL_START, &windowstart);
 	GetCtrlVal (panelHandle, PANEL_WINDOW, &windowsize);
 	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
@@ -1673,11 +1614,13 @@ void storeWaveform (int format)
 	// Write header row
 	if (format == 1)
 	{
-		sprintf (buf + strlen(buf),"%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.3f\n", y_axis, xUnits, windowstart, windowsize, ymin, ymax, diel);
+		// Header for .ZTDR
+		sprintf (buf + strlen(buf),"%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.3f\n", yUnits, xUnits, windowstart, windowsize, ymin, ymax, diel);
 	}
 	else
 	{
-		sprintf (buf + strlen(buf),"%s, %s\n", y_label[y_axis], x_label[xUnits]);
+		// Header for .CSV
+		sprintf (buf + strlen(buf),"%s, %s\n", y_label[yUnits], x_label[xUnits]);
 	}
 	
 	n = WriteFile (fd, buf, strlen(buf));
@@ -1702,7 +1645,6 @@ void storeWaveform (int format)
 // Reset plot area and clear recalled waveform
 void resetWaveform (void)
 {
-	SetCtrlAttribute (panelHandle, PANEL_YUNITS, ATTR_DIMMED, 0);
 	SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_DIMMED, 0);
 	SetCtrlAttribute (panelHandle, PANEL_START, ATTR_DIMMED, 0);
 	SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_DIMMED, 0);
@@ -1815,29 +1757,24 @@ void showVersion (void)
 
 // Update cursor readings
 void updateCursors (void)
-{   
-	
-	
+{  	
 	int y_units;
 	double c1x, c1y, c2x, c2y;
 	static char buf[128];
 
 	c1x = c1y = c2x = c2y = 0;
-
-	GetCtrlVal (panelHandle, PANEL_YUNITS, &y_units);
 	
 	GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
 	GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
 
-	sprintf (buf, " %.2f %s, %.2f %s", c1x, x_short[xUnits], c1y, y_short[y_units]);
+	sprintf (buf, " %.2f %s, %.2f %s", c1x, x_short[xUnits], c1y, y_short[yUnits]);
 	SetCtrlVal (panelHandle, PANEL_CURSOR1,  buf);
 
-	sprintf (buf, " %.2f %s, %.2f %s", c2x, x_short[xUnits], c2y, y_short[y_units]);
+	sprintf (buf, " %.2f %s, %.2f %s", c2x, x_short[xUnits], c2y, y_short[yUnits]);
 	SetCtrlVal (panelHandle, PANEL_CURSOR2, buf);
 
-	sprintf(buf, " %.2f %s, %.2f %s", c2x-c1x, x_short[xUnits], c2y-c1y, y_short[y_units]);
+	sprintf(buf, " %.2f %s, %.2f %s", c2x-c1x, x_short[xUnits], c2y-c1y, y_short[yUnits]);
 	SetCtrlVal(panelHandle, PANEL_DELTA, buf);
-
 }
 
 // Cursor-based zoom
@@ -1905,27 +1842,25 @@ void changeUnitX (int unit)
 	{
 		xUnits = UNIT_M;
 		
-		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS1, ATTR_CHECKED, 1);
-		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS2, ATTR_CHECKED, 0);
-		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS3, ATTR_CHECKED, 0);
-		
-		
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS1, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS2, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS3, ATTR_CHECKED, 0);
 	}
 	else if (unit == 1)
 	{
 		xUnits = UNIT_FT;
 		
-		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS1, ATTR_CHECKED, 0);
-		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS2, ATTR_CHECKED, 1);
-		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS3, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS1, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS2, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS3, ATTR_CHECKED, 0);
 	}
 	else if (unit == 2)
 	{
 		xUnits = UNIT_NS;
 		
-		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS1, ATTR_CHECKED, 0);
-		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS2, ATTR_CHECKED, 0);
-		SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS3, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS1, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS2, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS3, ATTR_CHECKED, 1);
 	}
 	
 	// Update X labels and limits
@@ -1939,4 +1874,78 @@ void changeUnitX (int unit)
 	
 	status = SetCtrlVal (panelHandle, PANEL_START, x_dflt_start[xUnits]);
 	status = SetCtrlVal (panelHandle, PANEL_WINDOW, x_dflt_windowsz[xUnits]);
+}
+
+// Change vertical units
+void changeUnitY (int unit)
+{
+	int status;
+	
+	// Change unit selection and update menu 
+	if (unit == 0)
+	{
+		yUnits = UNIT_MV;
+		
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS1, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS2, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS3, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS4, ATTR_CHECKED, 0);
+		
+		// Set manual scale defaults 
+		status = SetCtrlVal (panelHandle, PANEL_YMAX, 250.00);
+		status = SetCtrlVal (panelHandle, PANEL_YMIN, -250.00);
+		
+		// Set precision of Y axis
+		status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YPRECISION, 0);
+	}
+	else if (unit == 1)
+	{
+		yUnits = UNIT_NORM;
+		
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS1, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS2, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS3, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS4, ATTR_CHECKED, 0);
+		
+		// Set manual scale defaults 
+		status = SetCtrlVal (panelHandle, PANEL_YMAX, 2.00);
+		status = SetCtrlVal (panelHandle, PANEL_YMIN, 0.00);
+		
+		// Set precision of Y axis
+		status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YPRECISION, 2);
+	}
+	else if (unit == 2)
+	{
+		yUnits = UNIT_OHM;
+		
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS1, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS2, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS3, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS4, ATTR_CHECKED, 0);
+		
+		// Set manual scale defaults 
+		status = SetCtrlVal (panelHandle, PANEL_YMAX, 500.00);
+		status = SetCtrlVal (panelHandle, PANEL_YMIN, 0.00);
+		
+		// Set precision of Y axis
+		status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YPRECISION, 0);
+	}
+	else if (unit == 3)
+	{
+		yUnits = UNIT_RHO;
+		
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS1, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS2, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS3, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS4, ATTR_CHECKED, 1);
+		
+		// Set manual scale defaults
+		status = SetCtrlVal (panelHandle, PANEL_YMAX, 1.00);
+		status = SetCtrlVal (panelHandle, PANEL_YMIN, -1.00);					   
+		
+		// Set precision of Y axis
+		status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YPRECISION, 2);
+	}
+	
+	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, y_label[yUnits]);
 }
