@@ -81,14 +81,6 @@
 
 // TO DO: significant cleanup of section
 
-// Size of panel
-int		width;
-int		height;
-
-// Control states
-int 	xUnits = 0; // m
-int 	yUnits = 0; // mV
-int		plotType = 2L; // dots
 int		xStart = 0.0;
 int		xSize = 10.0;
 int		diel = 2.25;
@@ -216,6 +208,10 @@ timeinf start_tm, end_tm;
 
 // TO DO: START updated, organized variables
 
+// Control states needed outside UIR
+int 	xUnits = 0; // m
+int 	yUnits = 0; // mV
+int		plotType = 2L; // dots
 
 // Waveform handles
 int 	WfmActive; 	// current acquisition
@@ -224,6 +220,10 @@ int 	WfmStored;	// stored waveform
 // UIR elements
 int 	panelHandle, menuHandle;
 int		rightHandle, bottomHandle;
+
+// Panel size
+int		width, height;
+
 
 // TO DO: END updated, organized variables
 

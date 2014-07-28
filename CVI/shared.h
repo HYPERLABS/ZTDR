@@ -53,7 +53,6 @@ void 	changeUnitX (int unit);
 void 	changeUnitY (int unit);
 void 	checkDirs (void);
 void	clearWaveform (void);
-char	getTimestamp (void);
 void	main (int argc, char *argv[]);
 double 	mean_array (void);
 void	minMax (double a[], int len, double *min, double *max);
