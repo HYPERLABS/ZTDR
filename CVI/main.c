@@ -30,7 +30,6 @@
 // Constants
 
 // General
-#define NPOINTS_MAX 16384
 #define FILTER_WIDTH 4
 
 // Calibration
@@ -165,19 +164,12 @@ UINT16 	dac0val = 0, dac1val = 0, dac2val = 0;
 int 	freerun_en = 0;
 UINT16 	strobecount = 2;
 
-// Transaction data
-UINT16 	rec_len=1024;
 
 // Horizontal values for each unit
-double 	dist_ft[NPOINTS_MAX]; 
-double 	dist_m[NPOINTS_MAX];
-double 	timescale[NPOINTS_MAX];
 double 	wfm_x[NPOINTS_MAX];			// Passed to graph
 double 	wfm_dist[NPOINTS_MAX]; 		// Recalled waveform
 
 // Vertical values in different modes
-UINT16 	wfm[NPOINTS_MAX]; 			// Raw data
-double 	wfmf[NPOINTS_MAX]; 			// Filtered data
 double  wfm_data[NPOINTS_MAX];		// Converted to selected units
 double  wfm_data_ave[NPOINTS_MAX]; 	// After waveform averaging
 double 	wfm_ret[NPOINTS_MAX]; 		// Recalled waveform
@@ -191,16 +183,25 @@ double	wfm_z_data[NPOINTS_MAX];
 
 // TO DO: START updated, organized variables
 
-// Control states needed outside UIR
+
 // TO DO: organize this section as extern (defined in .h)
+// Control states needed outside UIR
 int		diel = 2.25; // coax
 int 	yUnits = 0; // mV
 int 	xUnits = 0; // m
 int		xStart = 0.0; // m
 int		xEnd = 10.0; // m
 
+// Number of data points acquired
+UINT16 	rec_len	= 1024;
 
+// Waveform storage
+double 	wfmDistFt[NPOINTS_MAX]; // distance (ft)
+double 	wfmDistM[NPOINTS_MAX]; // distance (m)
+double 	wfmTime[NPOINTS_MAX]; // time (ns)
 
+UINT16 	wfm[NPOINTS_MAX]; // raw data from device
+double 	wfmFilter[NPOINTS_MAX];	// filtered data from device
 
 
 // TO DO: below are not extern

@@ -122,11 +122,12 @@ void reconstructData (double offset)
 	
 	for (i=0;i<rec_len;i++)
 	{	
-		wfmf[i] = (double) wfm[i] - offset;
+		wfmFilter[i] = (double) wfm[i] - offset;
 		
-		timescale[i] = ((double) curt.time) / ((double) 0xFFFF) * 50.0;
-		dist_m[i] = timescale[i] * vel * 1E-9;
-		dist_ft[i] = timescale[i] * vel * 1E-9 * MtoFT;
+		wfmTime[i] = ((double) curt.time) / ((double) 0xFFFF) * 50.0;
+		wfmDistM[i] = wfmTime[i] * vel * 1E-9;
+		wfmDistFt[i] = wfmTime[i] * vel * 1E-9 * MtoFT;
+		
 		curt.time += incr;
 	}
 }
