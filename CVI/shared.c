@@ -1641,7 +1641,7 @@ void storeWaveform (int format)
 }
 
 // Reset plot area and clear recalled waveform
-void resetWaveform (void)
+void clearWaveform (void)
 {
 	SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_DIMMED, 0);
 	SetCtrlAttribute (panelHandle, PANEL_START, ATTR_DIMMED, 0);
@@ -1990,4 +1990,11 @@ void changeUnitY (int unit)
 	}
 	
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, y_label[yUnits]);
+}
+
+// Reset to default window
+void resetZoom (void)
+{
+	SetCtrlVal(panelHandle, PANEL_START, x_dflt_start[xUnits]);
+	SetCtrlVal(panelHandle, PANEL_WINDOW, x_dflt_windowsz[xUnits]);	
 }

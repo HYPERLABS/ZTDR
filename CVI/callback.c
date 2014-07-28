@@ -180,6 +180,51 @@ int CVICALLBACK onChangeWindow (int panel, int control, int event,
 	return 0;
 }
 
+// Reset UI to clear recalled waveform settings
+int CVICALLBACK onClear (int panel, int control, int event,
+						 void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+		{
+			clearWaveform ();
+			
+			setupTimescale ();
+			
+			acquire ();
+			
+			break;
+		}
+		
+		case EVENT_RIGHT_CLICK:
+		{   	
+			break;
+		}
+	}
+	
+	return 0;
+}
+
+// Reset to default zoom
+int CVICALLBACK onReset (int panel, int control, int event,
+						 void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+			
+			resetZoom ();
+			
+			setupTimescale ();
+			
+			acquire ();
+
+			break;
+	}
+	return 0;
+}
+
 // Generic callback that just acquires a new waveform
 int CVICALLBACK onGeneric (int panel, int control, int event,
 							   void *callbackData, int eventData1, int eventData2)
@@ -235,32 +280,6 @@ int CVICALLBACK onPanel (int panel, int event, void *callbackData,
 			
 			QuitUserInterface (0);
 			
-			break;
-		}
-	}
-	
-	return 0;
-}
-
-// Reset UI to clear recalled waveform settings
-int CVICALLBACK onReset (int panel, int control, int event,
-						 void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-		{
-			resetWaveform ();
-			
-			setupTimescale ();
-			
-			acquire ();
-			
-			break;
-		}
-		
-		case EVENT_RIGHT_CLICK:
-		{   	
 			break;
 		}
 	}
@@ -525,7 +544,6 @@ void CVICALLBACK onStore (int menuBar, int menuItem, void *callbackData,
 	
 	return 0;
 }
-
 
 // Timebase calibration
 void CVICALLBACK onTimeCal (int menuBar, int menuItem, void *callbackData,

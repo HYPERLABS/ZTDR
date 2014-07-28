@@ -24,9 +24,9 @@
 #define  PANEL_START                      8       /* control type: numeric, callback function: onChangeStart */
 #define  PANEL_WINDOW                     9       /* control type: scale, callback function: onChangeWindow */
 #define  PANEL_DIEL                       10      /* control type: numeric, callback function: onChangeK */
-#define  PANEL_RESETZOOM                  11      /* control type: command, callback function: (none) */
+#define  PANEL_DEFAULT                    11      /* control type: command, callback function: onReset */
 #define  PANEL_ZOOM                       12      /* control type: command, callback function: onZoom */
-#define  PANEL_RESET                      13      /* control type: command, callback function: onReset */
+#define  PANEL_CLEAR                      13      /* control type: command, callback function: onClear */
 #define  PANEL_MESSAGES                   14      /* control type: textBox, callback function: (none) */
 #define  PANEL_TIMER                      15      /* control type: timer, callback function: onTimer */
 #define  PANEL_PANECURSOR                 16      /* control type: deco, callback function: (none) */
@@ -99,6 +99,7 @@ void CVICALLBACK onChangeY1(int menubar, int menuItem, void *callbackData, int p
 void CVICALLBACK onChangeY2(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangeY3(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangeY4(int menubar, int menuItem, void *callbackData, int panel);
+int  CVICALLBACK onClear(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onCSV(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onExit(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onGeneric(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
