@@ -32,9 +32,6 @@
 // General
 
 // Calibration
-#define CAL_WINDOW 10.0e-9
-#define CAL_WINDOW_START 10 // ns
-#define CAL_GUARD 0.5e-9
 #define STEP_AMPL 800
 
 // First sample in the record, no matter where the wfm is positioned
@@ -144,11 +141,6 @@ char *label_dist[] =
       "(X2-X1) (ns)" 
 	 };
 
-
-// Calibration
-int 	calIncrement;
-double 	vampl = 679.0;
-						 
 
 // Horizontal values for each unit
 double 	wfm_x[NPOINTS_MAX];			// Passed to graph
