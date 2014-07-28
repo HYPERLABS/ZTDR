@@ -1446,24 +1446,7 @@ double mean_array (void)
 //==============================================================================
 // Other functions triggered by UIR callbacks
 
-// Toggle dimming of controls based on autoscale
-void setAuto (void)
-{
-	int v;
-			
-	GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &v);
-	
-	if (v == 1)
-	{
-		SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 1);
-		SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 1);
-	}
-	else
-	{
-		SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
-		SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 0);
-	}
-}
+
 
 // Recall stored waveform
 void recallWaveform (void)
@@ -2029,6 +2012,26 @@ void savePNG (void)
 	status = ResumeTimerCallbacks ();
 	
 	// TO DO: add some functionality for serial number?
+}
+
+// Toggle dimming of controls based on autoscale
+void setAuto (void)
+{
+	int status;
+	int val;
+			
+	status = GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &val);
+	
+	if (v == 1)
+	{
+		status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 1);
+		status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 1);
+	}
+	else
+	{
+		status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
+		status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 0);
+	}
 }
 
 // Format and show current version and instrument
