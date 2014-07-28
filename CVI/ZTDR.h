@@ -62,23 +62,24 @@
 #define  MENUBAR_DATA_SEPARATOR           12
 #define  MENUBAR_DATA_STORE               13      /* callback function: onStore */
 #define  MENUBAR_DATA_RECALL              14      /* callback function: onRecall */
-#define  MENUBAR_PLOT                     15
-#define  MENUBAR_PLOT_DOTS                16      /* callback function: onChangePlot1 */
-#define  MENUBAR_PLOT_THINLINE            17      /* callback function: onChangePlot2 */
-#define  MENUBAR_PLOT_FATLINE             18      /* callback function: onChangePlot3 */
-#define  MENUBAR_XUNITS                   19
-#define  MENUBAR_XUNITS_XUNITS1           20      /* callback function: onChangeX1 */
-#define  MENUBAR_XUNITS_XUNITS2           21      /* callback function: onChangeX2 */
-#define  MENUBAR_XUNITS_XUNITS3           22      /* callback function: onChangeX3 */
-#define  MENUBAR_YUNITS                   23
-#define  MENUBAR_YUNITS_YUNITS1           24      /* callback function: onChangeY1 */
-#define  MENUBAR_YUNITS_YUNITS2           25      /* callback function: onChangeY2 */
-#define  MENUBAR_YUNITS_YUNITS3           26      /* callback function: onChangeY3 */
-#define  MENUBAR_YUNITS_YUNITS4           27      /* callback function: onChangeY4 */
-#define  MENUBAR_CALIBRATION              28
-#define  MENUBAR_CALIBRATION_VERTCAL      29      /* callback function: onVertCal */
-#define  MENUBAR_CALIBRATION_FULLCAL      30      /* callback function: onTimeCal */
-#define  MENUBAR_CALIBRATION_AUTOCAL      31
+#define  MENUBAR_DATA_CLEAR               15      /* callback function: onClearMenu */
+#define  MENUBAR_PLOT                     16
+#define  MENUBAR_PLOT_DOTS                17      /* callback function: onChangePlot1 */
+#define  MENUBAR_PLOT_THINLINE            18      /* callback function: onChangePlot2 */
+#define  MENUBAR_PLOT_FATLINE             19      /* callback function: onChangePlot3 */
+#define  MENUBAR_XUNITS                   20
+#define  MENUBAR_XUNITS_XUNITS1           21      /* callback function: onChangeX1 */
+#define  MENUBAR_XUNITS_XUNITS2           22      /* callback function: onChangeX2 */
+#define  MENUBAR_XUNITS_XUNITS3           23      /* callback function: onChangeX3 */
+#define  MENUBAR_YUNITS                   24
+#define  MENUBAR_YUNITS_YUNITS1           25      /* callback function: onChangeY1 */
+#define  MENUBAR_YUNITS_YUNITS2           26      /* callback function: onChangeY2 */
+#define  MENUBAR_YUNITS_YUNITS3           27      /* callback function: onChangeY3 */
+#define  MENUBAR_YUNITS_YUNITS4           28      /* callback function: onChangeY4 */
+#define  MENUBAR_CALIBRATION              29
+#define  MENUBAR_CALIBRATION_VERTCAL      30      /* callback function: onVertCal */
+#define  MENUBAR_CALIBRATION_FULLCAL      31      /* callback function: onTimeCal */
+#define  MENUBAR_CALIBRATION_AUTOCAL      32
 
 
      /* Callback Prototypes: */
@@ -100,6 +101,7 @@ void CVICALLBACK onChangeY2(int menubar, int menuItem, void *callbackData, int p
 void CVICALLBACK onChangeY3(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangeY4(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onClear(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+void CVICALLBACK onClearMenu(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onCSV(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onExit(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onGeneric(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);

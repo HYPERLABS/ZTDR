@@ -489,6 +489,19 @@ void CVICALLBACK onChangeY4 (int menuBar, int menuItem, void *callbackData,
 	return 0;	
 }
 
+// Clear stored waveform (from menu)
+void CVICALLBACK onClearMenu (int menuBar, int menuItem, void *callbackData,
+							  int panel)
+{
+	clearWaveform ();
+			
+	setupTimescale ();
+			
+	acquire ();
+	
+	return 0;
+}
+
 // Save CSV file
 void CVICALLBACK onCSV (int menuBar, int menuItem, void *callbackData, 
 							int panel)
