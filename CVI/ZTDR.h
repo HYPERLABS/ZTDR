@@ -24,7 +24,7 @@
 #define  PANEL_ACQUIRE                    8       /* control type: command, callback function: onAcquire */
 #define  PANEL_AUTOACQUIRE                9       /* control type: radioButton, callback function: (none) */
 #define  PANEL_START                      10      /* control type: scale, callback function: onChangeStart */
-#define  PANEL_WINDOW                     11      /* control type: scale, callback function: onChangeWindow */
+#define  PANEL_END                        11      /* control type: scale, callback function: onChangeEnd */
 #define  PANEL_DIEL                       12      /* control type: numeric, callback function: onChangeK */
 #define  PANEL_RESET                      13      /* control type: command, callback function: onReset */
 #define  PANEL_ZOOM                       14      /* control type: command, callback function: onZoom */
@@ -87,12 +87,12 @@
 int  CVICALLBACK onAcquire(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onAuto(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeAverage(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onChangeEnd(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeK(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onChangePlot1(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangePlot2(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangePlot3(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onChangeStart(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK onChangeWindow(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onChangeX1(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangeX2(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangeX3(int menubar, int menuItem, void *callbackData, int panel);

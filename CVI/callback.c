@@ -115,6 +115,8 @@ int CVICALLBACK onChangeK (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 		{
+			changeDiel ();
+			
 			setupTimescale ();
 			
 			acquire ();
@@ -139,7 +141,9 @@ int CVICALLBACK onChangeStart (int panel, int control, int event,
 	switch (event)
 	{
 		case EVENT_VAL_CHANGED:
-		{
+		{   
+			resizeWindow ();
+			
 			setupTimescale ();
 
 			acquire ();
@@ -157,13 +161,15 @@ int CVICALLBACK onChangeStart (int panel, int control, int event,
 }
 
 // Window width changed
-int CVICALLBACK onChangeWindow (int panel, int control, int event,
+int CVICALLBACK onChangeEnd (int panel, int control, int event,
 								void *callbackData, int eventData1, int eventData2)
 {
 	switch (event)
 	{
 		case EVENT_VAL_CHANGED:
 		{
+			resizeWindow ();
+			
 			setupTimescale ();
 
 			acquire ();
@@ -215,6 +221,8 @@ int CVICALLBACK onReset (int panel, int control, int event,
 		case EVENT_COMMIT:
 			
 			resetZoom ();
+			
+			resizeWindow ();
 			
 			setupTimescale ();
 			
@@ -345,6 +353,8 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 		case EVENT_COMMIT:
 		{
 			zoom ();
+			
+			resizeWindow ();
 			
 			setupTimescale ();
 			

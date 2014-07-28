@@ -74,6 +74,7 @@ extern	double 	wfmFilter[NPOINTS_MAX];	// Filtered data from device
 
 void 	acquire (void);
 void 	changeAuto (void);
+void 	changeDiel (void);
 void 	changePlot (int unit);
 void 	changeUnitX (int unit);
 void 	changeUnitY (int unit);
@@ -83,6 +84,7 @@ void	main (int argc, char *argv[]);
 void	printWaveform (void);
 void 	recallWaveform (void);
 void	resetZoom (void);
+void 	resizeWindow (void);
 void 	savePNG (void);
 void 	storeWaveform (int format);
 void	showVersion (void);

@@ -90,11 +90,11 @@ char *x_label_start[] =
 	 };
 
       
-char *x_label_windowsz[] =
+char *x_label_end[] =
      {
-      "WINDOW (m)",
-      "WINDOW (ft)",
-      "WINDOW (ns)" 
+      "END (m)",
+      "END (ft)",
+      "END (ns)" 
 	 }; 		
       
 float x_dflt_start[] =
@@ -104,7 +104,7 @@ float x_dflt_start[] =
       0.0
 	 };
 
-float x_dflt_windowsz[]  =
+float x_dflt_end[]  =
      {
       10.0,
       33.3,
@@ -740,7 +740,7 @@ void recallWaveform (void)
 	changeUnitX (xStored);
 	
 	SetCtrlVal (panelHandle, PANEL_START, (double) start_tm.time);
-	SetCtrlVal (panelHandle, PANEL_WINDOW, (double) windowsz);
+	SetCtrlVal (panelHandle, PANEL_END, (double) windowsz);
 	SetCtrlVal (panelHandle, PANEL_DIEL, diel);
 	SetCtrlVal (panelHandle, PANEL_YMAX, (double) ymax);
 	SetCtrlVal (panelHandle, PANEL_YMIN, (double) ymin);
@@ -761,7 +761,7 @@ void recallWaveform (void)
 						VAL_THIN_LINE, VAL_EMPTY_SQUARE, VAL_SOLID, 1, MakeColor (233, 113, 233));
 
 	// Dim controls
-	SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_DIMMED, 1);
+	SetCtrlAttribute (panelHandle, PANEL_END, ATTR_DIMMED, 1);
 	SetCtrlAttribute (panelHandle, PANEL_START, ATTR_DIMMED, 1);
 	SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_DIMMED, 1);
 	SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 1);
@@ -833,7 +833,7 @@ void storeWaveform (int format)
 	double diel;
 	
 	GetCtrlVal (panelHandle, PANEL_START, &windowstart);
-	GetCtrlVal (panelHandle, PANEL_WINDOW, &windowsize);
+	GetCtrlVal (panelHandle, PANEL_END, &windowsize);
 	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
 	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
 	GetCtrlVal (panelHandle, PANEL_DIEL, &diel);;
@@ -896,17 +896,17 @@ void zoom (void)
 	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
 	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
 
+	// Update start and end controls
 	if (c1x < c2x)
 	{
 		status = SetCtrlVal(panelHandle, PANEL_START, c1x);
+		status = SetCtrlVal(panelHandle, PANEL_END, c2x);
 	}
 	else
 	{
 		status = SetCtrlVal(panelHandle, PANEL_START, c2x);
+		status = SetCtrlVal(panelHandle, PANEL_END, c1x);
 	}
-	
-	// Update window size
-	status = SetCtrlVal (panelHandle, PANEL_WINDOW, fabs (c2x - c1x));
 }
 
 
@@ -937,6 +937,14 @@ void changeAuto (void)
 		status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
 		status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 0);
 	}
+}
+
+// Dielectric constant changed
+void changeDiel (void)
+{
+	int status;
+	
+	status = GetCtrlVal (panelHandle, PANEL_DIEL, &diel);  
 }
 
 // Change between dots and line
@@ -1009,13 +1017,13 @@ void changeUnitX (int unit)
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, x_label[xUnits]);
 	
 	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_LABEL_TEXT, x_label_start[xUnits]);
-	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_LABEL_TEXT, x_label_windowsz[xUnits]);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_LABEL_TEXT, x_label_end[xUnits]);
 	
 	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MAX_VALUE, x_max_range[xUnits]);
-	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_MAX_VALUE, x_max_range[xUnits]);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_MAX_VALUE, x_max_range[xUnits]);
 	
 	status = SetCtrlVal (panelHandle, PANEL_START, x_dflt_start[xUnits]);
-	status = SetCtrlVal (panelHandle, PANEL_WINDOW, x_dflt_windowsz[xUnits]);
+	status = SetCtrlVal (panelHandle, PANEL_END, x_dflt_end[xUnits]);
 }
 
 // Change vertical units
@@ -1148,7 +1156,7 @@ void clearWaveform (void)
 	}
 	
 	// Re-enable controls
-	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_DIMMED, 0);
 	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_DIMMED, 0);
 	status = SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_DIMMED, 0);
 	status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
@@ -1201,7 +1209,16 @@ void printWaveform (void)
 void resetZoom (void)
 {
 	SetCtrlVal (panelHandle, PANEL_START, x_dflt_start[xUnits]);
-	SetCtrlVal (panelHandle, PANEL_WINDOW, x_dflt_windowsz[xUnits]);	
+	SetCtrlVal (panelHandle, PANEL_END, x_dflt_end[xUnits]);	
+}
+
+// Resize acquisition window
+void resizeWindow (void)
+{
+	int status;
+	
+	status = GetCtrlVal (panelHandle, PANEL_START, &xStart);
+	status = GetCtrlVal (panelHandle, PANEL_END, &xEnd);
 }
 
 // Save waveform and controls to PNG
@@ -1364,20 +1381,20 @@ void updateSize (void)
 	status = SetCtrlAttribute (panelHandle, PANEL_RESET, ATTR_LEFT, ctrlLeft + xOffset / 2);
 	
 	// Resize window size control
-	status = GetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_WIDTH, &ctrlWidth);
-	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_WIDTH, ctrlWidth + (xOffset / 3));
+	status = GetCtrlAttribute (panelHandle, PANEL_END, ATTR_WIDTH, &ctrlWidth);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_WIDTH, ctrlWidth + (xOffset / 3));
 	
 	// Reposition window size control
-	status = GetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_LEFT, &ctrlLeft);
-	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_LEFT, ctrlLeft + (xOffset * 2/3));
+	status = GetCtrlAttribute (panelHandle, PANEL_END, ATTR_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_LEFT, ctrlLeft + (xOffset * 2/3));
 	
 	// Reposition window size label
-	status = GetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_LABEL_LEFT, &ctrlLeft);
-	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_LABEL_LEFT, ctrlLeft + (xOffset / 3));
+	status = GetCtrlAttribute (panelHandle, PANEL_END, ATTR_LABEL_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_LABEL_LEFT, ctrlLeft + (xOffset / 3));
 	
 	// Reposition window size display
-	status = GetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_DIG_DISP_LEFT, &ctrlLeft);
-	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_DIG_DISP_LEFT, ctrlLeft + (xOffset / 3));
+	status = GetCtrlAttribute (panelHandle, PANEL_END, ATTR_DIG_DISP_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_DIG_DISP_LEFT, ctrlLeft + (xOffset / 3));
 	
 	// Reposition K control
 	status = GetCtrlAttribute (panelHandle, PANEL_DIEL, ATTR_LEFT, &ctrlLeft);
