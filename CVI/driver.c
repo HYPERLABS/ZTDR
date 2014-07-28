@@ -743,55 +743,49 @@ void vertCal (void)
 	vampl = vend - vstart;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Set timescale for vertCal at 0 ns
 void vertCalZero (double windowStart)
 {
 	double val;
-	UINT32 windowsz;
 	
 	start_tm.time = (UINT32) (windowStart / 50.0*0xFFFF);
-	
+
 	val = 0;
-	windowsz = (UINT32) (val / 50.0*0xFFFF);
-	
-	end_tm.time = start_tm.time + windowsz;
+	end_tm.time = start_tm.time + (UINT32) val;
 }
 
 // Set timescale for vert cal
 void vertCalTimescale (void)
 {
 	double val;
-	UINT32 windowsz;
 
 	val = 10;
 	start_tm.time = (UINT32) (val / 50.0*0xFFFF);
 	
 	val = 10;
-	windowsz = (UINT32) (val / 50.0*0xFFFF);
-	
-	end_tm.time = start_tm.time + windowsz;
+	end_tm.time = start_tm.time + (UINT32) (val / 50.0*0xFFFF);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Write parameters for vertCal 
 int vertCalWriteParams (void)
