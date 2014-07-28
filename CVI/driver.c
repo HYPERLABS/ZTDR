@@ -175,6 +175,49 @@ void calTimebase (void)
 	// return 1;
 }
 
+// Set parameters for calibration
+void calSetParams (void)
+{
+	int status;
+	
+	// Changes stimulus drive to 80MHz on the CPLD
+	UINT8 acq_result;
+	
+	// Set calibration window
+	calstart = 0;
+	calend = 4095;
+
+	// TO DO: use this as a debug?
+	/*
+	if (!usb_opened)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure."); 
+		return;
+	}
+	*/
+
+	// Acquire data to verify instrument is working
+	status = usbfifo_acquire (&acq_result, 0);
+	
+	// TO DO: use this as a debug?
+	/*
+	if (ret < 0)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
+		return;
+	}
+	*/
+	
+	double val;
+	
+	// Set start and end time
+	val = 0;
+	start_tm.time = (UINT32) (val / 50.0*0xFFFF);
+	
+	val = 0;
+	end_tm.time = (UINT32) (val / 50.0*0xFFFF);
+}
+
 // TO DO: validate functions below
 
 
@@ -183,43 +226,7 @@ void calTimebase (void)
 
 
 
-// Set parameters for calibration
-void calSetParams (void)
-{
-	// Changes stimulus drive to 80MHz on the CPLD
-	UINT8 acq_result;
-	int ret;
 
-	calstart = 0;
-	calend = 4095;
-
-	if (!usb_opened)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure."); 
-		return;
-	}
-
-	// Acquire data to verify instrument is working
-	ret = usbfifo_acquire (&acq_result, 0);
-
-	if (ret < 0)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
-		return;
-	}
-	
-	double val;
-	UINT32 windowsz;
-	
-	// Set start and end time of cal window
-	val = 0;
-	start_tm.time = (UINT32) (val / 50.0*0xFFFF);
-	
-	val = 0;
-	windowsz = (UINT32) (val / 50.0*0xFFFF);
-	
-	end_tm.time = start_tm.time + windowsz;
-}
 
 // Acquire waveform for calibration
 void calAcquireWaveform (int calStepIndex)
