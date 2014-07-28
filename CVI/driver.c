@@ -180,9 +180,6 @@ void calSetParams (void)
 {
 	int status;
 	
-	// Changes stimulus drive to 80MHz on the CPLD
-	UINT8 acq_result;
-	
 	// Set calibration window
 	calstart = 0;
 	calend = 4095;
@@ -196,6 +193,8 @@ void calSetParams (void)
 	}
 	*/
 
+	UINT8 acq_result;
+	
 	// Acquire data to verify instrument is working
 	status = usbfifo_acquire (&acq_result, 0);
 	
@@ -218,29 +217,14 @@ void calSetParams (void)
 	end_tm.time = (UINT32) (val / 50.0*0xFFFF);
 }
 
-// TO DO: validate functions below
-
-
-
-
-
-
-
-
-
 // Acquire waveform for calibration
 void calAcquireWaveform (int calStepIndex)
 {
-	int ret = 0;
-	int i,n;
-	unsigned char buf[24];
-	char ch;
-	UINT8 acq_result;
-	static char cbuf[32];
-	double ymin, ymax;
-	int nblocks;
-	int blocksok;
-
+	int status = 0;
+	int i;
+	
+	// TO DO: use this as a debug?
+	/*
 	if (!usb_opened)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure.");
@@ -253,16 +237,25 @@ void calAcquireWaveform (int calStepIndex)
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
 		return;
 	} 
+	*/
 
+	UINT8 acq_result;
+	
 	// Run acquisition for calibration
-	ret = usbfifo_acquire (&acq_result, 0);
+	status = usbfifo_acquire (&acq_result, 0);
 
+	// TO DO: use this as a debug?
+	/*
 	if (ret < 0)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
 		return;
 	}
-
+	*/
+	
+	int blocksok;
+	int nblocks;
+	
 	// Read blocks of data from block numbers (max 64, with 16384 pts)
 	blocksok = 1;
 	nblocks = rec_len / 256;
@@ -272,19 +265,22 @@ void calAcquireWaveform (int calStepIndex)
 		// Verify data integrity of block
 		int ntries = 3;
 		
-		while ((ret = usbfifo_readblock ((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
+		while ((status = usbfifo_readblock ((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
 
-		if (ret < 0)
+		if (status < 0)
 		{   
 			blocksok = 0;
 		}
 	}
-
+	
+	// TO DO: use this as a debug?
+	/*
 	if (blocksok == 0)
 	{
 		//setCtrlVal(panelHandle, PANEL_TXT_LOG, "Read failure.");
 		return;
 	}
+	*/
 	
 	calReconstructData ();
 	
@@ -293,13 +289,26 @@ void calAcquireWaveform (int calStepIndex)
 	{
 		calFindDiscont ();	
 	}
+	// If >0, proceed through step cal
 	else
 	{
 		calFindMean (calStepIndex);
 	}
-
-	// TO DO: graph after calibration?
 }
+
+
+
+
+// TO DO: validate functions below
+
+
+
+
+
+
+
+
+
 
 // Reconstruct data segment for calibration
 void calReconstructData (void)
