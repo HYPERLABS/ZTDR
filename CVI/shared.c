@@ -1682,13 +1682,9 @@ void printWaveform (void)
 	SetPrintAttribute (ATTR_PRINT_AREA_WIDTH, VAL_INTEGRAL_SCALE);
 
 	// Show version, timestamp and print
-	showVersion ();
 	SetCtrlVal (panelHandle, PANEL_MESSAGES, timestamp);
 	
 	PrintPanel (panelHandle, "", 1, VAL_FULL_PANEL, 1);
-	
-	// Reset textbox to remove timestamp
-	showVersion ();
 	
 	// Re-enable automatic acquisition 
 	ResumeTimerCallbacks ();
@@ -1727,7 +1723,6 @@ void savePNG (void)
 	(int) sprintf (timestamp, "> DATE: %02d/%02d/%02d\n> TIME: %02d:%02d:%02d\n", month, day, year, hours, minutes, seconds);
 	
 	// Show version, timestamp
-	showVersion ();
 	SetCtrlVal (panelHandle, PANEL_MESSAGES, timestamp);
 	
 	// TO DO: add some functionality for serial number?
@@ -1736,9 +1731,6 @@ void savePNG (void)
 	int imageFile;
 	GetPanelDisplayBitmap (panelHandle, VAL_FULL_PANEL, VAL_ENTIRE_OBJECT, &imageFile);
 	SaveBitmapToPNGFile (imageFile, save_file);
-   
-	// Reset textbox to remove timestamp
-	showVersion ();
 	
 	// Re-enable automatic acquisition 
 	ResumeTimerCallbacks ();
@@ -1747,10 +1739,18 @@ void savePNG (void)
 // Format and show current instrument and version
 void showVersion (void)
 {
+	int status;
 	char version[64];
-	sprintf (version, "-- HYPERLABS  HL1101 --\n-- ZTDR Version %s --\n\n", _TARGET_PRODUCT_VERSION_);
+
+	status = sprintf (version, "ZTDR v%s", _TARGET_PRODUCT_VERSION_);
 	
-	ResetTextBox (panelHandle, PANEL_MESSAGES, version);
+	// Trim build number
+	int len = strlen (version) - 2;
+	version[len] = 0;
+	
+	SetCtrlVal (panelHandle, PANEL_VERSION, version);
+	
+	//sprintf (version, "-- HYPERLABS  HL1101 --\n--  --\n\n", _TARGET_PRODUCT_VERSION_);
 }
 
 // Update cursor readings

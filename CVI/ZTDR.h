@@ -38,7 +38,7 @@
 #define  PANEL_WAVEFORM                   22      /* control type: graph, callback function: onWaveform */
 #define  PANEL_PANEBOTTOM                 23      /* control type: deco, callback function: (none) */
 #define  PANEL_DELTA                      24      /* control type: textMsg, callback function: (none) */
-#define  PANEL_TEXTMSG                    25      /* control type: textMsg, callback function: (none) */
+#define  PANEL_VERSION                    25      /* control type: textMsg, callback function: (none) */
 
 
      /* Control Arrays: */
@@ -58,7 +58,7 @@
 #define  MENUBAR_DATA_PRINT               8       /* callback function: onPrint */
 #define  MENUBAR_DATA_SEPARATOR_3         9
 #define  MENUBAR_DATA_SAVECSV             10      /* callback function: onCSV */
-#define  MENUBAR_DATA_SAVEPNG             11
+#define  MENUBAR_DATA_SAVEPNG             11      /* callback function: onPNG */
 #define  MENUBAR_DATA_SEPARATOR           12
 #define  MENUBAR_DATA_STORE               13      /* callback function: onStore */
 #define  MENUBAR_DATA_RECALL              14      /* callback function: onRecall */
@@ -103,6 +103,7 @@ void CVICALLBACK onCSV(int menubar, int menuItem, void *callbackData, int panel)
 void CVICALLBACK onExit(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onGeneric(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onPanel(int panel, int event, void *callbackData, int eventData1, int eventData2);
+void CVICALLBACK onPNG(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onPrint(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onRecall(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onReset(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
