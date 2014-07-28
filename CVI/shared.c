@@ -1702,35 +1702,7 @@ void clearWaveform (void)
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_CLEAR, ATTR_DIMMED, 1);
 }
 
-// Print current waveform and controles
-void printWaveform (void)
-{
-	// Disable timers during action
-	SuspendTimerCallbacks ();
-	
-	// TO DO: combine with PNG function, figure how to pass strings back
-	// Get timestamp of request
-	char timestamp[64];
-	int	month, day, year;
-	int	hours, minutes, seconds;
-	
-	GetSystemDate (&month, &day, &year);
-	GetSystemTime (&hours, &minutes, &seconds);
-	
-	(int) sprintf (timestamp, "> DATE: %02d/%02d/%02d\n> TIME: %02d:%02d:%02d\n", month, day, year, hours, minutes, seconds);
-	
-	// Set optimal printer settings
-	SetPrintAttribute (ATTR_PRINT_AREA_HEIGHT, VAL_USE_ENTIRE_PAPER);
-	SetPrintAttribute (ATTR_PRINT_AREA_WIDTH, VAL_INTEGRAL_SCALE);
 
-	// Show version, timestamp and print
-	SetCtrlVal (panelHandle, PANEL_MESSAGES, timestamp);
-	
-	PrintPanel (panelHandle, "", 1, VAL_FULL_PANEL, 1);
-	
-	// Re-enable timers 
-	ResumeTimerCallbacks ();
-}
 
 
 
@@ -1969,6 +1941,38 @@ void checkDirs (void)
 	{
 		MakeDir ("datalogs");
 	}
+}
+
+// Print current waveform and controles
+void printWaveform (void)
+{
+	int status;
+	
+	// Disable timers during action
+	status = SuspendTimerCallbacks ();
+	
+	// Get timestamp of request
+	int	month, day, year;
+	int	hours, minutes, seconds;
+	
+	status = GetSystemDate (&month, &day, &year);
+	status = GetSystemTime (&hours, &minutes, &seconds);
+	
+	char timestamp[64];
+	
+	status = sprintf (timestamp, "> DATE: %02d/%02d/%02d\n> TIME: %02d:%02d:%02d\n", month, day, year, hours, minutes, seconds);
+	
+	// Set optimal printer settings
+	status = SetPrintAttribute (ATTR_PRINT_AREA_HEIGHT, VAL_USE_ENTIRE_PAPER);
+	status = SetPrintAttribute (ATTR_PRINT_AREA_WIDTH, VAL_INTEGRAL_SCALE);
+
+	// Show version, timestamp and print
+	status = SetCtrlVal (panelHandle, PANEL_MESSAGES, timestamp);
+	
+	status = PrintPanel (panelHandle, "", 1, VAL_FULL_PANEL, 1);
+	
+	// Re-enable timers 
+	status = ResumeTimerCallbacks ();
 }
 
 // Reset to default window
