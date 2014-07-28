@@ -81,6 +81,10 @@
 
 // TO DO: significant cleanup of section
 
+// Size of panel
+int		width;
+int		height;
+
 // Control states
 int 	xUnits = 0; // m
 int 	yUnits = 0; // mV
@@ -211,8 +215,10 @@ static int WfmRecall;
 // Time window
 timeinf start_tm, end_tm;
 
-// User interface and states
+// User interface panel, menu, and control arrays
 int 	panelHandle, menuHandle;
+int		rightHandle, bottomHandle;
+
 
 
 // TO DO: better solution
@@ -250,8 +256,14 @@ void main (int argc, char *argv[])
 	// Load menu bar
 	menuHandle = LoadMenuBar (panelHandle, "ZTDR.uir", MENUBAR);
 	
-
+	// Display panel and store size
 	DisplayPanel (panelHandle);
+	GetPanelAttribute(panelHandle, ATTR_WIDTH, &width);
+	GetPanelAttribute(panelHandle, ATTR_HEIGHT, &height);
+	
+	// Load control arrays
+	rightHandle = GetCtrlArrayFromResourceID (panelHandle, RIGHT);
+	bottomHandle = GetCtrlArrayFromResourceID (panelHandle, BOTTOM);
 	
 	// Make sure relevant output directories exist
 	checkDirs ();
@@ -1452,7 +1464,7 @@ void recallWaveform (void)
 {
 	int status;
 	
-	// Disable automatic acquisition during save
+	// Disable timers during action
 	SuspendTimerCallbacks ();
 	
 	// Select file
@@ -1463,7 +1475,7 @@ void recallWaveform (void)
 	// Don't crash if user cancels
 	if (status == VAL_NO_FILE_SELECTED)
 	{
-		// Re-enable automatic acquisition 
+		// Re-enable timers 
 		ResumeTimerCallbacks ();
 		
 		return;
@@ -1559,7 +1571,7 @@ void recallWaveform (void)
 	status = SetCtrlAttribute (panelHandle, PANEL_CLEAR, ATTR_VISIBLE, 1);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_CLEAR, ATTR_DIMMED, 0);
 	
-	// Re-enable automatic acquisition 
+	// Re-enable timers 
 	ResumeTimerCallbacks ();
 }
 
@@ -1570,7 +1582,7 @@ void storeWaveform (int format)
 	
 	int status;
 
-	// Disable automatic acquisition during save
+	// Disable timers during action
 	status = SuspendTimerCallbacks ();
 	
 	// File setup
@@ -1594,7 +1606,7 @@ void storeWaveform (int format)
 	// Don't attempt to save if user cancels
 	if (status == VAL_NO_FILE_SELECTED)
 	{
-		// Re-enable automatic acquisition 
+		// Re-enable timers
 		status = ResumeTimerCallbacks ();
 		
 		return;
@@ -1647,7 +1659,7 @@ void storeWaveform (int format)
 	
 	status = CloseFile (fd);
 	
-	// Re-enable automatic acquisition 
+	// Re-enable timers 
 	status = ResumeTimerCallbacks ();
 }
 
@@ -1687,7 +1699,7 @@ void clearWaveform (void)
 // Print current waveform and controles
 void printWaveform (void)
 {
-	// Disable automatic acquisition during save
+	// Disable timers during action
 	SuspendTimerCallbacks ();
 	
 	// TO DO: combine with PNG function, figure how to pass strings back
@@ -1710,14 +1722,14 @@ void printWaveform (void)
 	
 	PrintPanel (panelHandle, "", 1, VAL_FULL_PANEL, 1);
 	
-	// Re-enable automatic acquisition 
+	// Re-enable timers 
 	ResumeTimerCallbacks ();
 }
 
 // Save waveform and controls to PNG
 void savePNG (void)
 {
-	// Disable automatic acquisition during save
+	// Disable timers during action
 	SuspendTimerCallbacks ();
 
 	// Select file to save
@@ -1730,7 +1742,7 @@ void savePNG (void)
 	// Don't attempt to save if user cancels
 	if (status == VAL_NO_FILE_SELECTED)
 	{
-		// Re-enable automatic acquisition 
+		// Re-enable timers 
 		ResumeTimerCallbacks ();
 		
 		return;
@@ -1756,7 +1768,7 @@ void savePNG (void)
 	GetPanelDisplayBitmap (panelHandle, VAL_FULL_PANEL, VAL_ENTIRE_OBJECT, &imageFile);
 	SaveBitmapToPNGFile (imageFile, save_file);
 	
-	// Re-enable automatic acquisition 
+	// Re-enable timers
 	ResumeTimerCallbacks ();
 }
 
@@ -1862,6 +1874,7 @@ void checkDirs (void)
 
 
 // TO DO: below this, functions totally cleaned up and validated
+// TO DO: these just need to be sorted
 
 // Change between dots and line
 void changePlot (int unit)
@@ -2019,6 +2032,83 @@ void changeUnitY (int unit)
 // Reset to default window
 void resetZoom (void)
 {
-	SetCtrlVal(panelHandle, PANEL_START, x_dflt_start[xUnits]);
-	SetCtrlVal(panelHandle, PANEL_WINDOW, x_dflt_windowsz[xUnits]);	
+	SetCtrlVal (panelHandle, PANEL_START, x_dflt_start[xUnits]);
+	SetCtrlVal (panelHandle, PANEL_WINDOW, x_dflt_windowsz[xUnits]);	
+}
+
+// Update position of controls on resize
+void updateSize (void)
+{
+	int status;
+	int i, count;
+	
+	// Disable timers during action
+	status = SuspendTimerCallbacks ();
+	
+	int newWidth, newHeight;
+								
+	status = GetPanelAttribute (panelHandle, ATTR_WIDTH, &newWidth);
+	status = GetPanelAttribute (panelHandle, ATTR_HEIGHT, &newHeight);
+	
+	int xOffset, yOffset;
+	
+	// Calculate size change
+	xOffset = newWidth - width;
+	yOffset = newHeight - height;
+
+	// Control position and size
+	int ctrlWidth, ctrlHeight;
+	int ctrlLeft, ctrlTop;
+	
+	// Resize panel window
+	status = GetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_WIDTH, &ctrlWidth);
+	status = GetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_HEIGHT, &ctrlHeight);
+	
+	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_WIDTH, ctrlWidth + xOffset);
+	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_HEIGHT, ctrlHeight + yOffset);
+	
+	// Move right-hand control panel
+	status = GetNumCtrlArrayItems (rightHandle, &count);
+   		  
+	for (i = 0; i < count; i++)
+	{   
+		status = GetCtrlAttribute (panelHandle, GetCtrlArrayItem (rightHandle, i), ATTR_LEFT, &ctrlLeft);
+		status = SetCtrlAttribute (panelHandle, GetCtrlArrayItem (rightHandle, i), ATTR_LEFT, ctrlLeft + xOffset);
+	}
+	
+	// Resize message box									   ;
+	status = GetCtrlAttribute (panelHandle, PANEL_MESSAGES, ATTR_HEIGHT, &ctrlHeight);
+	status = SetCtrlAttribute (panelHandle, PANEL_MESSAGES, ATTR_HEIGHT, ctrlHeight + yOffset);
+	
+	// Move bottom control pane
+	status = GetNumCtrlArrayItems (bottomHandle, &count);
+   		  
+	for (i = 0; i < count; i++)
+	{
+		status = GetCtrlAttribute (panelHandle, GetCtrlArrayItem (bottomHandle, i), ATTR_TOP, &ctrlTop);
+		status = SetCtrlAttribute (panelHandle, GetCtrlArrayItem (bottomHandle, i), ATTR_TOP, ctrlTop + yOffset);
+	}
+	
+	// Resize bottom control pane									   ;
+	status = GetCtrlAttribute (panelHandle, PANEL_PANEBOTTOM, ATTR_WIDTH, &ctrlWidth);
+	status = SetCtrlAttribute (panelHandle, PANEL_PANEBOTTOM, ATTR_WIDTH, ctrlWidth + xOffset);
+	
+	// Reposition K control
+	status = GetCtrlAttribute (panelHandle, PANEL_DIEL, ATTR_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_DIEL, ATTR_LEFT, ctrlLeft + xOffset); 
+	
+	// Reposition and resize window size control;
+	status = GetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_LEFT, ctrlLeft + (xOffset / 4));
+	
+	status = GetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_WIDTH, &ctrlWidth);
+	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_WIDTH, ctrlWidth + (xOffset / 2));
+	
+	
+	// Write new window size to globals
+	width = newWidth;
+	height = newHeight;
+	
+	// Re-enable timers
+	status = ResumeTimerCallbacks ();
 }

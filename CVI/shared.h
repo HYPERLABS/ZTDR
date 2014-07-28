@@ -68,6 +68,7 @@ void 	setAuto (void);
 void 	setupTimescale (void);
 void	showVersion (void);
 void	updateCursors (void);
+void	updateSize (void);
 void 	vertCal (void);
 void 	vertCalOffset (double windowStart);
 void 	vertCalTimescale (void);

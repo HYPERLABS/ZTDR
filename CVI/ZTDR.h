@@ -43,8 +43,8 @@
 
      /* Control Arrays: */
 
-          /* (no control arrays in the resource file) */
-
+#define  BOTTOM                           1
+#define  RIGHT                            2
 
      /* Menu Bars, Menus, and Menu Items: */
 
