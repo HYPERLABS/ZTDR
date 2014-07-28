@@ -29,22 +29,6 @@
 //==============================================================================
 // Constants
 
-// General
-
-// Calibration
-#define STEP_AMPL 800
-
-// First sample in the record, no matter where the wfm is positioned
-#define OFFSET_ACQ_POS 0
-
-
-
-
-
-// File save/load
-#define BUF_REC_LEN 64
-#define MAX_SAVE_FILE 100
-
 
 //==============================================================================
 // Types
@@ -214,7 +198,7 @@ void main (int argc, char *argv[])
 	for (i=0; i < NPOINTS_MAX; i++)
 	{
 		wfm[i] = 0;
-		wfmf[i] = 0.0;
+		wfmFilter[i] = 0.0;
 	}
 
 	// Verify instrument functionality
@@ -310,7 +294,7 @@ void acquire (void)
 	}
 	
 	// Set window to acquire offset at 0 ns
-	vertCalZero (OFFSET_ACQ_POS);
+	vertCalZero (0);
 	
 	// Write the acquisition parameters
 	if (vertCalWriteParams () <= 0)
@@ -352,7 +336,7 @@ void acquire (void)
 	
 	// Reconstruct data and find offset for acquisition
 	reconstructData (0); 
-	offset = mean_array();
+	offset = meanArray();
 	
 	// Timescale and parameters for main acquisition 
 	setupTimescale ();
@@ -417,12 +401,12 @@ void acquire (void)
 			if (i < 1024)
 			{
 				// Store pre-conversion values for debug purposes
-				wfmf_debug[i] = wfmf[i];
+				wfmf_debug[i] = wfmFilter[i];
 				wfm_data_debug[i] = wfm_data[i];
 			}
 			
 			// Convert first to Rho (baseline unit for conversions)
-			wfm_data[i] = (double) (wfmf[i]) / (double) vampl - 1.0;
+			wfm_data[i] = (double) (wfmFilter[i]) / (double) vampl - 1.0;
 		}
 
 		// Y Axis scaling based on selected unit
@@ -646,7 +630,7 @@ void acquire (void)
 	{
 		for (i = 0; i < recLen; i++)
 		{
-			wfm_x[i] = timescale[i];
+			wfm_x[i] = wfmTime[i];
 		}
 	}
 	// Horizontal units in meters
@@ -654,7 +638,7 @@ void acquire (void)
 	{
 		for (i = 0; i < recLen; i++)
 		{
-			wfm_x[i] = dist_m[i];
+			wfm_x[i] = wfmDistM[i];
 		}
 	}
 	// Horizontal units in feet
@@ -662,7 +646,7 @@ void acquire (void)
 	{
 		for (i = 0; i < recLen; i++)
 		{
-			wfm_x[i] = dist_ft[i];
+			wfm_x[i] = wfmDistFt[i];
 		}
 	}
 	
@@ -690,7 +674,7 @@ void recallWaveform (void)
 	SuspendTimerCallbacks ();
 	
 	// Select file
-	char save_file[MAX_SAVE_FILE + 160];
+	char save_file[256];
 	
 	status = FileSelectPopup ("waveforms","*.ztdr","ZTDR Waveform (*.ztdr)","Select File to Retrieve", VAL_SELECT_BUTTON, 0, 0, 1, 1, save_file);
 
@@ -808,7 +792,7 @@ void storeWaveform (int format)
 	status = SuspendTimerCallbacks ();
 	
 	// File setup
-	char save_file[MAX_SAVE_FILE + 160];
+	char save_file[256];
 	
 	// TO DO: default filename, based on serial(?)
 	char filename[40];
@@ -1230,7 +1214,7 @@ void savePNG (void)
 
 	// Select file to save
 	char filename[64];
-	char save_file[MAX_SAVE_FILE+160];
+	char save_file[256];
 	status = sprintf (filename, ".png");
 	status = FileSelectPopup ("images", filename, "PNG (*.png)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
 

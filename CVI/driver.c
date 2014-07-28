@@ -633,7 +633,7 @@ void vertCal (void)
 	
 	// Find offset for acquisition
 	double vstart;
-	vstart = mean_array ();
+	vstart = meanArray ();
 
 	// Timescale and parameters for main acquisition
 	vertCalTimescale ();
@@ -766,36 +766,15 @@ void vertCalTimescale (void)
 	end_tm.time = start_tm.time + (UINT32) (val / 50.0*0xFFFF);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Write parameters for vertCal 
 int vertCalWriteParams (void)
 {
-	int ret;
+	int status;
 
-	ret = usbfifo_setparams (0, calstart, calend, start_tm, end_tm,
-							 stepcount, strobecount, 0, 1024, dac0val, dac1val, dac2val);
+	status = usbfifo_setparams (0, calstart, calend, start_tm, end_tm,
+								stepcount, strobecount, 0, 1024, dac0val, dac1val, dac2val);
 	
-	if (ret < 0)
+	if (status < 0)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Params failed.");
 		return 0;
@@ -806,3 +785,5 @@ int vertCalWriteParams (void)
 		return 1;
 	}			 
 }
+
+// TO DO: this whole file optimized for DEBUG!

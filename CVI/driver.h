@@ -41,7 +41,9 @@ extern "C" {
 //==============================================================================
 // External variables
 
-int 	usb_opened;
+extern	int 	usb_opened;
+extern	int 	calIncrement;
+extern	double 	vampl;
 
 
 //==============================================================================
@@ -56,7 +58,7 @@ void 	calReconstructData (void);
 void 	calSetParams (void);
 void 	calSetupTimescale (void);
 void 	calTimebase (void); 
-double 	mean_array (void);
+double 	meanArray (void);
 void 	openDevice (void);
 void 	reconstructData (double offset);
 void 	setEnviron (int x, int y, double start, double end, double k);

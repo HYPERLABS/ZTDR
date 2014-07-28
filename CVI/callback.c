@@ -13,8 +13,9 @@
 // Include files
 
 #include <ansi_c.h>
-#include "shared.h"
 
+#include "driver.h"
+#include "main.h"
 #include "usbfifo.h"
 #include "ZTDR.h"
 
@@ -66,7 +67,7 @@ int CVICALLBACK onAuto (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 		{
-			setAuto ();
+			changeAuto ();
 			
 			acquire ();
 			
