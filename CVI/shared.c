@@ -1772,22 +1772,7 @@ void savePNG (void)
 	ResumeTimerCallbacks ();
 }
 
-// Format and show current instrument and version
-void showVersion (void)
-{
-	int status;
-	char version[64];
 
-	status = sprintf (version, "ZTDR v%s", _TARGET_PRODUCT_VERSION_);
-	
-	// Trim build number
-	int len = strlen (version) - 2;
-	version[len] = 0;
-	
-	SetCtrlVal (panelHandle, PANEL_VERSION, version);
-	
-	//sprintf (version, "-- HYPERLABS  HL1101 --\n--  --\n\n", _TARGET_PRODUCT_VERSION_);
-}
 
 
 
@@ -2030,6 +2015,25 @@ void resetZoom (void)
 {
 	SetCtrlVal (panelHandle, PANEL_START, x_dflt_start[xUnits]);
 	SetCtrlVal (panelHandle, PANEL_WINDOW, x_dflt_windowsz[xUnits]);	
+}
+
+// Format and show current version and instrument
+void showVersion (void)
+{
+	int status;
+	
+	// Get full version number
+	char version[64];
+	status = sprintf (version, "ZTDR v%s", _TARGET_PRODUCT_VERSION_);
+	
+	// Trim build number
+	int len = strlen (version) - 2;
+	version[len] = 0;
+	
+	// Append instrument model
+	status = sprintf (version, "%s / HL1101", version);
+	
+	status = SetCtrlVal (panelHandle, PANEL_VERSION, version);
 }
 
 // Update cursor readings
