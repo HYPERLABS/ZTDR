@@ -132,25 +132,29 @@ void reconstructData (double offset)
 	}
 }
 
+// Calculate offset from average 0
+double meanArray (void)
+{
+	int i;
+	
+	long val;
+	val = 0;
+	
+	for (i = 24; i < 1024; i++)
+	{
+		val += wfmFilter[i];
+	}
+
+	return ((double) val / (double) 1000.0);
+}
+
 
 // TO DO: validate functions below
 
 
 
 
-// Calculate offset from average 0
-double mean_array (void)
-{
-	long temp;
-	int i;
-	temp = 0;
-	for (i = 24; i < 1024; i++)
-	{
-		temp += wfmf[i];
-	}
 
-	return((double) temp / (double) 1000.0);
-}
 
 // Calibrate timebase ("full cal")
 void calTimebase (void)
