@@ -85,6 +85,9 @@
 int 	xUnits = 0; // m
 int 	yUnits = 0; // mV
 int		plotType = 2L; // dots
+int		xStart = 0.0;
+int		xSize = 10.0;
+int		diel = 2.25;
 
 
 // Initialization
@@ -1447,10 +1450,10 @@ void setAuto (void)
 // Recall stored waveform
 void recallWaveform (void)
 {
+	int status;
+	
 	// Disable automatic acquisition during save
 	SuspendTimerCallbacks ();
-	
-	int status;
 	
 	// Select file
 	char save_file[MAX_SAVE_FILE + 160];
@@ -1516,9 +1519,7 @@ void recallWaveform (void)
 	// Set control values from stored waveform
 	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 0);
 	
-	
 	changeUnitX (xStored);
-	
 	
 	SetCtrlVal (panelHandle, PANEL_START, (double) start_tm.time);
 	SetCtrlVal (panelHandle, PANEL_WINDOW, (double) windowsz);
@@ -1531,6 +1532,7 @@ void recallWaveform (void)
 	if (WfmRecall)
 	{
 		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmRecall, VAL_IMMEDIATE_DRAW);
+		WfmRecall =0;
 	}
 	
 	// Scale waveform acquisition window
@@ -1548,6 +1550,9 @@ void recallWaveform (void)
 	SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 1);
 	SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 1);
 
+	// Show CLEAR button
+	status = SetCtrlAttribute (panelHandle, PANEL_CLEAR, ATTR_VISIBLE, 1);
+	
 	// Re-enable automatic acquisition 
 	ResumeTimerCallbacks ();
 }
@@ -1643,6 +1648,8 @@ void storeWaveform (int format)
 // Reset plot area and clear recalled waveform
 void clearWaveform (void)
 {
+	int status;
+	
 	SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_DIMMED, 0);
 	SetCtrlAttribute (panelHandle, PANEL_START, ATTR_DIMMED, 0);
 	SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_DIMMED, 0);
@@ -1653,11 +1660,15 @@ void clearWaveform (void)
 	// TO DO: is this desired behavior?
 	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 1);
 
-	// Remove any other recalled waveforms
+	// Remove any recalled waveforms
 	if (WfmRecall)
 	{
 		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmRecall, VAL_IMMEDIATE_DRAW);
+		WfmRecall = 0;
 	}
+	
+	// Hide CLEAR button
+	status = SetCtrlAttribute (panelHandle, PANEL_CLEAR, ATTR_VISIBLE, 0);
 }
 
 // Print current waveform and controles
