@@ -296,7 +296,39 @@ void calAcquireWaveform (int calStepIndex)
 	}
 }
 
-
+// Reconstruct data segment for calibration
+void calReconstructData (void)
+{
+	int i, j;
+	
+	UINT32 incr;
+	incr = (end_tm.time - start_tm.time) / rec_len;
+	
+	timeinf curt;
+	curt.time = start_tm.time;
+	
+	for (i = 0; i < rec_len; i++)
+	{						 		
+		wfmFilter[i] = (double) wfm[i];
+		wfmTime[i] = ((double) curt.time) / ((double) 0xFFFF) * 50.0;
+		curt.time += incr;
+	}
+	
+	// Smooth data for better resolution
+	for (i = FILTER_WIDTH / 2; i < rec_len - FILTER_WIDTH / 2; i++)
+	{
+		double val;
+		
+		val = 0.00;
+		
+		for (j = i - FILTER_WIDTH / 2; j < i + FILTER_WIDTH / 2; j++)
+		{
+			val = val + wfmFilter[j];
+		}
+		
+		wfmFilter[i] = val / FILTER_WIDTH;
+	}
+}
 
 
 // TO DO: validate functions below
@@ -310,37 +342,7 @@ void calAcquireWaveform (int calStepIndex)
 
 
 
-// Reconstruct data segment for calibration
-void calReconstructData (void)
-{
-	int i, j;
-	timeinf curt;
-	double val;
-	UINT32 incr;
-	
-	incr = (end_tm.time - start_tm.time) / rec_len;
-	
-	curt.time = start_tm.time;
-	
-	for (i = 0; i < rec_len; i++)
-	{						 		
-		wfmf[i] = (double) wfm[i];
-		timescale[i] = ((double) curt.time) / ((double) 0xFFFF) * 50.0;
-		curt.time += incr;
-	}
-	
-	// Smooth data for better resolution
-	for (i = FILTER_WIDTH / 2; i < rec_len - FILTER_WIDTH / 2; i++)
-	{
-		val = 0;
-		for (j = i - FILTER_WIDTH / 2; j < i + FILTER_WIDTH / 2; j++)
-		{
-			val = val + wfmf[j];
-		}
-		
-		wfmf[i] = val / FILTER_WIDTH;
-	}
-}
+
 
 // Find mean of waveform segment
 void calFindMean (int calStepIndex)

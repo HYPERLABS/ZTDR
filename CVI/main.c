@@ -30,7 +30,6 @@
 // Constants
 
 // General
-#define FILTER_WIDTH 4
 
 // Calibration
 #define CAL_WINDOW 10.0e-9
