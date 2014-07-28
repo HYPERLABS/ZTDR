@@ -58,7 +58,7 @@ extern	int		xStart;
 extern	int		xEnd;	
 
 // Number of data points acquired
-extern	UINT16 	rec_len;
+extern	UINT16 	recLen;
 
 // Waveform storage
 double 	wfmDistFt[NPOINTS_MAX]; // distance (ft)

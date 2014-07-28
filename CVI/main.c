@@ -183,7 +183,7 @@ int		xStart = 0.0; // m
 int		xEnd = 10.0; // m
 
 // Number of data points acquired
-UINT16 	rec_len	= 1024;
+UINT16 	recLen	= 1024;
 
 // Waveform storage
 double 	wfmDistFt[NPOINTS_MAX]; // distance (ft)
@@ -343,7 +343,7 @@ void acquire (void)
 	
 	// Read blocks of data from block numbers 0-63 (max 64 blocks and 16384 pts)
 	blocksok = 1;
-	nblocks = rec_len / 256;
+	nblocks = recLen / 256;
 	
 	for (i=0; i < nblocks; i++)
 	{
@@ -401,7 +401,7 @@ void acquire (void)
 	
 		// Read blocks of data from block numbers 0-63 (max 64 blocks and 16384 pts)
 		blocksok = 1;
-		nblocks = rec_len / 256;
+		nblocks = recLen / 256;
 		
 		for (i = 0; i < nblocks; i++)
 		{
@@ -425,7 +425,7 @@ void acquire (void)
 		reconstructData (offset);
  		
 		// Store data, perform rho conversion
-		for (i = 0; i < rec_len; i++)
+		for (i = 0; i < recLen; i++)
 		{ 
 			if (i < 1024)
 			{
@@ -447,7 +447,7 @@ void acquire (void)
 				ymax = -500;
 				ymin = 500;
 				
-				for (i = 0; i < rec_len; i++)
+				for (i = 0; i < recLen; i++)
 				{
 					wfm_data[i] *= ampl_factor;
 					
@@ -480,7 +480,7 @@ void acquire (void)
 				ymin = 2.00;
 				ymax =  0.00;
 				
-				for (i = 0; i < rec_len; i++)
+				for (i = 0; i < recLen; i++)
 				{
 					wfm_data[i] += 1.0;
 					
@@ -518,7 +518,7 @@ void acquire (void)
 				ymin = 500.00;
 				ymax =  0.00;
 				
-				for (i = 0; i < rec_len; i++)
+				for (i = 0; i < recLen; i++)
 				{   
 					// Make sure Rho values are in range for conversion
 					if (wfm_data[i] <= -1)
@@ -571,7 +571,7 @@ void acquire (void)
 				ymin = 1.00;
 				ymax =  -1.00;
 				
-				for (i=0; i < rec_len; i++)
+				for (i=0; i < recLen; i++)
 				{ 
 					if (wfm_data[i] <= -1)
 					{
@@ -635,7 +635,7 @@ void acquire (void)
 		}
 		
 		// Average waveforms
-		for (i = 0; i< rec_len; i++)
+		for (i = 0; i< recLen; i++)
 		{
 			wfm_data_ave[i] = (k* wfm_data_ave[i] + wfm_data[i])/(k+1);
 		}
@@ -657,7 +657,7 @@ void acquire (void)
 	// Horizontal units in time
 	if (xUnits == UNIT_NS)
 	{
-		for (i = 0; i < rec_len; i++)
+		for (i = 0; i < recLen; i++)
 		{
 			wfm_x[i] = timescale[i];
 		}
@@ -665,7 +665,7 @@ void acquire (void)
 	// Horizontal units in meters
 	else if (xUnits == UNIT_M) 
 	{
-		for (i = 0; i < rec_len; i++)
+		for (i = 0; i < recLen; i++)
 		{
 			wfm_x[i] = dist_m[i];
 		}
@@ -673,13 +673,13 @@ void acquire (void)
 	// Horizontal units in feet
 	else 
 	{
-		for (i = 0; i < rec_len; i++)
+		for (i = 0; i < recLen; i++)
 		{
 			wfm_x[i] = dist_ft[i];
 		}
 	}
 	
-	WfmActive = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_x, wfm_data_ave, rec_len, VAL_DOUBLE, VAL_DOUBLE,
+	WfmActive = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_x, wfm_data_ave, recLen, VAL_DOUBLE, VAL_DOUBLE,
 						plotType, VAL_SMALL_SOLID_SQUARE, VAL_SOLID, 1, MakeColor (113, 233, 70));
 	
 	// Trigger the DELAYED_DRAW
@@ -743,7 +743,7 @@ void recallWaveform (void)
 	vc = (double) 3E8 / sqrt (diel);
 							   
 	// Read X, Y values
-	for(i = 0; i < rec_len; i++)
+	for(i = 0; i < recLen; i++)
 	{  
 		float x, y;
 		
@@ -786,7 +786,7 @@ void recallWaveform (void)
 	SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, (double) ymin, (double) ymax);
 	
 	// Plot waveform
-	WfmStored = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_dist, wfm_ret, rec_len, VAL_DOUBLE, VAL_DOUBLE, 
+	WfmStored = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_dist, wfm_ret, recLen, VAL_DOUBLE, VAL_DOUBLE, 
 						VAL_THIN_LINE, VAL_EMPTY_SQUARE, VAL_SOLID, 1, MakeColor (233, 113, 233));
 
 	// Dim controls
@@ -882,7 +882,7 @@ void storeWaveform (int format)
 	status = WriteFile (fd, buf, strlen(buf));
 	
 	// Log X/Y data
-	for (i = 0; i < rec_len; i++)
+	for (i = 0; i < recLen; i++)
 	{
 		// Reset buffer
 		buf[0] = 0;

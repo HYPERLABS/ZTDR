@@ -129,11 +129,11 @@ void reconstructData (double offset)
 	UINT32 incr;
 	timeinf curt;
 	
-	incr = (end_tm.time - start_tm.time) / rec_len;
+	incr = (end_tm.time - start_tm.time) / recLen;
 	
 	curt.time = start_tm.time;
 	
-	for (i=0;i<rec_len;i++)
+	for (i = 0; i < recLen; i++)
 	{	
 		wfmFilter[i] = (double) wfm[i] - offset;
 		
@@ -271,7 +271,7 @@ void calAcquireWaveform (int calStepIndex)
 	
 	// Read blocks of data from block numbers (max 64, with 16384 pts)
 	blocksok = 1;
-	nblocks = rec_len / 256;
+	nblocks = recLen / 256;
 	
 	for (i = 0; i < nblocks; i++)
 	{
@@ -315,12 +315,12 @@ void calReconstructData (void)
 	int i, j;
 	
 	UINT32 incr;
-	incr = (end_tm.time - start_tm.time) / rec_len;
+	incr = (end_tm.time - start_tm.time) / recLen;
 	
 	timeinf curt;
 	curt.time = start_tm.time;
 	
-	for (i = 0; i < rec_len; i++)
+	for (i = 0; i < recLen; i++)
 	{						 		
 		wfmFilter[i] = (double) wfm[i];
 		wfmTime[i] = ((double) curt.time) / ((double) 0xFFFF) * 50.0;
@@ -328,7 +328,7 @@ void calReconstructData (void)
 	}
 	
 	// Smooth data for better resolution
-	for (i = FILTER_WIDTH / 2; i < rec_len - FILTER_WIDTH / 2; i++)
+	for (i = FILTER_WIDTH / 2; i < recLen - FILTER_WIDTH / 2; i++)
 	{
 		double val;
 		
@@ -351,12 +351,12 @@ void calFindMean (int calStepIndex)
 
 	val = 0.00;
 	
-	for (i=0; i < rec_len; i++)
+	for (i=0; i < recLen; i++)
 	{
 		val = val + wfmFilter[i];
 	}
 	
-	val = val / rec_len;
+	val = val / recLen;
 	
 	calLevels[calStepIndex] = val;
 }
@@ -534,46 +534,41 @@ void calSetupTimescale (void)
 	end_tm.time = (UINT32) (val / 50.0*0xFFFF);
 }
 
-// TO DO: validate functions below
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // TO DO: function description
 void calFindDiscont (void)
 {
-	int i, j;
-
-	char dispStr[10];
+	int i;
 
 	calDiscLevel = 0;
 
-	j = 0;
-
-	for (i = 0; i < rec_len; i++)
+	for (i = 0; i < recLen; i++)
 	{
-		calDiscLevel = calDiscLevel + wfmf[i];
+		calDiscLevel = calDiscLevel + wfmFilter[i];
 	}
 
-	calDiscLevel = calDiscLevel / rec_len;
+	calDiscLevel = calDiscLevel / recLen;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Write parameters to device
 int writeParams (void)
@@ -581,7 +576,7 @@ int writeParams (void)
 	int ret;
 
 	ret = usbfifo_setparams ((UINT8) freerun_en, calstart, calend, start_tm, end_tm, stepcount, 
-							 strobecount, 0, rec_len, dac0val, dac1val, dac2val);
+							 strobecount, 0, recLen, dac0val, dac1val, dac2val);
 	
 	if (ret < 0)
 	{
@@ -640,7 +635,7 @@ void vertCal (void)
 
 	// Read blocks of data from block numbers 0-63 (max 64, with 16384 pts)
 	blocksok = 1;
-	nblocks = rec_len / 256;
+	nblocks = recLen / 256;
 	
 	for (i = 0; i < nblocks; i++)
 	{
@@ -685,7 +680,7 @@ void vertCal (void)
 
 	// Read blocks of data from block numbers 0-63 (16384 pts)
 	blocksok = 1;
-	nblocks = rec_len / 256;
+	nblocks = recLen / 256;
 	for (i = 0; i < nblocks; i++)
 	{
 		// Verify data integrity of block 
