@@ -35,7 +35,7 @@
 extern int panelHandle;
 
 //==============================================================================
-// Global functions (sorted alphabetically, not by functionality)
+// Callback functions from controls (sorted alphabetically)
 
 // Acquire waveform manually
 int CVICALLBACK onAcquire (int panel, int control, int event,
@@ -242,70 +242,6 @@ int CVICALLBACK onPanel (int panel, int event, void *callbackData,
 	return 0;
 }
 
-// Print panel and waveform
-int CVICALLBACK onPNG (int panel, int control, int event,
-					   void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-		{
-		case EVENT_COMMIT:
-		{
-			savePNG ();
-			
-			break;
-		}
-			
-		case EVENT_RIGHT_CLICK:
-		{
-			break;
-		}
-	}
-	return 0;
-}
-
-// Print panel and waveform
-int CVICALLBACK onPrint (int panel, int control, int event,
-						 void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-		{
-		case EVENT_COMMIT:
-		{
-			printWaveform ();
-			
-			break;
-		}
-			
-		case EVENT_RIGHT_CLICK:
-		{
-			break;
-		}
-	}
-	return 0;
-}
-
-// Recall stored waveform
-int CVICALLBACK onRecall (int panel, int control, int event,
-						  void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-		{
-		case EVENT_COMMIT:
-		{ 	
-			recallWaveform ();
-			
-			break;
-		}
-		
-		case EVENT_RIGHT_CLICK:
-		{   	
-			break;
-		}
-	}
-	
-	return 0;
-}
-
 // Reset UI to clear recalled waveform settings
 int CVICALLBACK onReset (int panel, int control, int event,
 						 void *callbackData, int eventData1, int eventData2)
@@ -319,28 +255,6 @@ int CVICALLBACK onReset (int panel, int control, int event,
 			setupTimescale ();
 			
 			acquire ();
-			
-			break;
-		}
-		
-		case EVENT_RIGHT_CLICK:
-		{   	
-			break;
-		}
-	}
-	
-	return 0;
-}
-
-// Store waveform
-int CVICALLBACK onStore (int panel, int control, int event,
-						void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-		{  	
-			storeWaveform (1);
 			
 			break;
 		}
@@ -438,7 +352,40 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 
 
 //==============================================================================
-// Global functions from menu commands (sorted alphabetically)
+// Callback functions from menu commands (sorted alphabetically)
+
+// Display changed to DOTS
+void CVICALLBACK onChangePlot1 (int menuBar, int menuItem, void *callbackData,
+								   int panel)
+{
+	changePlot (0);
+
+	acquire ();
+	
+	return 0;	
+}
+
+// Display changed to THIN_LINE
+void CVICALLBACK onChangePlot2 (int menuBar, int menuItem, void *callbackData,
+								   int panel)
+{
+	changePlot (1);
+
+	acquire ();
+	
+	return 0;	
+}
+
+// Display changed to FAT_LINE
+void CVICALLBACK onChangePlot3 (int menuBar, int menuItem, void *callbackData,
+								   int panel)
+{
+	changePlot (2);
+
+	acquire ();
+	
+	return 0;	
+}
 
 // Horizontal units changed to M
 void CVICALLBACK onChangeX1 (int menuBar, int menuItem, void *callbackData, 
@@ -542,6 +489,43 @@ void CVICALLBACK onExit (int menuBar, int menuItem, void *callbackData,
 	
 	return 0;	
 }
+
+// Save waveform as PNG
+void CVICALLBACK onPNG (int menuBar, int menuItem, void *callbackData,
+							 int panel)
+{
+	savePNG ();
+	
+	return 0;
+}
+
+// Print waveform
+void CVICALLBACK onPrint (int menuBar, int menuItem, void *callbackData,
+							 int panel)
+{
+	printWaveform ();
+	
+	return 0;
+}
+
+// Recall waveform
+void CVICALLBACK onRecall (int menuBar, int menuItem, void *callbackData,
+							 int panel)
+{
+	recallWaveform ();
+	
+	return 0;
+}
+
+// Store waveform
+void CVICALLBACK onStore (int menuBar, int menuItem, void *callbackData,
+							 int panel)
+{
+	storeWaveform (1);
+	
+	return 0;
+}
+
 
 // Timebase calibration
 void CVICALLBACK onTimeCal (int menuBar, int menuItem, void *callbackData,

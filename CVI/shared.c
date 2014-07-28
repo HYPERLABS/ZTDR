@@ -82,8 +82,9 @@
 // TO DO: significant cleanup of section
 
 // Control states
-int xUnits = 0;
-int yUnits = 0;
+int 	xUnits = 0; // m
+int 	yUnits = 0; // mV
+int		plotType = 2L; // dots
 
 
 // Initialization
@@ -295,7 +296,6 @@ void acquire (void)
 	UINT8 acq_result;
 	static char cbuf[32];
 	
-	int dots;
 	double ymax, ymin;
 	int nblocks;
 	int blocksok;
@@ -378,7 +378,6 @@ void acquire (void)
 	// TO DO: are these overwritten later?
 	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
 	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
-	GetCtrlVal (panelHandle, PANEL_DOTS, &dots);
 	
 	// Acquire k waveforms, loop and average if k > 1
 	for (k = 0; k < acquisition_nr; k++) 
@@ -673,7 +672,7 @@ void acquire (void)
 	}
 	
 	WfmHandle = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_x, wfm_data_ave, rec_len, VAL_DOUBLE, VAL_DOUBLE,
-						dots? VAL_SCATTER : VAL_THIN_LINE, VAL_SMALL_SOLID_SQUARE, VAL_SOLID, 1, dots? MakeColor (113, 233, 70) : MakeColor (113, 233, 70));
+						plotType, VAL_SMALL_SOLID_SQUARE, VAL_SOLID, 1, MakeColor (113, 233, 70));
 	
 	// Trigger the DELAYED_DRAW
 	RefreshGraph (panelHandle, PANEL_WAVEFORM);
@@ -827,7 +826,6 @@ void calAcquireWaveform (int calStepIndex)
 	UINT8 acq_result;
 	static char cbuf[32];
 	double ymin, ymax;
-	int dots;
 	int nblocks;
 	int blocksok;
 
@@ -1142,7 +1140,6 @@ void vertCal (void)
 	static char cbuf[32];
 	double ymin, ymax;
 
-	int dots;
 	int nblocks;
 	int blocksok;
 	double ymind, ymaxd;
@@ -1243,7 +1240,6 @@ void vertCal (void)
 
 	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
 	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
-	GetCtrlVal (panelHandle, PANEL_DOTS, &dots);
 
 	reconstructData (0);
 	
@@ -1829,10 +1825,54 @@ void checkDirs (void)
 	}
 }
 
+
+
+
+
+
+
 // TO DO: move cal functions to "driver" or something?
 
 
+
+
+
 // TO DO: below this, functions totally cleaned up and validated
+
+// Change between dots and line
+void changePlot (int unit)
+{
+	int status;																			   
+	
+	// Change unit selection and update menu
+	if (unit == 0)
+	{   
+		// Dots
+		plotType = 2L;
+		
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_DOTS, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_THINLINE, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_FATLINE, ATTR_CHECKED, 0);
+	}
+	else if (unit == 1)
+	{
+		// Thin line
+		plotType = 0L;
+		
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_DOTS, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_THINLINE, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_FATLINE, ATTR_CHECKED, 0);
+	}
+	else if (unit == 2)
+	{
+		// Thick line
+		plotType = 5L;
+		
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_DOTS, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_THINLINE, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_FATLINE, ATTR_CHECKED, 1);
+	}
+}
 
 // Change horizontal units
 void changeUnitX (int unit)
