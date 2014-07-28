@@ -32,8 +32,6 @@
 //==============================================================================
 // Global variables
 
-extern int panelHandle;
-
 //==============================================================================
 // Callback functions from controls (sorted alphabetically)
 
