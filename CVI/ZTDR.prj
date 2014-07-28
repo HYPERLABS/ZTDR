@@ -9,7 +9,7 @@ IVI Standard Root Dir = "/C/Program Files (x86)/IVI Foundation/IVI"
 VXIplug&play Framework Dir = "/C/Program Files (x86)/IVI Foundation/VISA/winnt"
 IVI Standard Root 64-bit Dir = "/C/Program Files/IVI Foundation/IVI"
 VXIplug&play Framework 64-bit Dir = "/C/Program Files/IVI Foundation/VISA/win64"
-Number of Files = 12
+Number of Files = 10
 Target Type = "Executable"
 Flags = 16
 Copied From Locked InstrDrv Directory = False
@@ -118,9 +118,9 @@ File Type = "CSource"
 Res Id = 8
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "HL1101.c"
-Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/HL1101.c"
-Exclude = True
+Path Rel Path = "shared.c"
+Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/shared.c"
+Exclude = False
 Compile Into Object File = False
 Project Flags = 0
 Folder = "Source Files"
@@ -131,19 +131,6 @@ File Type = "CSource"
 Res Id = 9
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "shared.c"
-Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/shared.c"
-Exclude = False
-Compile Into Object File = False
-Project Flags = 0
-Folder = "Source Files"
-Folder Id = 2
-
-[File 0010]
-File Type = "CSource"
-Res Id = 10
-Path Is Rel = True
-Path Rel To = "Project"
 Path Rel Path = "usbfifo.c"
 Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/usbfifo.c"
 Exclude = False
@@ -152,22 +139,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0011]
-File Type = "CSource"
-Res Id = 11
-Path Is Rel = True
-Path Rel To = "Project"
-Path Rel Path = "usbfifodll.c"
-Path = "/c/Users/Brian/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/usbfifodll.c"
-Exclude = True
-Compile Into Object File = False
-Project Flags = 0
-Folder = "Source Files"
-Folder Id = 2
-
-[File 0012]
+[File 0010]
 File Type = "Library"
-Res Id = 12
+Res Id = 10
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "FTD2XX.lib"
