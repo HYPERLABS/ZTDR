@@ -14,9 +14,9 @@
 
 #include <ansi_c.h>
 
+#include "usbfifo.h"
 #include "driver.h"
 #include "main.h"
-#include "usbfifo.h"
 #include "ZTDR.h"
 
 //==============================================================================

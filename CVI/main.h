@@ -45,18 +45,17 @@ extern "C" {
 //==============================================================================
 // Types
 
-typedef unsigned short UINT16;
 
 //==============================================================================
 // External variables
 
 // Acquisition environment
-extern	int		diel;
+extern	double	diel;
 extern	int		plotType;
 extern	int 	yUnits;
 extern	int 	xUnits;
-extern	int		xStart;
-extern	int		xEnd;	
+extern	double	xStart;
+extern	double	xEnd;	
 
 // Number of data points acquired
 extern	UINT16 	recLen;

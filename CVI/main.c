@@ -20,9 +20,9 @@
 
 #include "FTD2XX.h"
 
+#include "usbfifo.h"
 #include "driver.h"
 #include "main.h"
-#include "usbfifo.h"
 #include "ZTDR.h"
 
 
@@ -147,11 +147,11 @@ double	wfm_z_data[NPOINTS_MAX];
 
 // TO DO: organize this section as extern (defined in .h)
 // Control states needed outside UIR
-int		diel = 2.25; // coax
+double	diel = 2.25; // coax
 int 	yUnits = 0; // mV
 int 	xUnits = 0; // m
-int		xStart = 0.0; // m
-int		xEnd = 10.0; // m
+double	xStart = 0.0; // m
+double	xEnd = 10.0; // m
 
 // Number of data points acquired
 UINT16 	recLen	= 1024;

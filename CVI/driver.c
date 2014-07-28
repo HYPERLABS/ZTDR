@@ -16,9 +16,9 @@
 
 #include "FTD2XX.h"
 
+#include "usbfifo.h"
 #include "driver.h"
 #include "main.h"
-#include "usbfifo.h"
 #include "ZTDR.h"
 
 //==============================================================================
@@ -117,6 +117,8 @@ void setupTimescale (void)
 
 	start_tm.time = (UINT32) (val1 / 50.0*0xFFFF);
 	end_tm.time = (UINT32) (val2 / 50.0*0xFFFF);
+	
+	int egg =1 ;
 }
 
 // Reconstruct data into useable form
@@ -200,27 +202,23 @@ void calSetParams (void)
 	calend = 4095;
 
 	// TO DO: use this as a debug?
-	/*
 	if (!usb_opened)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure."); 
 		return;
 	}
-	*/
 
 	UINT8 acq_result;
 	
 	// Acquire data to verify instrument is working
-	status = usbfifo_acquire (&acq_result, 0);
+	status = usbfifo_acquire (&acq_result, 0); 
 	
-	// TO DO: use this as a debug?
-	/*
-	if (ret < 0)
+	if (status < 0)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
-		return;
+		// TO DO: DO NOT RETURN HERE! THIS ACQUISITION WILL FAIL EVERY TIME!
+		//return;
 	}
-	*/
 	
 	double val;
 	
@@ -230,6 +228,8 @@ void calSetParams (void)
 	
 	val = 0;
 	end_tm.time = (UINT32) (val / 50.0*0xFFFF);
+	
+	int egg = 1;
 }
 
 // Acquire waveform for calibration
@@ -238,8 +238,7 @@ void calAcquireWaveform (int calStepIndex)
 	int status = 0;
 	int i;
 	
-	// TO DO: use this as a debug?
-	/*
+	// TO DO: use these as a debug?
 	if (!usb_opened)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure.");
@@ -252,8 +251,7 @@ void calAcquireWaveform (int calStepIndex)
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
 		return;
 	} 
-	*/
-
+	
 	UINT8 acq_result;
 	
 	// Run acquisition for calibration
@@ -524,9 +522,8 @@ void calDAC (void)
 // Set timescale for full calibration
 void calSetupTimescale (void)
 {
-	UINT32 windowsz;
-	
 	double val;
+
 	// Start at 0 ns
 	val = 0;
 	start_tm.time = (UINT32) (val / 50.0*0xFFFF);
@@ -558,6 +555,8 @@ int writeParams (void)
 
 	status = usbfifo_setparams ((UINT8) freerun_en, calstart, calend, start_tm, end_tm, stepcount,
 								strobecount, 0, recLen, dac0val, dac1val, dac2val);
+	
+	int egg = 1;
 	
 	if (status < 0)
 	{
@@ -763,7 +762,7 @@ void vertCalTimescale (void)
 	start_tm.time = (UINT32) (val / 50.0*0xFFFF);
 	
 	val = 10;
-	end_tm.time = start_tm.time + (UINT32) (val / 50.0*0xFFFF);
+	end_tm.time = start_tm.time + ((UINT32) (val / 50.0*0xFFFF));
 }
 
 // Write parameters for vertCal 
@@ -771,8 +770,8 @@ int vertCalWriteParams (void)
 {
 	int status;
 
-	status = usbfifo_setparams (0, calstart, calend, start_tm, end_tm,
-								stepcount, strobecount, 0, 1024, dac0val, dac1val, dac2val);
+	status = usbfifo_setparams (0, calstart, calend, start_tm, end_tm, stepcount, 
+								strobecount, 0, recLen, dac0val, dac1val, dac2val);
 	
 	if (status < 0)
 	{

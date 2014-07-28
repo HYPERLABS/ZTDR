@@ -374,8 +374,6 @@ int usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calend, timeinf
 	ftwrbyte('p');
 	ret = FT_Write(dev_handle, params, NPARAMS, &n);
 	ch = ftrdbyte();
-	
-	int egg = 1;
 
 	if (ch != '.')
 	{
