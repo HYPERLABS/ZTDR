@@ -1832,34 +1832,6 @@ void zoom (void)
 	SetCtrlVal (panelHandle, PANEL_WINDOW, fabs (c2x - c1x));
 }
 
-void checkDirs (void)
-{
-	int existsDir;
-	int existsImages = FileExists ("images", &existsDir);
-	int existsWaveforms = FileExists ("waveforms", &existsDir);
-	int existsSettings = FileExists ("settings", &existsDir);
-	int existsLogs = FileExists ("logs", &existsDir);
-	
-	if (existsImages == 0) 
-	{
-		MakeDir ("images");
-	}
-	
-	if (existsWaveforms == 0) 
-	{
-		MakeDir ("waveforms");
-	}
-	
-	if (existsSettings == 0) 
-	{
-		MakeDir ("settings");
-	}
-	
-	if (existsLogs == 0) 
-	{
-		MakeDir ("logs");
-	}
-}
 
 
 
@@ -2029,6 +2001,46 @@ void changeUnitY (int unit)
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, y_label[yUnits]);
 }
 
+// Verify necessary folders
+void checkDirs (void)
+{
+	int status;
+	
+	int existsDir;
+	
+	// Default .PNG output folder	
+	status = FileExists ("images", &existsDir);
+	
+	if (status == 0) 
+	{
+		MakeDir ("images");
+	}
+	
+	// Default .ZTDR output folder
+	status = FileExists ("waveforms", &existsDir);
+	
+	if (status == 0) 
+	{
+		MakeDir ("waveforms");
+	}
+	
+	// Default settings folder
+	status = FileExists ("settings", &existsDir);
+	
+	if (status == 0) 
+	{
+		MakeDir ("settings");
+	}
+	
+	// Default CSV output folder
+	status = FileExists ("datalogs", &existsDir);
+	
+	if (status == 0) 
+	{
+		MakeDir ("datalogs");
+	}
+}
+
 // Reset to default window
 void resetZoom (void)
 {
@@ -2121,12 +2133,7 @@ void updateSize (void)
 	
 	// Reposition K control
 	status = GetCtrlAttribute (panelHandle, PANEL_DIEL, ATTR_LEFT, &ctrlLeft);
-	status = SetCtrlAttribute (panelHandle, PANEL_DIEL, ATTR_LEFT, ctrlLeft + xOffset); 
-	
-/*	
-	status = GetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_WIDTH, &ctrlWidth);
-	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_WIDTH, ctrlWidth + (xOffset / 2));
-*/	
+	status = SetCtrlAttribute (panelHandle, PANEL_DIEL, ATTR_LEFT, ctrlLeft + xOffset);
 	
 	// Write new window size to globals
 	width = newWidth;
