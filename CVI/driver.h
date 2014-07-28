@@ -47,6 +47,7 @@ void 	calTimebase (void);
 double 	mean_array (void);
 void 	openDevice (void);
 void 	reconstructData (double offset);
+void 	setEnviron (int x, int y, double start, double end, double k);
 void 	setupTimescale (void);
 void 	vertCal (void);
 void 	vertCalTimescale (void);

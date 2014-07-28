@@ -20,37 +20,56 @@ extern "C" {
 
 #include "cvidef.h"
 
-#include "usbfifo.h"
-
 
 //==============================================================================
 // Constants
 
+// Horizontal units
+#define UNIT_M 0
+#define UNIT_FT 1
+#define UNIT_NS 2
 
+// Vertical units
+#define UNIT_MV 0
+#define UNIT_NORM 1  
+#define UNIT_OHM 2
+#define UNIT_RHO 3
+
+// Unit conversion
+#define MtoFT 3.2808
+#define FTtoM 0.3048
+	
 //==============================================================================
 // Types
 
 
 //==============================================================================
 // External variables
+	
+extern	int		diel;
+extern	int		plotType;
+extern	int 	yUnits;
+extern	int 	xUnits;
+extern	int		xStart;
+extern	int		xEnd;	
+
 
 //==============================================================================
 // Global functions (TO DO: sort)
 
 void 	acquire (void);
+void 	changeAuto (void);
 void 	changePlot (int unit);
 void 	changeUnitX (int unit);
 void 	changeUnitY (int unit);
 void 	checkDirs (void);
 void	clearWaveform (void);
 void	main (int argc, char *argv[]);
-void	minMax (double a[], int len, double *min, double *max);
 void	printWaveform (void);
 void 	recallWaveform (void);
 void	resetZoom (void);
 void 	savePNG (void);
 void 	storeWaveform (int format);
-void 	setAuto (void);
 void	showVersion (void);
 void	updateCursors (void);
 void	updateSize (void);

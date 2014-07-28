@@ -45,20 +45,8 @@
 #define CALSTART_DEFAULT 540
 #define CALEND_DEFAULT 3870
 
-// Horizontal units
-#define UNIT_M 0
-#define UNIT_FT 1
-#define UNIT_NS 2
 
-// Vertical units
-#define UNIT_MV 0
-#define UNIT_NORM 1  
-#define UNIT_OHM 2
-#define UNIT_RHO 3
 
-// Conversion
-#define MtoFT 3.2808
-#define FTtoM 0.3048
 
 // File save/load
 #define BUF_REC_LEN 64
@@ -206,12 +194,18 @@ timeinf start_tm, end_tm;
 // TO DO: START updated, organized variables
 
 // Control states needed outside UIR
+// TO DO: organize this section as extern (defined in .h)
 int		diel = 2.25; // coax
-int		plotType = 2L; // dots
 int 	yUnits = 0; // mV
 int 	xUnits = 0; // m
 int		xStart = 0.0; // m
 int		xEnd = 10.0; // m
+
+
+
+
+
+int		plotType = 2L; // dots
 
 // Waveform handles
 int 	WfmActive; 	// current acquisition
@@ -223,7 +217,6 @@ int		rightHandle, bottomHandle;
 
 // Panel size
 int		width, height;
-
 
 // TO DO: END updated, organized variables
 
@@ -963,6 +956,26 @@ void zoom (void)
 // TO DO: below this, functions totally cleaned up and validated
 // TO DO: these just need to be sorted
 
+// Toggle dimming of controls based on autoscale
+void changeAuto (void)
+{
+	int status;
+	int val;
+			
+	status = GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &val);
+	
+	if (val == 1)
+	{
+		status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 1);
+		status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 1);
+	}
+	else
+	{
+		status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
+		status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 0);
+	}
+}
+
 // Change between dots and line
 void changePlot (int unit)
 {
@@ -1273,26 +1286,6 @@ void savePNG (void)
 	status = ResumeTimerCallbacks ();
 	
 	// TO DO: add some functionality for serial number?
-}
-
-// Toggle dimming of controls based on autoscale
-void setAuto (void)
-{
-	int status;
-	int val;
-			
-	status = GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &val);
-	
-	if (val == 1)
-	{
-		status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 1);
-		status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 1);
-	}
-	else
-	{
-		status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
-		status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 0);
-	}
 }
 
 // Format and show current version and instrument

@@ -12,6 +12,9 @@
 // Include files
 
 #include <ansi_c.h>
+
+#include "FTD2XX.h"
+
 #include "driver.h"
 #include "main.h"
 #include "usbfifo.h"
@@ -57,15 +60,21 @@ void openDevice (void)
 	}
 }
 
+// Pass to global enviornmental variables
+void setEnviron (int x, int y, double start, double end, double k)
+{
+	xUnits = x;
+	yUnits = y;
+	xStart = start;
+	xEnd = end;
+	diel = k;
+}
+
 // Scale time range of window for waveform acquisition
 void setupTimescale (void)
 {   
 	double val1, val2, vel;
 	UINT32 windowsz;
-
-	GetCtrlVal (panelHandle, PANEL_START, &HL1101_start);
-	GetCtrlVal (panelHandle, PANEL_WINDOW, &HL1101_windowsz);
-	GetCtrlVal (panelHandle, PANEL_DIEL, &HL1101_diel);
 
 	// If X Axis set to time
 	if (xUnits == UNIT_NS)
@@ -105,9 +114,6 @@ void reconstructData (double offset)
 	// TO DO: is myWfm used?
 	double myWfm[1024];
 	double vel;
-	double HL1101_diel;
-	
-	GetCtrlVal (panelHandle, PANEL_DIEL, &HL1101_diel);
 	
 	vel = (double) 3E8 / sqrt (HL1101_diel);
 
@@ -145,7 +151,7 @@ double mean_array (void)
 	return((double) temp / (double) 1000.0);
 }
 
-// Calibrate timebase (aka "full cal"
+// Calibrate timebase ("full cal")
 void calTimebase (void)
 {
 	int i;
