@@ -44,9 +44,12 @@
 int 	usb_opened = 0;
 
 // Calibration
+double 	calDiscLevel;
 double 	calLevels[5];
 double 	calThreshold;
 
+// TO DO: test scope; was a global in main.c, maybe needs to only be local
+UINT16	calstart_save = 540;
 
 //==============================================================================
 // Global functions (sorted by function)
@@ -427,6 +430,95 @@ void calFindStepcount (void)
 	calThreshold = val;
 }
 
+// Calibrate DACs
+void calDAC (void)
+{
+	int i;
+	
+	calstart = 0;
+
+	calSetupTimescale ();
+	
+	calAcquireWaveform (-1);
+	
+	i = 0;
+	
+	while ((calDiscLevel < calThreshold) && (i < 10) && (calstart <= 1100))
+	{
+		calstart = calstart + 100;
+		calAcquireWaveform (-1);
+		i++;
+	}
+	
+	if (i==10)
+	{
+		calstart = CALSTART_DEFAULT;
+	}
+
+	i = 0;
+
+	while ((calDiscLevel > calThreshold) && (i < 16))
+	{
+		calstart = calstart - 10;
+		calAcquireWaveform (-1);
+		i++;
+	}
+	
+	if (i == 16)
+	{
+		calstart = CALSTART_DEFAULT;
+	}
+	
+	// TO DO: rename and check scope (see note above)
+	calstart_save = calstart;
+	
+	calend = 4094;
+	calstart = 2000;
+
+	int stepcountSave;
+	
+	stepcountSave = stepcount;
+	stepcount = stepcount + 4;
+
+	calSetupTimescale ();
+	
+	calAcquireWaveform (-1);
+	
+	i = 0;
+	
+	while ((calDiscLevel < calThreshold) && (i < 25) && (calstart <= 4095))
+	{
+		calstart = calstart + 100;
+		calAcquireWaveform (-1);
+		i++;
+	}
+	if (i == 25)
+	{
+		calend = CALEND_DEFAULT;
+	}
+	
+	i = 0;
+
+	while ((calDiscLevel > calThreshold) && (i < 16))
+	{
+		calstart = calstart - 10;
+		calAcquireWaveform (-1);
+		i++;
+	}
+
+	calend = calstart;
+	
+	if (i == 16)
+	{
+		calend = CALEND_DEFAULT;
+	}
+	
+	// TO DO: name and scope (note above)
+	calstart = calstart_save;
+
+	stepcount = (UINT16) stepcountSave +1;
+}
+
 // TO DO: validate functions below
 
 
@@ -445,91 +537,7 @@ void calFindStepcount (void)
 
 
 
-// TO DO: description of routine
-void calDAC (void)
-{
-	char dispStr[10];
 
-	int i;
-	int stepcount_save;
-	
-	calstart = 0;
-
-	calSetupTimescale ();
-	
-	calAcquireWaveform (-1);
-	
-	i = 0;
-	
-	while ((calDiscLevel < cal_threshold) && (i < 10) && (calstart <= 1100))
-	{
-		calstart = calstart + 100;
-		calAcquireWaveform (-1);
-		i++;
-	}
-	
-	if (i==10)
-	{
-		calstart = CALSTART_DEFAULT;
-	}
-
-	i = 0;
-
-	while ((calDiscLevel > cal_threshold) && (i < 16))
-	{
-		calstart = calstart - 10;
-		calAcquireWaveform (-1);
-		i++;
-	}
-	
-	if (i == 16)
-	{
-		calstart = CALSTART_DEFAULT;
-	}
-	
-	calstart_save = calstart;
-	
-	calend = 4094;
-	calstart = 2000;
-
-	stepcount_save = stepcount;
-	stepcount = stepcount + 4;
-
-	calSetupTimescale ();
-	
-	calAcquireWaveform (-1);
-	
-	i = 0;
-	
-	while ((calDiscLevel < cal_threshold) && (i < 25) && (calstart <= 4095))
-	{
-		calstart = calstart + 100;
-		calAcquireWaveform (-1);
-		i++;
-	}
-	if (i == 25)
-	{
-		calend = CALEND_DEFAULT;
-	}
-	i = 0;
-
-	while ((calDiscLevel > cal_threshold) && (i < 16))
-	{
-		calstart = calstart - 10;
-		calAcquireWaveform (-1);
-		i++;
-	}
-
-	calend = calstart;
-	if (i == 16)
-	{
-		calend = CALEND_DEFAULT;
-	}
-	calstart = calstart_save;
-
-	stepcount = (UINT16) stepcount_save +1;
-
-}
 
 // Set timescale for full calibration
 void calSetupTimescale (void)

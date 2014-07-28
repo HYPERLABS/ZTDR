@@ -25,6 +25,9 @@ extern "C" {
 //==============================================================================
 // Constants
 
+#define CALSTART_DEFAULT 540
+#define CALEND_DEFAULT 3870
+	
 #define FILTER_WIDTH 4	
 
 	

@@ -40,8 +40,6 @@
 // First sample in the record, no matter where the wfm is positioned
 #define OFFSET_ACQ_POS 0
 
-#define CALSTART_DEFAULT 540
-#define CALEND_DEFAULT 3870
 
 
 
@@ -148,12 +146,10 @@ char *label_dist[] =
 
 
 // Calibration
-double 	calDiscLevel;
 int 	calIncrement;
 double 	vampl = 679.0;
 
 // Calibration parameters
-UINT16	calstart_save = 540;
 UINT16 	dac0val = 0, dac1val = 0, dac2val = 0;
 int 	freerun_en = 0;
 UINT16 	strobecount = 2;
