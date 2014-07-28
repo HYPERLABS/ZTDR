@@ -208,21 +208,27 @@ double 	wfm_ret[NPOINTS_MAX]; 		// Recalled waveform
 double	wfm_rho_data[NPOINTS_MAX];
 double	wfm_z_data[NPOINTS_MAX];
 
-// Waveform IDs
-static int WfmHandle;
-static int WfmRecall;
 
 // Time window
 timeinf start_tm, end_tm;
 
-// User interface panel, menu, and control arrays
+
+
+// TO DO: START updated, organized variables
+
+
+// Waveform handles
+int 	WfmActive; 	// current acquisition
+int 	WfmStored;	// stored waveform
+
+// UIR elements
 int 	panelHandle, menuHandle;
 int		rightHandle, bottomHandle;
 
+// TO DO: END updated, organized variables
 
 
-// TO DO: better solution
-int		firstAcq = 0;
+
 
 
 //==============================================================================
@@ -649,16 +655,16 @@ void acquire (void)
 	}
 
 	// Set range if not constrained by recalled waveform
-	if (!WfmRecall)
+	if (!WfmStored)
 	{
 		SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, ymin, ymax);
 	}
 
-	// Clear existing WfmHandle, don't affect recalled waveforms
-	if (WfmHandle)
+	// Clear existing WfmActive, don't affect recalled waveforms
+	if (WfmActive)
 	{
 		// Delay draw so there is no flicker before next waveform is plotted
-		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmHandle, VAL_DELAYED_DRAW);
+		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmActive, VAL_DELAYED_DRAW);
 	}
 	
 	// Horizontal units in time
@@ -686,7 +692,7 @@ void acquire (void)
 		}
 	}
 	
-	WfmHandle = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_x, wfm_data_ave, rec_len, VAL_DOUBLE, VAL_DOUBLE,
+	WfmActive = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_x, wfm_data_ave, rec_len, VAL_DOUBLE, VAL_DOUBLE,
 						plotType, VAL_SMALL_SOLID_SQUARE, VAL_SOLID, 1, MakeColor (113, 233, 70));
 	
 	// Trigger the DELAYED_DRAW
@@ -1541,17 +1547,17 @@ void recallWaveform (void)
 	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, x_label[xUnits]);
 	
 	// Remove any other recalled waveforms
-	if (WfmRecall)
+	if (WfmStored)
 	{
-		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmRecall, VAL_IMMEDIATE_DRAW);
-		WfmRecall =0;
+		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmStored, VAL_IMMEDIATE_DRAW);
+		WfmStored =0;
 	}
 	
 	// Scale waveform acquisition window
 	SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, (double) ymin, (double) ymax);
 	
 	// Plot waveform
-	WfmRecall = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_dist, wfm_ret, rec_len, VAL_DOUBLE, VAL_DOUBLE, 
+	WfmStored = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_dist, wfm_ret, rec_len, VAL_DOUBLE, VAL_DOUBLE, 
 						VAL_THIN_LINE, VAL_EMPTY_SQUARE, VAL_SOLID, 1, MakeColor (233, 113, 233));
 
 	// Dim controls
@@ -1672,10 +1678,10 @@ void clearWaveform (void)
 	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 1);
 
 	// Remove any recalled waveforms
-	if (WfmRecall)
+	if (WfmStored)
 	{
-		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmRecall, VAL_IMMEDIATE_DRAW);
-		WfmRecall = 0;
+		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmStored, VAL_IMMEDIATE_DRAW);
+		WfmStored = 0;
 	}
 	
 	// Re-enable controls
