@@ -1789,27 +1789,7 @@ void showVersion (void)
 	//sprintf (version, "-- HYPERLABS  HL1101 --\n--  --\n\n", _TARGET_PRODUCT_VERSION_);
 }
 
-// Update cursor readings
-void updateCursors (void)
-{  	
-	int y_units;
-	double c1x, c1y, c2x, c2y;
-	static char buf[128];
 
-	c1x = c1y = c2x = c2y = 0;
-	
-	GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
-	GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
-
-	sprintf (buf, " %.2f %s, %.2f %s", c1x, x_short[xUnits], c1y, y_short[yUnits]);
-	SetCtrlVal (panelHandle, PANEL_CURSOR1,  buf);
-
-	sprintf (buf, " %.2f %s, %.2f %s", c2x, x_short[xUnits], c2y, y_short[yUnits]);
-	SetCtrlVal (panelHandle, PANEL_CURSOR2, buf);
-
-	sprintf(buf, " %.2f %s, %.2f %s", c2x-c1x, x_short[xUnits], c2y-c1y, y_short[yUnits]);
-	SetCtrlVal(panelHandle, PANEL_DELTA, buf);
-}
 
 
 
@@ -1818,7 +1798,6 @@ void updateCursors (void)
 
 
 // TO DO: WINDOWSIZE REFERENCES
-
 
 // Cursor-based zoom
 void zoom (void)
@@ -1845,12 +1824,6 @@ void zoom (void)
 
 
 
-
-
-
-
-
-// TO DO: move cal functions to "driver" or something?
 
 
 
@@ -2057,6 +2030,32 @@ void resetZoom (void)
 {
 	SetCtrlVal (panelHandle, PANEL_START, x_dflt_start[xUnits]);
 	SetCtrlVal (panelHandle, PANEL_WINDOW, x_dflt_windowsz[xUnits]);	
+}
+
+// Update cursor readings
+void updateCursors (void)
+{  	
+	int status;
+	
+	double c1x, c1y, c2x, c2y;
+	static char buf[128];
+
+	c1x = c1y = c2x = c2y = 0;
+	
+	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
+	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
+
+	// Cursor 1
+	status = sprintf (buf, " %.2f %s, %.2f %s", c1x, x_short[xUnits], c1y, y_short[yUnits]);
+	status = SetCtrlVal (panelHandle, PANEL_CURSOR1,  buf);
+
+	// Cursor 2
+	status = sprintf (buf, " %.2f %s, %.2f %s", c2x, x_short[xUnits], c2y, y_short[yUnits]);
+	status = SetCtrlVal (panelHandle, PANEL_CURSOR2, buf);
+
+	// Delta
+	status = sprintf(buf, " %.2f %s, %.2f %s", c2x-c1x, x_short[xUnits], c2y-c1y, y_short[yUnits]);
+	status = SetCtrlVal (panelHandle, PANEL_DELTA, buf);
 }
 
 // Update position of controls on resize
