@@ -519,6 +519,21 @@ void calDAC (void)
 	stepcount = (UINT16) stepcountSave +1;
 }
 
+// Set timescale for full calibration
+void calSetupTimescale (void)
+{
+	UINT32 windowsz;
+	
+	double val;
+	// Start at 0 ns
+	val = 0;
+	start_tm.time = (UINT32) (val / 50.0*0xFFFF);
+
+	// End at 0 ns
+	val = 0;
+	end_tm.time = (UINT32) (val / 50.0*0xFFFF);
+}
+
 // TO DO: validate functions below
 
 
@@ -539,22 +554,7 @@ void calDAC (void)
 
 
 
-// Set timescale for full calibration
-void calSetupTimescale (void)
-{
-	double val;
-	UINT32 windowsz;
-	
-	// Start at 0 ns
-	val = 0;
-	start_tm.time = (UINT32) (val / 50.0*0xFFFF);
 
-	// Window size of 0 ns
-	val = 0;
-	windowsz = (UINT32) (val / 50.0*0xFFFF);
-	
-	end_tm.time = start_tm.time + windowsz;
-}
 
 // TO DO: function description
 void calFindDiscont (void)
