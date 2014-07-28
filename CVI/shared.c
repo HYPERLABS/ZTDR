@@ -1811,25 +1811,36 @@ void updateCursors (void)
 	SetCtrlVal(panelHandle, PANEL_DELTA, buf);
 }
 
+
+
+
+
+
+
+// TO DO: WINDOWSIZE REFERENCES
+
+
 // Cursor-based zoom
 void zoom (void)
-{
+{   
+	int status;
+	
 	double c1x, c1y, c2x, c2y;
 	
-	GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
-	GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
+	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
+	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
 
 	if (c1x < c2x)
 	{
-		SetCtrlVal(panelHandle, PANEL_START, c1x);
+		status = SetCtrlVal(panelHandle, PANEL_START, c1x);
 	}
 	else
 	{
-		SetCtrlVal(panelHandle, PANEL_START, c2x);
+		status = SetCtrlVal(panelHandle, PANEL_START, c2x);
 	}
 	
 	// Update window size
-	SetCtrlVal (panelHandle, PANEL_WINDOW, fabs (c2x - c1x));
+	status = SetCtrlVal (panelHandle, PANEL_WINDOW, fabs (c2x - c1x));
 }
 
 
