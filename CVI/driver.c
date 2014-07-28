@@ -8,6 +8,7 @@
 //
 //==============================================================================
 
+
 //==============================================================================
 // Include files
 
@@ -23,14 +24,18 @@
 //==============================================================================
 // Constants
 
+
 //==============================================================================
 // Types
+
 
 //==============================================================================
 // Static global variables
 
+
 //==============================================================================
 // Static functions
+
 
 //==============================================================================
 // Global variables
@@ -40,6 +45,8 @@ int 	usb_opened = 0;
 
 // Calibration
 double 	calLevels[5];
+double 	calThreshold;
+
 
 //==============================================================================
 // Global functions (sorted by function)
@@ -351,6 +358,75 @@ void calFindMean (int calStepIndex)
 	calLevels[calStepIndex] = val;
 }
 
+// Find optimal step count
+void calFindStepcount (void)
+{
+	int i;
+
+	int idxMin, idxMax;
+	idxMin = 0;
+	idxMax = 0;
+	
+	// Set so any good data sets new max/min
+	double min, max;
+	max = 0.00;
+	min = 4095.0;
+
+	// Cycle each of 5 data segments
+	for (i = 0; i < 5; i++)
+	{
+		if (calLevels[i] < min)
+		{
+			min = calLevels[i];
+			idxMin = i;
+		}
+		if (calLevels[i] > max)
+		{
+			max = calLevels[i];
+			idxMax = i;
+		}
+	}
+
+	// TO DO: use these somewhere else
+	/*
+	if ((min < 1) || (max > 4094))
+	{
+		// TO DO: better message here
+		SetCtrlVal (panelHandle, PANEL_MESSAGES, " FAILED.\n");
+	}
+	else
+	{
+		// TO DO: make more meaningful (i.e. cover more scenarios)
+		SetCtrlVal (panelHandle, PANEL_MESSAGES, " DONE.\n");
+	}
+	*/
+
+	double val;
+	val = (max - min) / 4 + min;
+
+	int idxOpt;
+	idxOpt = 0;
+	
+	for (i = 4; i > 0; i--)
+	{
+		if (calLevels[i] < val)
+		{
+			idxOpt = i;
+		}
+	}
+	
+	if (idxOpt > 0)
+	{
+		idxOpt = idxOpt - 1;
+	}
+	
+	stepcount = stepcountArray[idxOpt];
+
+	stepcount = 6;
+
+	calThreshold = val;
+}
+
 // TO DO: validate functions below
 
 
@@ -367,68 +443,7 @@ void calFindMean (int calStepIndex)
 
 
 
-// Find optimal step count
-void calFindStepcount (void)
-{
-	int i, idx_min, idx_max, opt_idx;
-	double val, min, max;
 
-	// Set so any good data sets new max/min
-	max = 0;
-	min = 4095.0;
-
-	idx_min = 0;
-	idx_max = 0;
-
-	// Cycle each of 5 data segments
-	for (i = 0; i < 5; i++)
-	{
-		if (calLevels[i] < min)
-		{
-			min = calLevels[i];
-			idx_min = i;
-		}
-		if (calLevels[i] > max)
-		{
-			max = calLevels[i];
-			idx_max = i;
-		}
-	}
-
-	if ((min < 1) || (max > 4094))
-	{
-		// TO DO: better message here
-		SetCtrlVal (panelHandle, PANEL_MESSAGES, " FAILED.\n");
-	}
-	else
-	{
-		// TO DO: make more meaningful (i.e. cover more scenarios)
-		SetCtrlVal (panelHandle, PANEL_MESSAGES, " DONE.\n");
-	}
-
-	val = (max - min) / 4 + min;
-
-	opt_idx = 0;
-	
-	for (i = 4; i > 0; i--)
-	{
-		if (calLevels[i] < val)
-		{
-			opt_idx = i;
-		}
-	}
-	
-	if (opt_idx > 0)
-	{
-		opt_idx = opt_idx - 1;
-	}
-	
-	stepcount = stepcountArray[opt_idx];
-
-	stepcount = 6;
-
-	cal_threshold = val;
-}
 
 // TO DO: description of routine
 void calDAC (void)

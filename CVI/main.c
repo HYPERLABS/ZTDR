@@ -150,7 +150,6 @@ char *label_dist[] =
 // Calibration
 double 	calDiscLevel;
 int 	calIncrement;
-double 	cal_threshold;
 double 	vampl = 679.0;
 
 // Calibration parameters
