@@ -1669,38 +1669,7 @@ void storeWaveform (int format)
 	status = ResumeTimerCallbacks ();
 }
 
-// Reset plot area and clear recalled waveform
-void clearWaveform (void)
-{
-	int status;
-	
-	// TO DO: is this desired behavior?
-	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 1);
 
-	// Remove any recalled waveforms
-	if (WfmStored)
-	{
-		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmStored, VAL_IMMEDIATE_DRAW);
-		WfmStored = 0;
-	}
-	
-	// Re-enable controls
-	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_DIMMED, 0);
-	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_DIMMED, 0);
-	status = SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_DIMMED, 0);
-	status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
-	status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 0);
-	status = SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 0);
-	
-	// Un-dim menus
-	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_STORE, ATTR_DIMMED, 0);
-	status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS, ATTR_DIMMED, 0);
-	status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS, ATTR_DIMMED, 0);
-	
-	// Hide clear button and dim menu
-	status = SetCtrlAttribute (panelHandle, PANEL_CLEAR, ATTR_VISIBLE, 0);
-	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_CLEAR, ATTR_DIMMED, 1);
-}
 
 
 
@@ -1941,6 +1910,39 @@ void checkDirs (void)
 	{
 		MakeDir ("datalogs");
 	}
+}
+
+// Reset plot area and clear recalled waveform
+void clearWaveform (void)
+{
+	int status;
+	
+	// TO DO: is this desired behavior?
+	status = SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 1);
+
+	// Remove recalled waveform, if any
+	if (WfmStored)
+	{
+		status = DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmStored, VAL_IMMEDIATE_DRAW);
+		WfmStored = 0;
+	}
+	
+	// Re-enable controls
+	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 0);
+	
+	// Un-dim menus
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_STORE, ATTR_DIMMED, 0);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS, ATTR_DIMMED, 0);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS, ATTR_DIMMED, 0);
+	
+	// Hide clear button and dim menu
+	status = SetCtrlAttribute (panelHandle, PANEL_CLEAR, ATTR_VISIBLE, 0);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_CLEAR, ATTR_DIMMED, 1);
 }
 
 // Print current waveform and controles
