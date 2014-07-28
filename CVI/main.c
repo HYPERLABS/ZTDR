@@ -148,12 +148,7 @@ char *label_dist[] =
 // Calibration
 int 	calIncrement;
 double 	vampl = 679.0;
-
-// Calibration parameters
-UINT16 	dac0val = 0, dac1val = 0, dac2val = 0;
-int 	freerun_en = 0;
-UINT16 	strobecount = 2;
-
+						 
 
 // Horizontal values for each unit
 double 	wfm_x[NPOINTS_MAX];			// Passed to graph

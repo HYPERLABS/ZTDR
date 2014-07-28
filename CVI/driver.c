@@ -549,36 +549,15 @@ void calFindDiscont (void)
 	calDiscLevel = calDiscLevel / recLen;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Write parameters to device
 int writeParams (void)
 {
-	int ret;
+	int status;
 
-	ret = usbfifo_setparams ((UINT8) freerun_en, calstart, calend, start_tm, end_tm, stepcount, 
-							 strobecount, 0, recLen, dac0val, dac1val, dac2val);
+	status = usbfifo_setparams ((UINT8) freerun_en, calstart, calend, start_tm, end_tm, stepcount,
+								strobecount, 0, recLen, dac0val, dac1val, dac2val);
 	
-	if (ret < 0)
+	if (status < 0)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Params failed.");
 		return 0;
@@ -589,6 +568,27 @@ int writeParams (void)
 		return 1;
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Calibrate vertical axis
 void vertCal (void)

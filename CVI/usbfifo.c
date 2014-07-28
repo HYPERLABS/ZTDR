@@ -70,6 +70,9 @@ UINT16 	calstart = 540;
 UINT16 	calend = 3870;
 UINT16 	stepcount = 6;
 UINT16 	stepcountArray[5] = {4, 5, 6, 7, 8};
+int 	freerun_en = 0;
+UINT16 	dac0val = 0, dac1val = 0, dac2val = 0;
+UINT16 	strobecount = 2;
 
 
 

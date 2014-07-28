@@ -79,6 +79,9 @@ extern	UINT16 	calstart;
 extern	UINT16 	calend;
 extern	UINT16 	stepcount;
 extern	UINT16 	stepcountArray[5];
+extern	int 	freerun_en;
+extern 	UINT16 	dac0val, dac1val, dac2val;
+extern	UINT16 	strobecount;
 
 //==============================================================================
 // Global functions
