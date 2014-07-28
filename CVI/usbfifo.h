@@ -59,18 +59,21 @@ struct _delay16
 #endif
 	};
 
-	union _timeinf
-	{
-		UINT32 time;
-		struct _delay16 time_s;
-		struct _delay8 time_b;
-	};
 
-	typedef union _timeinf timeinf;
+union _timeinf
+{
+	UINT32 time;
+	struct _delay16 time_s;
+	struct _delay8 time_b;
+};
+
+typedef union _timeinf timeinf;
 
 
 //==============================================================================
 // External variables
+
+extern	timeinf start_tm, end_tm;
 
 //==============================================================================
 // Global functions

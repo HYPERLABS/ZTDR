@@ -73,23 +73,24 @@ void setEnviron (int x, int y, double start, double end, double k)
 // Scale time range of window for waveform acquisition
 void setupTimescale (void)
 {   
+	int status;
+	
 	double val1, val2, vel;
-	UINT32 windowsz;
-
+	
 	// If X Axis set to time
 	if (xUnits == UNIT_NS)
 	{
-		val1 = HL1101_start;
-		val2 = HL1101_windowsz;
+		val1 = xStart;
+		val2 = xEnd;
 	}
 
 	// If distance selected, calculate based on K
 	else
 	{
 		// Calculate distance in meters
-		vel = (double) 3E8 / sqrt (HL1101_diel);
-		val1 = HL1101_start * 1E9 / vel;
-		val2 = HL1101_windowsz * 1E9 / vel;
+		vel = (double) 3E8 / sqrt (diel);
+		val1 = xStart * 1E9 / vel;
+		val2 = xEnd * 1E9 / vel;
 
 		// Calculate distance in feet, if selected
 		if (xUnits == UNIT_FT)
@@ -100,23 +101,21 @@ void setupTimescale (void)
 	}
 
 	start_tm.time = (UINT32) (val1 / 50.0*0xFFFF);
-	windowsz = (UINT32) (val2 / 50.0*0xFFFF);
-
-	end_tm.time = start_tm.time + windowsz;
+	end_tm.time = (UINT32) (val2 / 50.0*0xFFFF);
 }
 
 // Reconstruct data into useable form
 void reconstructData (double offset)
 {
 	int i;
-	timeinf curt;
-	UINT32 incr;
-	// TO DO: is myWfm used?
-	double myWfm[1024];
+	
 	double vel;
 	
-	vel = (double) 3E8 / sqrt (HL1101_diel);
+	vel = (double) 3E8 / sqrt (diel);
 
+	UINT32 incr;
+	timeinf curt;
+	
 	incr = (end_tm.time - start_tm.time) / rec_len;
 	
 	curt.time = start_tm.time;
@@ -125,17 +124,18 @@ void reconstructData (double offset)
 	{	
 		wfmf[i] = (double) wfm[i] - offset;
 		
-		if (i < 1024)
-		{
-			myWfm[i] = wfmf[i];
-		}
-		
 		timescale[i] = ((double) curt.time) / ((double) 0xFFFF) * 50.0;
 		dist_m[i] = timescale[i] * vel * 1E-9;
 		dist_ft[i] = timescale[i] * vel * 1E-9 * MtoFT;
 		curt.time += incr;
 	}
 }
+
+
+// TO DO: validate functions below
+
+
+
 
 // Calculate offset from average 0
 double mean_array (void)

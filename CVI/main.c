@@ -186,8 +186,6 @@ double	wfm_rho_data[NPOINTS_MAX];
 double	wfm_z_data[NPOINTS_MAX];
 
 
-// Time window
-timeinf start_tm, end_tm;
 
 
 
@@ -205,6 +203,7 @@ int		xEnd = 10.0; // m
 
 
 
+// TO DO: below are not extern
 int		plotType = 2L; // dots
 
 // Waveform handles

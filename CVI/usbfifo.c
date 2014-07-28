@@ -62,6 +62,9 @@ const int 	dev_hostbps = 256000;
 //==============================================================================
 // Global variables (roughly grouped by function)
 
+// Time variables passed to device
+timeinf start_tm, end_tm;
+
 // Debug mode variables | TO DO: cleanup
 char 	dev_comspdbuf[20];
 char 	dev_idbuf[20];
