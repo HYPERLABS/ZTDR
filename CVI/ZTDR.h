@@ -21,10 +21,10 @@
 #define  PANEL_AVERAGE                    5       /* control type: numeric, callback function: onChangeAverage */
 #define  PANEL_ACQUIRE                    6       /* control type: command, callback function: onAcquire */
 #define  PANEL_AUTOACQUIRE                7       /* control type: radioButton, callback function: (none) */
-#define  PANEL_START                      8       /* control type: numeric, callback function: onChangeStart */
+#define  PANEL_START                      8       /* control type: scale, callback function: onChangeStart */
 #define  PANEL_WINDOW                     9       /* control type: scale, callback function: onChangeWindow */
 #define  PANEL_DIEL                       10      /* control type: numeric, callback function: onChangeK */
-#define  PANEL_DEFAULT                    11      /* control type: command, callback function: onReset */
+#define  PANEL_RESET                      11      /* control type: command, callback function: onReset */
 #define  PANEL_ZOOM                       12      /* control type: command, callback function: onZoom */
 #define  PANEL_CLEAR                      13      /* control type: command, callback function: onClear */
 #define  PANEL_MESSAGES                   14      /* control type: textBox, callback function: (none) */

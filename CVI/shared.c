@@ -2093,17 +2093,40 @@ void updateSize (void)
 	status = GetCtrlAttribute (panelHandle, PANEL_PANEBOTTOM, ATTR_WIDTH, &ctrlWidth);
 	status = SetCtrlAttribute (panelHandle, PANEL_PANEBOTTOM, ATTR_WIDTH, ctrlWidth + xOffset);
 	
+	// Resize window start control
+	status = GetCtrlAttribute (panelHandle, PANEL_START, ATTR_WIDTH, &ctrlWidth);
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_WIDTH, ctrlWidth + (xOffset / 3));
+	
+	// Reposition zoom controls
+	status = GetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_LEFT, ctrlLeft + xOffset / 2);
+	status = GetCtrlAttribute (panelHandle, PANEL_RESET, ATTR_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_RESET, ATTR_LEFT, ctrlLeft + xOffset / 2);
+	
+	// Resize window size control
+	status = GetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_WIDTH, &ctrlWidth);
+	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_WIDTH, ctrlWidth + (xOffset / 3));
+	
+	// Reposition window size control
+	status = GetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_LEFT, ctrlLeft + (xOffset * 2/3));
+	
+	// Reposition window size label
+	status = GetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_LABEL_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_LABEL_LEFT, ctrlLeft + (xOffset / 3));
+	
+	// Reposition window size display
+	status = GetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_DIG_DISP_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_DIG_DISP_LEFT, ctrlLeft + (xOffset / 3));
+	
 	// Reposition K control
 	status = GetCtrlAttribute (panelHandle, PANEL_DIEL, ATTR_LEFT, &ctrlLeft);
 	status = SetCtrlAttribute (panelHandle, PANEL_DIEL, ATTR_LEFT, ctrlLeft + xOffset); 
 	
-	// Reposition and resize window size control;
-	status = GetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_LEFT, &ctrlLeft);
-	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_LEFT, ctrlLeft + (xOffset / 4));
-	
+/*	
 	status = GetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_WIDTH, &ctrlWidth);
 	status = SetCtrlAttribute (panelHandle, PANEL_WINDOW, ATTR_WIDTH, ctrlWidth + (xOffset / 2));
-	
+*/	
 	
 	// Write new window size to globals
 	width = newWidth;
