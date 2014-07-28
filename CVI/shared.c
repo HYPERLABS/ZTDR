@@ -338,7 +338,7 @@ void acquire (void)
 	}
 	
 	// Set window to acquire offset at 0 ns
-	vertCalOffset (OFFSET_ACQ_POS);
+	vertCalZero (OFFSET_ACQ_POS);
 	
 	// Write the acquisition parameters
 	if (vertCalWriteParams () <= 0)
@@ -367,7 +367,9 @@ void acquire (void)
 		while ((ret = usbfifo_readblock ((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
 		
 		if (ret < 0)
+		{
 			blocksok = 0;
+		}
 	}
 	
 	if (blocksok == 0)
@@ -632,7 +634,7 @@ void acquire (void)
 			// Compensate if min > max
 			if((double) ymin >= (double) ymax)
 			{
-				ymin= (double) ymax - (double) 1.0;
+				ymin = (double) ymax - (double) 1.0;
 			}
 		}
 		
@@ -809,8 +811,7 @@ void calSetParams (void)
 
 	if (!usb_opened)
 	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure.");
-		
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure."); 
 		return;
 	}
 
@@ -820,7 +821,6 @@ void calSetParams (void)
 	if (ret < 0)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
-		
 		return;
 	}
 	
@@ -855,8 +855,6 @@ void calAcquireWaveform (int calStepIndex)
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure.");
 		return;
 	}
-
-	//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquiring...");
 
 	// Write acquisition parameters
 	if (writeParams () <= 0)
@@ -970,7 +968,7 @@ void calFindStepcount (void)
 
 	// Set so any good data sets new max/min
 	max = 0;
-	min = (double) 4095;
+	min = 4095.0;
 
 	idx_min = 0;
 	idx_max = 0;
@@ -1076,6 +1074,7 @@ void calDAC (void)
 	stepcount = stepcount + 4;
 
 	calSetupTimescale ();
+	
 	calAcquireWaveform (-1);
 	
 	i = 0;
@@ -1174,8 +1173,8 @@ void vertCal (void)
 		return;
 	}
 
-	// Calculate offset of waveform by taking and averaging sample at 0 ns 
-	vertCalOffset (CAL_WINDOW_START);
+	// Calculate offset of waveform by averaging samples at 0 ns 
+	vertCalZero (CAL_WINDOW_START);
 
 	// Write the acquisition parameters 
 	if (vertCalWriteParams () <= 0)
@@ -1320,8 +1319,8 @@ void vertCal (void)
 	// TO DO: don't do regular cal if doing it here
 }
 
-// Set timescale and calculate offset at 0 ns
-void vertCalOffset (double windowStart)
+// Set timescale for vertCal at 0 ns
+void vertCalZero (double windowStart)
 {
 	double val;
 	UINT32 windowsz;
@@ -2022,7 +2021,7 @@ void setAuto (void)
 			
 	status = GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &val);
 	
-	if (v == 1)
+	if (val == 1)
 	{
 		status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 1);
 		status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 1);

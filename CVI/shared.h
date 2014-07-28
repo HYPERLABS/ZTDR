@@ -69,9 +69,9 @@ void	showVersion (void);
 void	updateCursors (void);
 void	updateSize (void);
 void 	vertCal (void);
-void 	vertCalOffset (double windowStart);
 void 	vertCalTimescale (void);
 int 	vertCalWriteParams (void);
+void 	vertCalZero (double windowStart);
 int 	writeParams (void);
 void 	zoom (void);
 		
