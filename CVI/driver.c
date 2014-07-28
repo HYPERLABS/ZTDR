@@ -38,6 +38,9 @@
 // Initialization
 int 	usb_opened = 0;
 
+// Calibration
+double 	calLevels[5];
+
 //==============================================================================
 // Global functions (sorted by function)
 
@@ -330,6 +333,23 @@ void calReconstructData (void)
 	}
 }
 
+// Find mean of waveform segment
+void calFindMean (int calStepIndex)
+{
+	int i;
+	double val;
+
+	val = 0.00;
+	
+	for (i=0; i < rec_len; i++)
+	{
+		val = val + wfmFilter[i];
+	}
+	
+	val = val / rec_len;
+	
+	calLevels[calStepIndex] = val;
+}
 
 // TO DO: validate functions below
 
@@ -344,23 +364,8 @@ void calReconstructData (void)
 
 
 
-// Find mean of waveform segment
-void calFindMean (int calStepIndex)
-{
-	int i;
-	double val;
 
-	val = 0;
-	
-	for (i=0; i < rec_len; i++)
-	{
-		val = val + wfmf[i];
-	}
-	
-	val = val / rec_len;
-	
-	calLevels[calStepIndex] = val;
-}
+
 
 // Find optimal step count
 void calFindStepcount (void)
