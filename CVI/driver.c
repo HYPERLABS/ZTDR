@@ -148,21 +148,10 @@ double meanArray (void)
 	return ((double) val / (double) 1000.0);
 }
 
-
-// TO DO: validate functions below
-
-
-
-
-
-
-// Calibrate timebase ("full cal")
+// Calibrate timebase ("full" calibration)
 void calTimebase (void)
 {
 	int i;
-
-	// Start basic calibration message
-	SetCtrlVal (panelHandle, PANEL_MESSAGES, "> Calibration ...");
 	
 	calSetParams ();
 	
@@ -178,10 +167,21 @@ void calTimebase (void)
 
 	calDAC ();
 	
-	// Set up time window and calibrate vertical
+	// Set up time window and vertical calibration
 	setupTimescale ();
 	vertCal ();
+	
+	// TO DO: use return to determine whether cal was successful
+	// return 1;
 }
+
+// TO DO: validate functions below
+
+
+
+
+
+
 
 // Set parameters for calibration
 void calSetParams (void)

@@ -153,13 +153,10 @@ double 	calDiscLevel;
 int 	calIncrement;
 double 	calLevels[5];
 double 	cal_threshold;
-UINT16 	stepcount = 6;
-UINT16 	stepcountArray[5] = {4, 5, 6, 7, 8};
 double 	vampl = 679.0;
 
 // Calibration parameters
 UINT16	calstart_save = 540;
-UINT16 	calstart = 540; UINT16 calend = 3870;
 UINT16 	dac0val = 0, dac1val = 0, dac2val = 0;
 int 	freerun_en = 0;
 UINT16 	strobecount = 2;
@@ -277,6 +274,8 @@ void main (int argc, char *argv[])
 	// Set up and calibrate instrument
 	setupTimescale ();
 	openDevice ();
+	
+	writeMsgCal (0);
 	calTimebase ();
 	
 	// Run first acquisition
@@ -1426,4 +1425,19 @@ void updateSize (void)
 	
 	// Re-enable timers
 	status = ResumeTimerCallbacks ();
+}
+
+// Write message to status
+void writeMsgCal (int msg)
+{
+	if (msg == 0)
+	{   
+		// Start initial calibration message
+		SetCtrlVal (panelHandle, PANEL_MESSAGES, "> Calibration ...");
+	}
+	else if (msg == 1)
+	{
+		// Indicate successful calibration
+		
+	}
 }

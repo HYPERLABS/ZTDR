@@ -75,6 +75,11 @@ typedef union _timeinf timeinf;
 
 extern	timeinf start_tm, end_tm;
 
+extern	UINT16 	calstart; 
+extern	UINT16 	calend;
+extern	UINT16 	stepcount;
+extern	UINT16 	stepcountArray[5];
+
 //==============================================================================
 // Global functions
 

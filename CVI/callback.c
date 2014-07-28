@@ -555,6 +555,8 @@ void CVICALLBACK onStore (int menuBar, int menuItem, void *callbackData,
 void CVICALLBACK onTimeCal (int menuBar, int menuItem, void *callbackData,
 							 int panel)
 {  
+	writeMsgCal (0);
+	
 	calTimebase ();
 	
 	acquire ();

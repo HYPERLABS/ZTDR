@@ -88,6 +88,7 @@ void 	storeWaveform (int format);
 void	showVersion (void);
 void	updateCursors (void);
 void	updateSize (void);
+void 	writeMsgCal (int msg);
 void 	zoom (void);
 
 

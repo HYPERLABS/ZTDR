@@ -65,6 +65,16 @@ const int 	dev_hostbps = 256000;
 // Time variables passed to device
 timeinf start_tm, end_tm;
 
+// Other parameters passed to device
+UINT16 	calstart = 540; 
+UINT16 	calend = 3870;
+UINT16 	stepcount = 6;
+UINT16 	stepcountArray[5] = {4, 5, 6, 7, 8};
+
+
+
+
+
 // Debug mode variables | TO DO: cleanup
 char 	dev_comspdbuf[20];
 char 	dev_idbuf[20];
