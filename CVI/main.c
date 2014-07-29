@@ -935,9 +935,42 @@ void resizeWindow (void)
 {
 	int status;
 	
-	status = GetCtrlVal (panelHandle, PANEL_START, &xStart);
-	status = GetCtrlVal (panelHandle, PANEL_END, &xEnd);
-}
+	double x1, x2;
+	
+	status = GetCtrlVal (panelHandle, PANEL_START, &x1);
+	status = GetCtrlVal (panelHandle, PANEL_END, &x2);
+
+	// Start is less than end
+	if (x1 < x2) 
+	{
+		xStart = x1;
+		xEnd = x2;
+	}
+	// Adjustment if end less than start
+	else
+	{
+		int adjust = 0;
+		
+		if (xUnits == UNIT_MV)
+		{
+			adjust = 2;
+		}
+		else if (xUnits == UNIT_FT)
+		{
+			adjust = 5;
+		}
+		else if (xUnits == UNIT_NS)
+		{
+			adjust = 10;
+		}
+		
+		status = SetCtrlVal (panelHandle, PANEL_START, x1);
+		status = SetCtrlVal (panelHandle, PANEL_END, x1 + adjust);
+		
+		xStart = x1;
+		xEnd = x1 + adjust;
+	}
+} 
 
 // Print current waveform and controles
 void printWaveform (void)
