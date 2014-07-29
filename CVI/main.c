@@ -191,8 +191,8 @@ int		width, height;
 // Main startup function
 void main (int argc, char *argv[])
 {
+	int status;
 	int i;
-	UINT8 acq_result;
 
 	// Initial values for maximum length of array
 	for (i=0; i < NPOINTS_MAX; i++)
@@ -206,20 +206,20 @@ void main (int argc, char *argv[])
 	{
 		return -1;	/* out of memory */
 	}
-
-	// TO DO: clean this routine up!
+	
 	// Load UI
 	if ((panelHandle = LoadPanel (0, "ZTDR.uir", PANEL)) < 0)
 	{
 		return -1;
 	}
+	
 	// Load menu bar
 	menuHandle = LoadMenuBar (panelHandle, "ZTDR.uir", MENUBAR);
 	
 	// Display panel and store size
-	DisplayPanel (panelHandle);
-	GetPanelAttribute(panelHandle, ATTR_WIDTH, &width);
-	GetPanelAttribute(panelHandle, ATTR_HEIGHT, &height);
+	status = DisplayPanel (panelHandle);
+	status = GetPanelAttribute(panelHandle, ATTR_WIDTH, &width);
+	status = GetPanelAttribute(panelHandle, ATTR_HEIGHT, &height);
 	
 	// Load control arrays
 	rightHandle = GetCtrlArrayFromResourceID (panelHandle, RIGHT);
@@ -231,26 +231,27 @@ void main (int argc, char *argv[])
 	// Show software version
 	showVersion ();
 
-	// Set 50 ns timescale
+	// Set increment for 50 ns timescale
 	calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 )/
 						  (((double) 50e-9) / (double) 65536.0));
 
-	// Set up and calibrate instrument
+	// Set up device
 	setupTimescale ();
 	openDevice ();
 	
+	// Calibrate instrument
 	writeMsgCal (0);
 	calTimebase ();
 	
 	// Run first acquisition
 	acquire ();				
 	
-	// Set initial cursor positions roughly to baseline and internal reference
+	// Set initial cursor positions
 	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, 2.25, -250);
 	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, 3.25, 0);
 	
 	// Start timer for subsequent acquisitions
-	SetCtrlAttribute (panelHandle, PANEL_TIMER, ATTR_ENABLED, 1);
+	status = SetCtrlAttribute (panelHandle, PANEL_TIMER, ATTR_ENABLED, 1);
 	
 	RunUserInterface ();	
 	
@@ -259,33 +260,11 @@ void main (int argc, char *argv[])
 	return 0;
 }
 
-// TO DO: move back to better place
 // Main acquisition function
 void acquire (void)
 {
-	int ret = 0;
-	int i,n,k;
 	int status;
-	int acquisition_nr = 1;
-	
-	unsigned char buf[24];
-	char ch;
-	UINT8 acq_result;
-	static char cbuf[32];
-	
-	double ymax, ymin;
-	int nblocks;
-	int blocksok;
-	
-	double impedance = 50;
-	double ampl_factor = 250.0;
-	
-	int	auto_flag;
-
-	double wfmf_debug[1024];
-	double wfm_data_debug[1024];
-	
-	double offset = 0;
+	int i, j;
 	
 	if (!usb_opened)
 	{
@@ -304,13 +283,17 @@ void acquire (void)
 	}
 	
 	// Acquire data
-	ret = usbfifo_acquire (&acq_result, 0);
+	UINT8 acq_result;
+	status = usbfifo_acquire (&acq_result, 0);
 	
-	if (ret < 0)
+	if (status < 0)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
 		return;
 	}
+	
+	int blocksok;
+	int nblocks;
 	
 	// Read blocks of data from block numbers 0-63 (max 64 blocks and 16384 pts)
 	blocksok = 1;
@@ -320,9 +303,10 @@ void acquire (void)
 	{
 		// Verify data integrity of block
 		int ntries = 3;
-		while ((ret = usbfifo_readblock ((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
 		
-		if (ret < 0)
+		while ((status = usbfifo_readblock ((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
+		
+		if (status < 0)
 		{
 			blocksok = 0;
 		}
@@ -335,7 +319,8 @@ void acquire (void)
 	}
 	
 	// Reconstruct data and find offset for acquisition
-	reconstructData (0); 
+	reconstructData (0);
+	double offset;
 	offset = meanArray();
 	
 	// Timescale and parameters for main acquisition 
@@ -347,23 +332,20 @@ void acquire (void)
 		return;
 	}
 	
-	//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquiring...");
+	// Min/max of waveform
+	double ymax = 0.0;
+	double ymin = 0.0;
 	
 	// Number of waveforms to average
-	GetCtrlVal (panelHandle, PANEL_AVERAGE, &acquisition_nr);
-		
-	// Get axis limits and units
+	int numAvg;
+	GetCtrlVal (panelHandle, PANEL_AVERAGE, &numAvg);
 	
-	// TO DO: are these overwritten later?
-	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
-	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
-	
-	// Acquire k waveforms, loop and average if k > 1
-	for (k = 0; k < acquisition_nr; k++) 
+	// Acquire j waveforms, loop and average if j > 1
+	for (j = 0; j < numAvg; j++) 
 	{ 
-		ret = usbfifo_acquire (&acq_result, 0);
+		status = usbfifo_acquire (&acq_result, 0);
 		
-		if (ret < 0)
+		if (status < 0)
 		{
 			//printf("Failed to run the acquisition sequence (did not get '.')");
 			//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
@@ -378,9 +360,9 @@ void acquire (void)
 		{
 			// Verify data integrity of block 
 			int ntries = 3;
-			while ((ret = usbfifo_readblock((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
+			while ((status = usbfifo_readblock((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
 		
-			if (ret < 0)
+			if (status < 0)
 			{
 				blocksok = 0;
 			}
@@ -397,23 +379,18 @@ void acquire (void)
  		
 		// Store data, perform rho conversion
 		for (i = 0; i < recLen; i++)
-		{ 
-			if (i < 1024)
-			{
-				// Store pre-conversion values for debug purposes
-				wfmf_debug[i] = wfmFilter[i];
-				wfm_data_debug[i] = wfm_data[i];
-			}
-			
+		{   
 			// Convert first to Rho (baseline unit for conversions)
 			wfm_data[i] = (double) (wfmFilter[i]) / (double) vampl - 1.0;
 		}
-
+		
 		// Y Axis scaling based on selected unit
 		switch (yUnits)
 		{   
 			case UNIT_MV:
 			{
+				double ampl_factor = 250.0;
+
 				// Values certain to be overwritten immediately
 				ymax = -500;
 				ymin = 500;
@@ -485,6 +462,8 @@ void acquire (void)
 			
 			case UNIT_OHM:
 			{
+				double impedance = 50;
+				
 				 // Values certain to be overwritten immediately
 				ymin = 500.00;
 				ymax =  0.00;
@@ -579,13 +558,14 @@ void acquire (void)
 		}
 
 		// Set Y Axis limits if manual scaling
-		GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &auto_flag);
+		int autoScale;
+		status = GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &autoScale);
 
 		// Manual scaling
-		if (auto_flag == 0)
+		if (autoScale == 0)
 		{
-			GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
-			GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
+			status = GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
+			status = GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
 
 			// Compensate if min > max
 			if((double) ymin >= (double) ymax)
@@ -608,7 +588,7 @@ void acquire (void)
 		// Average waveforms
 		for (i = 0; i< recLen; i++)
 		{
-			wfm_data_ave[i] = (k* wfm_data_ave[i] + wfm_data[i])/(k+1);
+			wfm_data_ave[i] = (j* wfm_data_ave[i] + wfm_data[i])/(j+1);
 		}
 	}
 
@@ -660,13 +640,105 @@ void acquire (void)
 	updateCursors ();
 }
 
+// Update cursor readings
+void updateCursors (void)
+{  	
+	int status;
+	
+	double c1x, c1y, c2x, c2y;
+	static char buf[128];
 
+	c1x = c1y = c2x = c2y = 0;
+	
+	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
+	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
 
+	// Cursor 1
+	status = sprintf (buf, " %.2f %s, %.2f %s", c1x, x_short[xUnits], c1y, y_short[yUnits]);
+	status = SetCtrlVal (panelHandle, PANEL_CURSOR1,  buf);
 
+	// Cursor 2
+	status = sprintf (buf, " %.2f %s, %.2f %s", c2x, x_short[xUnits], c2y, y_short[yUnits]);
+	status = SetCtrlVal (panelHandle, PANEL_CURSOR2, buf);
 
+	// Delta
+	status = sprintf(buf, " %.2f %s, %.2f %s", c2x-c1x, x_short[xUnits], c2y-c1y, y_short[yUnits]);
+	status = SetCtrlVal (panelHandle, PANEL_DELTA, buf);
+}
 
-// TO DO: below this, functions totally cleaned up and validated
-// TO DO: these just need to be sorted
+// Verify necessary folders
+void checkDirs (void)
+{
+	int status;
+	
+	int existsDir;
+	
+	// Default .PNG output folder	
+	status = FileExists ("images", &existsDir);
+	
+	if (status == 0) 
+	{
+		MakeDir ("images");
+	}
+	
+	// Default .ZTDR output folder
+	status = FileExists ("waveforms", &existsDir);
+	
+	if (status == 0) 
+	{
+		MakeDir ("waveforms");
+	}
+	
+	// Default settings folder
+	status = FileExists ("settings", &existsDir);
+	
+	if (status == 0) 
+	{
+		MakeDir ("settings");
+	}
+	
+	// Default CSV output folder
+	status = FileExists ("datalogs", &existsDir);
+	
+	if (status == 0) 
+	{
+		MakeDir ("datalogs");
+	}
+}
+
+// Format and show current version and instrument
+void showVersion (void)
+{
+	int status;
+	
+	// Get full version number
+	char version[64];
+	status = sprintf (version, "ZTDR v%s", _TARGET_PRODUCT_VERSION_);
+	
+	// Trim build number
+	int len = strlen (version) - 2;
+	version[len] = 0;
+	
+	// Append instrument model
+	status = sprintf (version, "%s / HL1101", version);
+	
+	status = SetCtrlVal (panelHandle, PANEL_VERSION, version);
+}
+
+// Write message to status
+void writeMsgCal (int msg)
+{
+	if (msg == 0)
+	{   
+		// Start initial calibration message
+		SetCtrlVal (panelHandle, PANEL_MESSAGES, "> Calibration ...");
+	}
+	else if (msg == 1)
+	{
+		// Indicate successful calibration
+		
+	}
+}
 
 // Toggle dimming of controls based on autoscale
 void changeAuto (void)
@@ -849,77 +921,43 @@ void changeUnitY (int unit)
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, y_label[yUnits]);
 }
 
-// Verify necessary folders
-void checkDirs (void)
-{
+// Cursor-based zoom
+void zoom (void)
+{   
 	int status;
 	
-	int existsDir;
+	double c1x, c1y, c2x, c2y;
 	
-	// Default .PNG output folder	
-	status = FileExists ("images", &existsDir);
-	
-	if (status == 0) 
+	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
+	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
+
+	// Update start and end controls
+	if (c1x < c2x)
 	{
-		MakeDir ("images");
+		status = SetCtrlVal(panelHandle, PANEL_START, c1x);
+		status = SetCtrlVal(panelHandle, PANEL_END, c2x);
 	}
-	
-	// Default .ZTDR output folder
-	status = FileExists ("waveforms", &existsDir);
-	
-	if (status == 0) 
+	else
 	{
-		MakeDir ("waveforms");
-	}
-	
-	// Default settings folder
-	status = FileExists ("settings", &existsDir);
-	
-	if (status == 0) 
-	{
-		MakeDir ("settings");
-	}
-	
-	// Default CSV output folder
-	status = FileExists ("datalogs", &existsDir);
-	
-	if (status == 0) 
-	{
-		MakeDir ("datalogs");
+		status = SetCtrlVal(panelHandle, PANEL_START, c2x);
+		status = SetCtrlVal(panelHandle, PANEL_END, c1x);
 	}
 }
 
-// Reset plot area and clear recalled waveform
-void clearWaveform (void)
+// Reset to default window
+void resetZoom (void)
+{
+	SetCtrlVal (panelHandle, PANEL_START, x_dflt_start[xUnits]);
+	SetCtrlVal (panelHandle, PANEL_END, x_dflt_end[xUnits]);	
+}
+
+// Resize acquisition window
+void resizeWindow (void)
 {
 	int status;
 	
-	// TO DO: is this desired behavior?
-	status = SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 1);
-
-	// Remove recalled waveform, if any
-	if (WfmStored)
-	{
-		status = DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmStored, VAL_IMMEDIATE_DRAW);
-		WfmStored = 0;
-	}
-	
-	// Re-enable controls
-	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_DIMMED, 0);
-	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_DIMMED, 0);
-	status = SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_DIMMED, 0);
-	status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
-	status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 0);
-	status = SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 0);
-	
-	// Un-dim menus
-	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_STORE, ATTR_DIMMED, 0);
-	status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS, ATTR_DIMMED, 0);
-	status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS, ATTR_DIMMED, 0);
-	
-	// Hide clear button and dim menu
-	status = SetCtrlAttribute (panelHandle, PANEL_CLEAR, ATTR_VISIBLE, 0);
-	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_CLEAR, ATTR_DIMMED, 1);
+	status = GetCtrlVal (panelHandle, PANEL_START, &xStart);
+	status = GetCtrlVal (panelHandle, PANEL_END, &xEnd);
 }
 
 // Print current waveform and controles
@@ -949,6 +987,137 @@ void printWaveform (void)
 	status = SetCtrlVal (panelHandle, PANEL_MESSAGES, timestamp);
 	
 	status = PrintPanel (panelHandle, "", 1, VAL_FULL_PANEL, 1);
+	
+	// Re-enable timers 
+	status = ResumeTimerCallbacks ();
+}
+
+// Save waveform and controls to PNG
+void savePNG (void)
+{
+	int status;
+	
+	// Disable timers during action
+	status = SuspendTimerCallbacks ();
+
+	// Select file to save
+	char filename[64];
+	char save_file[260];
+	status = sprintf (filename, ".png");
+	status = FileSelectPopup ("images", filename, "PNG (*.png)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+
+	// Don't attempt to save if user cancels
+	if (status == VAL_NO_FILE_SELECTED)
+	{
+		// Re-enable timers 
+		status = ResumeTimerCallbacks ();
+		
+		return;
+	}
+
+	// Get timestamp of request
+	char timestamp[64];
+	int	month, day, year;
+	int	hours, minutes, seconds;
+	
+	status = GetSystemDate (&month, &day, &year);
+	status = GetSystemTime (&hours, &minutes, &seconds);
+	
+	status = sprintf (timestamp, "> DATE: %02d/%02d/%02d\n> TIME: %02d:%02d:%02d\n", month, day, year, hours, minutes, seconds);
+	
+	// Show version, timestamp
+	status = SetCtrlVal (panelHandle, PANEL_MESSAGES, timestamp);
+	
+	// Prepare image file
+	int imageFile;
+	status = GetPanelDisplayBitmap (panelHandle, VAL_FULL_PANEL, VAL_ENTIRE_OBJECT, &imageFile);
+	status = SaveBitmapToPNGFile (imageFile, save_file);
+	
+	// Re-enable timers
+	status = ResumeTimerCallbacks ();
+	
+	// TO DO: add some functionality for serial number?
+}
+
+// Store waveform to file as ZTDR (format = 1) or CSV (= 0)
+void storeWaveform (int format)
+{   
+	int status;	
+	int i;
+
+	// Disable timers during action
+	status = SuspendTimerCallbacks ();
+	
+	// File setup
+	char save_file[260];
+	char filename[40];
+	
+	// Save dialog
+	if (format == 1)
+	{
+		status = sprintf (filename, ".ztdr");
+		status = FileSelectPopup ("waveforms", filename, "ZTDR Waveform (*.ztdr)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+	}
+	else
+	{
+		status = sprintf (filename, ".csv");
+		status = FileSelectPopup ("logs", filename, "CSV File (*.csv)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+	}
+
+	// Don't attempt to save if user cancels
+	if (status == VAL_NO_FILE_SELECTED)
+	{
+		// Re-enable timers
+		status = ResumeTimerCallbacks ();
+		
+		return;
+	}	
+	
+	// Open selected file for write
+	int fd;
+	fd = OpenFile (save_file, VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
+	
+	// Set up data buffer;
+	char buf[128];
+	buf[0] = 0;
+
+	// Create header row
+	double windowstart, windowend;
+	double ymin, ymax;
+	double diel;
+	
+	GetCtrlVal (panelHandle, PANEL_START, &windowstart);
+	GetCtrlVal (panelHandle, PANEL_END, &windowend);
+	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
+	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
+	GetCtrlVal (panelHandle, PANEL_DIEL, &diel);;
+	
+	// Write header row
+	if (format == 1)
+	{
+		// Header for .ZTDR
+		status = sprintf (buf + strlen(buf), "%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.3f\n", yUnits, xUnits, windowstart, windowend, ymin, ymax, diel);
+	}
+	else
+	{
+		// Header for .CSV
+		status = sprintf (buf + strlen(buf), "%s, %s\n", y_label[yUnits], x_label[xUnits]);
+	}
+	
+	status = WriteFile (fd, buf, strlen (buf));
+	
+	// Log X/Y data
+	for (i = 0; i < recLen; i++)
+	{
+		// Reset buffer
+		buf[0] = 0;
+	
+		status = sprintf (buf + strlen(buf), "%3.10f, %3.10f\n", wfm_data[i], wfm_x[i]);
+		
+		status = WriteFile (fd, buf, strlen(buf));
+	}
+	
+	status = CloseFile (fd);
 	
 	// Re-enable timers 
 	status = ResumeTimerCallbacks ();
@@ -1074,196 +1243,37 @@ void recallWaveform (void)
 	ResumeTimerCallbacks ();
 }
 
-// Reset to default window
-void resetZoom (void)
-{
-	SetCtrlVal (panelHandle, PANEL_START, x_dflt_start[xUnits]);
-	SetCtrlVal (panelHandle, PANEL_END, x_dflt_end[xUnits]);	
-}
-
-// Resize acquisition window
-void resizeWindow (void)
+// Reset plot area and clear recalled waveform
+void clearWaveform (void)
 {
 	int status;
 	
-	status = GetCtrlVal (panelHandle, PANEL_START, &xStart);
-	status = GetCtrlVal (panelHandle, PANEL_END, &xEnd);
-}
+	// TO DO: is this desired behavior?
+	status = SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 1);
 
-// Save waveform and controls to PNG
-void savePNG (void)
-{
-	int status;
-	
-	// Disable timers during action
-	status = SuspendTimerCallbacks ();
-
-	// Select file to save
-	char filename[64];
-	char save_file[260];
-	status = sprintf (filename, ".png");
-	status = FileSelectPopup ("images", filename, "PNG (*.png)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
-
-	// Don't attempt to save if user cancels
-	if (status == VAL_NO_FILE_SELECTED)
+	// Remove recalled waveform, if any
+	if (WfmStored)
 	{
-		// Re-enable timers 
-		status = ResumeTimerCallbacks ();
-		
-		return;
-	}
-
-	// Get timestamp of request
-	char timestamp[64];
-	int	month, day, year;
-	int	hours, minutes, seconds;
-	
-	status = GetSystemDate (&month, &day, &year);
-	status = GetSystemTime (&hours, &minutes, &seconds);
-	
-	status = sprintf (timestamp, "> DATE: %02d/%02d/%02d\n> TIME: %02d:%02d:%02d\n", month, day, year, hours, minutes, seconds);
-	
-	// Show version, timestamp
-	status = SetCtrlVal (panelHandle, PANEL_MESSAGES, timestamp);
-	
-	// Prepare image file
-	int imageFile;
-	status = GetPanelDisplayBitmap (panelHandle, VAL_FULL_PANEL, VAL_ENTIRE_OBJECT, &imageFile);
-	status = SaveBitmapToPNGFile (imageFile, save_file);
-	
-	// Re-enable timers
-	status = ResumeTimerCallbacks ();
-	
-	// TO DO: add some functionality for serial number?
-}
-
-// Format and show current version and instrument
-void showVersion (void)
-{
-	int status;
-	
-	// Get full version number
-	char version[64];
-	status = sprintf (version, "ZTDR v%s", _TARGET_PRODUCT_VERSION_);
-	
-	// Trim build number
-	int len = strlen (version) - 2;
-	version[len] = 0;
-	
-	// Append instrument model
-	status = sprintf (version, "%s / HL1101", version);
-	
-	status = SetCtrlVal (panelHandle, PANEL_VERSION, version);
-}
-
-// Store waveform to file as ZTDR (format = 1) or CSV (= 0)
-void storeWaveform (int format)
-{   
-	int status;	
-	int i;
-
-	// Disable timers during action
-	status = SuspendTimerCallbacks ();
-	
-	// File setup
-	char save_file[260];
-	char filename[40];
-	
-	// Save dialog
-	if (format == 1)
-	{
-		status = sprintf (filename, ".ztdr");
-		status = FileSelectPopup ("waveforms", filename, "ZTDR Waveform (*.ztdr)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
-	}
-	else
-	{
-		status = sprintf (filename, ".csv");
-		status = FileSelectPopup ("logs", filename, "CSV File (*.csv)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
-	}
-
-	// Don't attempt to save if user cancels
-	if (status == VAL_NO_FILE_SELECTED)
-	{
-		// Re-enable timers
-		status = ResumeTimerCallbacks ();
-		
-		return;
-	}	
-	
-	// Open selected file for write
-	int fd;
-	fd = OpenFile (save_file, VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
-	
-	// Set up data buffer;
-	char buf[128];
-	buf[0] = 0;
-
-	// Create header row
-	double windowstart, windowend;
-	double ymin, ymax;
-	double diel;
-	
-	GetCtrlVal (panelHandle, PANEL_START, &windowstart);
-	GetCtrlVal (panelHandle, PANEL_END, &windowend);
-	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
-	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
-	GetCtrlVal (panelHandle, PANEL_DIEL, &diel);;
-	
-	// Write header row
-	if (format == 1)
-	{
-		// Header for .ZTDR
-		status = sprintf (buf + strlen(buf), "%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.3f\n", yUnits, xUnits, windowstart, windowend, ymin, ymax, diel);
-	}
-	else
-	{
-		// Header for .CSV
-		status = sprintf (buf + strlen(buf), "%s, %s\n", y_label[yUnits], x_label[xUnits]);
+		status = DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmStored, VAL_IMMEDIATE_DRAW);
+		WfmStored = 0;
 	}
 	
-	status = WriteFile (fd, buf, strlen (buf));
+	// Re-enable controls
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 0);
 	
-	// Log X/Y data
-	for (i = 0; i < recLen; i++)
-	{
-		// Reset buffer
-		buf[0] = 0;
+	// Un-dim menus
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_STORE, ATTR_DIMMED, 0);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS, ATTR_DIMMED, 0);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS, ATTR_DIMMED, 0);
 	
-		status = sprintf (buf + strlen(buf), "%3.10f, %3.10f\n", wfm_data[i], wfm_x[i]);
-		
-		status = WriteFile (fd, buf, strlen(buf));
-	}
-	
-	status = CloseFile (fd);
-	
-	// Re-enable timers 
-	status = ResumeTimerCallbacks ();
-}
-
-// Update cursor readings
-void updateCursors (void)
-{  	
-	int status;
-	
-	double c1x, c1y, c2x, c2y;
-	static char buf[128];
-
-	c1x = c1y = c2x = c2y = 0;
-	
-	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
-	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
-
-	// Cursor 1
-	status = sprintf (buf, " %.2f %s, %.2f %s", c1x, x_short[xUnits], c1y, y_short[yUnits]);
-	status = SetCtrlVal (panelHandle, PANEL_CURSOR1,  buf);
-
-	// Cursor 2
-	status = sprintf (buf, " %.2f %s, %.2f %s", c2x, x_short[xUnits], c2y, y_short[yUnits]);
-	status = SetCtrlVal (panelHandle, PANEL_CURSOR2, buf);
-
-	// Delta
-	status = sprintf(buf, " %.2f %s, %.2f %s", c2x-c1x, x_short[xUnits], c2y-c1y, y_short[yUnits]);
-	status = SetCtrlVal (panelHandle, PANEL_DELTA, buf);
+	// Hide clear button and dim menu
+	status = SetCtrlAttribute (panelHandle, PANEL_CLEAR, ATTR_VISIBLE, 0);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_CLEAR, ATTR_DIMMED, 1);
 }
 
 // Update position of controls on resize
@@ -1359,42 +1369,4 @@ void updateSize (void)
 	
 	// Re-enable timers
 	status = ResumeTimerCallbacks ();
-}
-
-// Write message to status
-void writeMsgCal (int msg)
-{
-	if (msg == 0)
-	{   
-		// Start initial calibration message
-		SetCtrlVal (panelHandle, PANEL_MESSAGES, "> Calibration ...");
-	}
-	else if (msg == 1)
-	{
-		// Indicate successful calibration
-		
-	}
-}
-
-// Cursor-based zoom
-void zoom (void)
-{   
-	int status;
-	
-	double c1x, c1y, c2x, c2y;
-	
-	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
-	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
-
-	// Update start and end controls
-	if (c1x < c2x)
-	{
-		status = SetCtrlVal(panelHandle, PANEL_START, c1x);
-		status = SetCtrlVal(panelHandle, PANEL_END, c2x);
-	}
-	else
-	{
-		status = SetCtrlVal(panelHandle, PANEL_START, c2x);
-		status = SetCtrlVal(panelHandle, PANEL_END, c1x);
-	}
 }
