@@ -1273,12 +1273,13 @@ void recallWaveform (void)
 						VAL_THIN_LINE, VAL_EMPTY_SQUARE, VAL_SOLID, 1, MakeColor (233, 113, 233));
 
 	// Dim controls
-	SetCtrlAttribute (panelHandle, PANEL_END, ATTR_DIMMED, 1);
-	SetCtrlAttribute (panelHandle, PANEL_START, ATTR_DIMMED, 1);
-	SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_DIMMED, 1);
-	SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 1);
-	SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 1);
-	SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 1);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_DIMMED, 1);
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_DIMMED, 1);
+	status = SetCtrlAttribute (panelHandle, PANEL_DIEL, ATTR_DIMMED, 1);
+	status = SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_DIMMED, 1);
+	status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 1);
+	status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 1);
+	status = SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 1);
 	
 	// Dim menus
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_STORE, ATTR_DIMMED, 1);
@@ -1311,6 +1312,7 @@ void clearWaveform (void)
 	// Re-enable controls
 	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_DIMMED, 0);
 	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_DIMMED, 0);
+	status = SetCtrlAttribute (panelHandle, PANEL_DIEL, ATTR_DIMMED, 0);
 	status = SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_DIMMED, 0);
 	status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
 	status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 0);
