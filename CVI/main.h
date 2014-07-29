@@ -75,6 +75,7 @@ extern	double 	wfmFilter[NPOINTS_MAX];	// Filtered data from device
 void 	acquire (void);
 void 	changeAutoCal (void);
 void 	changeAutoScale (void);
+void 	changeBg (int color);
 void 	changeDiel (void);
 void 	changePlot (int unit);
 void 	changeUnitX (int unit);

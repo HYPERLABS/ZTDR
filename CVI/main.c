@@ -761,6 +761,87 @@ void writeMsgCal (int msg)
 	}
 }
 
+// Change between dots and line
+void changePlot (int unit)
+{
+	int status;																			   
+	
+	// Change unit selection and update menu
+	if (unit == 0)
+	{   
+		// Dots
+		plotType = 2L;
+		
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_DOTS, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_THINLINE, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_FATLINE, ATTR_CHECKED, 0);
+	}
+	else if (unit == 1)
+	{
+		// Thin line
+		plotType = 0L;
+		
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_DOTS, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_THINLINE, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_FATLINE, ATTR_CHECKED, 0);
+	}
+	else if (unit == 2)
+	{
+		// Thick line
+		plotType = 5L;
+		
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_DOTS, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_THINLINE, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_FATLINE, ATTR_CHECKED, 1);
+	}
+}
+
+// Change graph background
+void changeBg (int color)
+{
+	int status;
+	
+	// Set default dark background
+	if (color == 0)
+	{ 
+		// Set background and grid color
+		status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_PLOT_BGCOLOR, MakeColor (32, 32, 32));
+		status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_GRID_COLOR, MakeColor (80, 80, 80));
+		status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_GRAPH_BGCOLOR, VAL_WHITE);
+
+		// More visible cursors
+		status = SetCursorAttribute (panelHandle, PANEL_WAVEFORM, 1, ATTR_CURSOR_COLOR, MakeColor (83, 200, 233));
+		status = SetCursorAttribute (panelHandle, PANEL_WAVEFORM, 2, ATTR_CURSOR_COLOR, MakeColor (233, 83, 83));
+		
+		// Timestamp
+		status = SetCtrlAttribute (panelHandle, PANEL_TIMESTAMP, ATTR_TEXT_COLOR , MakeColor (76, 157, 47));
+		
+		// Update checkmarks
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_DARK, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_LIGHT, ATTR_CHECKED, 0);	
+	}
+	
+	// Set alternate light background
+	else if (color == 1)
+	{ 
+		// Set background and grid color
+		status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_PLOT_BGCOLOR, VAL_WHITE);
+		status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_GRID_COLOR, VAL_DK_GRAY);
+		status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_GRAPH_BGCOLOR, VAL_LT_GRAY);
+
+		// More visible cursors
+		status = SetCursorAttribute (panelHandle, PANEL_WAVEFORM, 1, ATTR_CURSOR_COLOR, VAL_BLUE);
+		status = SetCursorAttribute (panelHandle, PANEL_WAVEFORM, 2, ATTR_CURSOR_COLOR, VAL_RED);
+		
+		// Timestamp
+		status = SetCtrlAttribute (panelHandle, PANEL_TIMESTAMP, ATTR_TEXT_COLOR , VAL_BLACK);
+		
+		// Update checkmarks
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_DARK, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_LIGHT, ATTR_CHECKED, 1);
+	}
+}
+
 // Toggle autoscale
 void changeAutoCal (void)
 {
@@ -810,41 +891,6 @@ void changeDiel (void)
 	int status;
 	
 	status = GetCtrlVal (panelHandle, PANEL_DIEL, &diel);  
-}
-
-// Change between dots and line
-void changePlot (int unit)
-{
-	int status;																			   
-	
-	// Change unit selection and update menu
-	if (unit == 0)
-	{   
-		// Dots
-		plotType = 2L;
-		
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_DOTS, ATTR_CHECKED, 1);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_THINLINE, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_FATLINE, ATTR_CHECKED, 0);
-	}
-	else if (unit == 1)
-	{
-		// Thin line
-		plotType = 0L;
-		
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_DOTS, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_THINLINE, ATTR_CHECKED, 1);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_FATLINE, ATTR_CHECKED, 0);
-	}
-	else if (unit == 2)
-	{
-		// Thick line
-		plotType = 5L;
-		
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_DOTS, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_THINLINE, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_FATLINE, ATTR_CHECKED, 1);
-	}
 }
 
 // Change horizontal units
@@ -1045,11 +1091,26 @@ void printWaveform (void)
 	// Disable timers during action
 	status = SuspendTimerCallbacks ();
 	
+	// Force light color scheme to save toner
+	int color;
+	status = GetMenuBarAttribute (menuHandle,MENUBAR_PLOT_DARK, ATTR_CHECKED, &color);
+	
+	if (color == 1)
+	{
+		changeBg (1);
+	}
+	
 	// Set optimal printer settings
 	status = SetPrintAttribute (ATTR_PRINT_AREA_HEIGHT, VAL_USE_ENTIRE_PAPER);
 	status = SetPrintAttribute (ATTR_PRINT_AREA_WIDTH, VAL_INTEGRAL_SCALE);
 	
 	status = PrintPanel (panelHandle, "", 1, VAL_FULL_PANEL, 1);
+	
+	// Change back to dark scheme if necessary
+	if (color == 1)
+	{
+		changeBg (0);
+	}
 	
 	// Re-enable timers 
 	status = ResumeTimerCallbacks ();

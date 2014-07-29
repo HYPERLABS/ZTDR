@@ -418,6 +418,28 @@ void CVICALLBACK onAutoCal (int menuBar, int menuItem, void *callbackData,
 	return 0;	
 }
 
+// Change to dark background
+void CVICALLBACK onChangeBg1 (int menuBar, int menuItem, void *callbackData,
+								   int panel)
+{
+	changeBg (0);
+
+	acquire ();
+	
+	return 0;	
+}
+
+// Change to light background
+void CVICALLBACK onChangeBg2 (int menuBar, int menuItem, void *callbackData,
+								   int panel)
+{
+	changeBg (1);
+
+	acquire ();
+	
+	return 0;	
+}
+
 // Display changed to DOTS
 void CVICALLBACK onChangePlot1 (int menuBar, int menuItem, void *callbackData,
 								   int panel)
