@@ -416,6 +416,8 @@ void CVICALLBACK onChangeX1 (int menuBar, int menuItem, void *callbackData,
 {
 	changeUnitX (0);
 	
+	resizeWindow ();
+	
 	setupTimescale ();
 
 	acquire ();
@@ -429,6 +431,8 @@ void CVICALLBACK onChangeX2 (int menuBar, int menuItem, void *callbackData,
 {
 	changeUnitX (1);
 	
+	resizeWindow ();
+	
 	setupTimescale ();
 
 	acquire ();
@@ -441,6 +445,8 @@ void CVICALLBACK onChangeX3 (int menuBar, int menuItem, void *callbackData,
 							int panel)
 {
 	changeUnitX (2);
+	
+	resizeWindow ();
 	
 	setupTimescale ();
 
