@@ -45,107 +45,106 @@
 //==============================================================================
 // Global variables (roughly grouped by function)
 
-// TO DO: significant cleanup of section
-
-
-
-
-
 // Unit labels and ranges
 char *y_label[] =
-     {
-      "VOLTS (mV)",
-      "NORMALIZED",
-      "IMPEDANCE (Ohm)",
-      "REFLECT COEFF (Rho)" 
-	 };
+{
+	"VOLTS (mV)",
+	"NORMALIZED",
+	"IMPEDANCE (Ohm)",
+	"REFLECT COEFF (Rho)"
+};
 
 char *x_label[] =
-     {
-      "ROUNDTRIP (m)",
-      "ROUNDTRIP (ft)",
-      "ROUNDTRIP (ns)" 
-	 };
+{
+	"ROUNDTRIP (m)",
+	"ROUNDTRIP (ft)",
+	"ROUNDTRIP (ns)"
+};
 
 char *y_short[] =
-     {
-      "mV",
-      "Norm",
-      "Ohm",
-      "Rho" 
-	 };
+{
+	"mV",
+	"Norm",
+	"Ohm",
+	"Rho"
+};
 
 char *x_short[] =
-     {
-      "m",
-      "ft",
-      "ns" 
-	 };
+{
+	"m",
+	"ft",
+	"ns"
+};
 
 char *x_label_start[] =
-     {
-      "START (m)",
-      "START (ft)" ,
-      "START (ns)"
-	 };
+{
+	"START (m)",
+	"START (ft)" ,
+	"START (ns)"
+};
 
-      
+
 char *x_label_end[] =
-     {
-      "END (m)",
-      "END (ft)",
-      "END (ns)" 
-	 }; 		
-      
+{
+	"END (m)",
+	"END (ft)",
+	"END (ns)"
+};
+
 float x_dflt_start[] =
-     {
-      0.0,
-      0.0,
-      0.0
-	 };
+{
+	0.0,
+	0.0,
+	0.0
+};
 
 float x_dflt_end[]  =
-     {
-      10.0,
-      33.3,
-      50.0
-	 };
+{
+	10.0,
+	33.3,
+	50.0
+};
 
 float x_max_range[] =
-     {
-      400.0,
-      1332,
-      2000.0
-	 };
+{
+	400.0,
+	1332,
+	2000.0
+};
 
 char *label_dist[] =
-     {
-      "(X2-X1) (m) ",
-      "(X2-X1) (ft)",
-      "(X2-X1) (ns)" 
-	 };
-
+{
+	"(X2-X1) (m) ",
+	"(X2-X1) (ft)",
+	"(X2-X1) (ns)"
+};
 
 // Horizontal values for each unit
-double 	wfm_x[NPOINTS_MAX];			// Passed to graph
-double 	wfm_dist[NPOINTS_MAX]; 		// Recalled waveform
+double 	wfmX[NPOINTS_MAX];			// Active waveform
+double 	wfmRecallX[NPOINTS_MAX]; 	// Recalled waveform
 
 // Vertical values in different modes
-double  wfm_data[NPOINTS_MAX];		// Converted to selected units
-double  wfm_data_ave[NPOINTS_MAX]; 	// After waveform averaging
-double 	wfm_ret[NPOINTS_MAX]; 		// Recalled waveform
+double  wfmData[NPOINTS_MAX];		// Converted to selected units
+double  wfmAvg[NPOINTS_MAX]; 		// After waveform averaging
+double 	wfmRecall[NPOINTS_MAX]; 	// Recalled waveform
 
-double	wfm_rho_data[NPOINTS_MAX];
-double	wfm_z_data[NPOINTS_MAX];
+// Default plot type
+int		plotType = 2L; // dots
+
+// Waveform handles
+int 	WfmActive; 	// current acquisition
+int 	WfmStored;	// stored waveform
+
+// UIR elements
+int 	panelHandle, menuHandle;
+int		rightHandle, bottomHandle;
+
+// Panel size
+int		width, height;
 
 
-
-
-
-// TO DO: START updated, organized variables
-
-
-// TO DO: organize this section as extern (defined in .h)
+//==============================================================================
+// External global variables
 // Control states needed outside UIR
 double	diel = 2.25; // coax
 int 	yUnits = 0; // mV
@@ -163,26 +162,6 @@ double 	wfmTime[NPOINTS_MAX]; // time (ns)
 
 UINT16 	wfm[NPOINTS_MAX]; // raw data from device
 double 	wfmFilter[NPOINTS_MAX];	// filtered data from device
-
-
-// TO DO: below are not extern
-int		plotType = 2L; // dots
-
-// Waveform handles
-int 	WfmActive; 	// current acquisition
-int 	WfmStored;	// stored waveform
-
-// UIR elements
-int 	panelHandle, menuHandle;
-int		rightHandle, bottomHandle;
-
-// Panel size
-int		width, height;
-
-// TO DO: END updated, organized variables
-
-
-
 
 
 //==============================================================================
@@ -381,7 +360,7 @@ void acquire (void)
 		for (i = 0; i < recLen; i++)
 		{   
 			// Convert first to Rho (baseline unit for conversions)
-			wfm_data[i] = (double) (wfmFilter[i]) / (double) vampl - 1.0;
+			wfmData[i] = (double) (wfmFilter[i]) / (double) vampl - 1.0;
 		}
 		
 		// Y Axis scaling based on selected unit
@@ -397,16 +376,16 @@ void acquire (void)
 				
 				for (i = 0; i < recLen; i++)
 				{
-					wfm_data[i] *= ampl_factor;
+					wfmData[i] *= ampl_factor;
 					
-					if (wfm_data[i] > ymax)
+					if (wfmData[i] > ymax)
 					{
-						ymax = wfm_data[i];
+						ymax = wfmData[i];
 					}
 					
-					if (wfm_data[i] < ymin)
+					if (wfmData[i] < ymin)
 					{
-						ymin = wfm_data[i];
+						ymin = wfmData[i];
 					}
 				}
 				
@@ -430,21 +409,21 @@ void acquire (void)
 				
 				for (i = 0; i < recLen; i++)
 				{
-					wfm_data[i] += 1.0;
+					wfmData[i] += 1.0;
 					
-					if (wfm_data[i] < 0)
+					if (wfmData[i] < 0)
 					{
-						wfm_data[i] = 0;
+						wfmData[i] = 0;
 					}
 					
-					if (wfm_data[i] > ymax)
+					if (wfmData[i] > ymax)
 					{
-						ymax = wfm_data[i];
+						ymax = wfmData[i];
 					}
 					
-					if (wfm_data[i] < ymin)
+					if (wfmData[i] < ymin)
 					{
-						ymin = wfm_data[i];
+						ymin = wfmData[i];
 					}
 				}
 				
@@ -471,35 +450,35 @@ void acquire (void)
 				for (i = 0; i < recLen; i++)
 				{   
 					// Make sure Rho values are in range for conversion
-					if (wfm_data[i] <= -1)
+					if (wfmData[i] <= -1)
 					{
-						wfm_data[i] = -0.999;
+						wfmData[i] = -0.999;
 					}
-					else if (wfm_data[i] >= 1)
+					else if (wfmData[i] >= 1)
 					{
-						wfm_data[i] = 0.999;
+						wfmData[i] = 0.999;
 					}
 					
 					// Convert to impedance from Rho
-					wfm_data[i] = (double) impedance * ((double) (1.0) + (double) (wfm_data[i])) / ((double) (1.0) - (double) (wfm_data[i]));
+					wfmData[i] = (double) impedance * ((double) (1.0) + (double) (wfmData[i])) / ((double) (1.0) - (double) (wfmData[i]));
 		   		    
-					if(wfm_data[i] >= 500)
+					if(wfmData[i] >= 500)
 					{ 
-						wfm_data[i] = 500.0;
+						wfmData[i] = 500.0;
 					}
-					else if(wfm_data[i] < 0)
+					else if(wfmData[i] < 0)
 					{ 
-						wfm_data[i] = 0;
+						wfmData[i] = 0;
 					}
 					
-					if (wfm_data[i] > ymax)
+					if (wfmData[i] > ymax)
 					{
-						ymax = wfm_data[i];
+						ymax = wfmData[i];
 					}
 					
-					if (wfm_data[i] < ymin)
+					if (wfmData[i] < ymin)
 					{
-						ymin = wfm_data[i];
+						ymin = wfmData[i];
 					}
 				}
 				
@@ -523,24 +502,24 @@ void acquire (void)
 				
 				for (i=0; i < recLen; i++)
 				{ 
-					if (wfm_data[i] <= -1)
+					if (wfmData[i] <= -1)
 					{
-						wfm_data[i] = -0.999;
+						wfmData[i] = -0.999;
 					}
 				
-					if (wfm_data[i] >= 1)
+					if (wfmData[i] >= 1)
 					{
-						wfm_data[i] = 0.999;
+						wfmData[i] = 0.999;
 					}
 					
-					if (wfm_data[i] > ymax)
+					if (wfmData[i] > ymax)
 					{
-						ymax = wfm_data[i];
+						ymax = wfmData[i];
 					}
 				
-					if (wfm_data[i] < ymin)
+					if (wfmData[i] < ymin)
 					{
-						ymin = wfm_data[i];
+						ymin = wfmData[i];
 					}
 				}
 				
@@ -588,7 +567,7 @@ void acquire (void)
 		// Average waveforms
 		for (i = 0; i< recLen; i++)
 		{
-			wfm_data_ave[i] = (j* wfm_data_ave[i] + wfm_data[i])/(j+1);
+			wfmAvg[i] = (j* wfmAvg[i] + wfmData[i])/(j+1);
 		}
 	}
 
@@ -610,7 +589,7 @@ void acquire (void)
 	{
 		for (i = 0; i < recLen; i++)
 		{
-			wfm_x[i] = wfmTime[i];
+			wfmX[i] = wfmTime[i];
 		}
 	}
 	// Horizontal units in meters
@@ -618,7 +597,7 @@ void acquire (void)
 	{
 		for (i = 0; i < recLen; i++)
 		{
-			wfm_x[i] = wfmDistM[i];
+			wfmX[i] = wfmDistM[i];
 		}
 	}
 	// Horizontal units in feet
@@ -626,11 +605,11 @@ void acquire (void)
 	{
 		for (i = 0; i < recLen; i++)
 		{
-			wfm_x[i] = wfmDistFt[i];
+			wfmX[i] = wfmDistFt[i];
 		}
 	}
 	
-	WfmActive = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_x, wfm_data_ave, recLen, VAL_DOUBLE, VAL_DOUBLE,
+	WfmActive = PlotXY (panelHandle, PANEL_WAVEFORM, wfmX, wfmAvg, recLen, VAL_DOUBLE, VAL_DOUBLE,
 						plotType, VAL_SMALL_SOLID_SQUARE, VAL_SOLID, 1, MakeColor (113, 233, 70));
 	
 	// Trigger the DELAYED_DRAW
@@ -1112,7 +1091,7 @@ void storeWaveform (int format)
 		// Reset buffer
 		buf[0] = 0;
 	
-		status = sprintf (buf + strlen(buf), "%3.10f, %3.10f\n", wfm_data[i], wfm_x[i]);
+		status = sprintf (buf + strlen(buf), "%3.10f, %3.10f\n", wfmData[i], wfmX[i]);
 		
 		status = WriteFile (fd, buf, strlen(buf));
 	}
@@ -1178,8 +1157,8 @@ void recallWaveform (void)
 		status = ReadLine (fd, buf, buf_len - 1);
 		sscanf(buf,"%f, %f", &y, &x);
 
-		wfm_ret[i] = (double) y;
-		wfm_dist[i] = (double) x;
+		wfmRecall[i] = (double) y;
+		wfmRecallX[i] = (double) x;
 	}
 	
 	// Data read finished
@@ -1219,7 +1198,7 @@ void recallWaveform (void)
 	SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, (double) ymin, (double) ymax);
 	
 	// Plot waveform
-	WfmStored = PlotXY (panelHandle, PANEL_WAVEFORM, wfm_dist, wfm_ret, recLen, VAL_DOUBLE, VAL_DOUBLE, 
+	WfmStored = PlotXY (panelHandle, PANEL_WAVEFORM, wfmRecallX, wfmRecall, recLen, VAL_DOUBLE, VAL_DOUBLE, 
 						VAL_THIN_LINE, VAL_EMPTY_SQUARE, VAL_SOLID, 1, MakeColor (233, 113, 233));
 
 	// Dim controls
