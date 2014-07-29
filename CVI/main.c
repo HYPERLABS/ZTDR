@@ -218,12 +218,18 @@ void main (int argc, char *argv[])
 	setupTimescale ();
 	openDevice ();
 	
-	// Calibrate instrument
-	writeMsgCal (0);
-	calTimebase ();
+	// Show startup message
+	int calStatus = 0;
+	writeMsgCal (calStatus);
+	
+	// Full timebase calibration
+	calStatus = calTimebase ();
 	
 	// Run first acquisition
-	acquire ();				
+	acquire ();
+
+	// Indicate cal status
+	writeMsgCal (calStatus);
 	
 	// Set initial cursor positions
 	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, 2.25, -250);
@@ -707,15 +713,20 @@ void showVersion (void)
 // Write message to status
 void writeMsgCal (int msg)
 {
+	int status;
+	
 	if (msg == 0)
 	{   
 		// Start initial calibration message
-		SetCtrlVal (panelHandle, PANEL_MESSAGES, "> Calibration ...");
+		status = SetCtrlVal (panelHandle, PANEL_MESSAGES, "> Calibration ...");
 	}
 	else if (msg == 1)
 	{
-		// Indicate successful calibration
-		
+		status = SetCtrlVal (panelHandle, PANEL_MESSAGES, " DONE!\n");
+	}
+	else if (msg == 2)
+	{
+		status = SetCtrlVal (panelHandle, PANEL_MESSAGES, " FAILED!\n");
 	}
 }
 

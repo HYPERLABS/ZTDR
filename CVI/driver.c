@@ -166,7 +166,7 @@ double meanArray (void)
 }
 
 // Calibrate timebase ("full" calibration)
-void calTimebase (void)
+int calTimebase (void)
 {
 	int i;
 	
@@ -180,7 +180,8 @@ void calTimebase (void)
 		calAcquireWaveform (i);
 	}
 
-	calFindStepcount ();
+	int calStatus;
+	calStatus = calFindStepcount ();
 
 	calDAC ();
 	
@@ -188,8 +189,7 @@ void calTimebase (void)
 	setupTimescale ();
 	vertCal ();
 	
-	// TO DO: use return to determine whether cal was successful
-	// return 1;
+	return calStatus;
 }
 
 // Set parameters for calibration
@@ -210,7 +210,7 @@ void calSetParams (void)
 
 	UINT8 acq_result;
 	
-	// Acquire data to verify instrument is working
+	// Acquire data to verify device is initialized
 	status = usbfifo_acquire (&acq_result, 0); 
 	
 	if (status < 0)
@@ -362,7 +362,7 @@ void calFindMean (int calStepIndex)
 }
 
 // Find optimal step count
-void calFindStepcount (void)
+int calFindStepcount (void)
 {
 	int i;
 
@@ -390,19 +390,18 @@ void calFindStepcount (void)
 		}
 	}
 
-	// TO DO: use these somewhere else
-	/*
+	int calStatus = 0;
+	
 	if ((min < 1) || (max > 4094))
 	{
-		// TO DO: better message here
-		SetCtrlVal (panelHandle, PANEL_MESSAGES, " FAILED.\n");
+		// TO DO: is this the most likely point of failure?
+		calStatus = -1;
 	}
 	else
 	{
 		// TO DO: make more meaningful (i.e. cover more scenarios)
-		SetCtrlVal (panelHandle, PANEL_MESSAGES, " DONE.\n");
+		calStatus = 1;
 	}
-	*/
 
 	double val;
 	val = (max - min) / 4 + min;
@@ -428,6 +427,8 @@ void calFindStepcount (void)
 	stepcount = 6;
 
 	calThreshold = val;
+	
+	return calStatus;
 }
 
 // Calibrate DACs
