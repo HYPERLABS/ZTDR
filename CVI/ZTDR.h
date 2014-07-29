@@ -15,29 +15,29 @@
      /* Panels and Controls: */
 
 #define  PANEL                            1       /* callback function: onPanel */
-#define  PANEL_MESSAGES                   2       /* control type: textBox, callback function: (none) */
-#define  PANEL_PANEBOTTOM                 3       /* control type: deco, callback function: (none) */
+#define  PANEL_AUTOACQUIRE                2       /* control type: radioButton, callback function: (none) */
+#define  PANEL_ACQUIRE                    3       /* control type: command, callback function: onAcquire */
 #define  PANEL_AUTOSCALE                  4       /* control type: radioButton, callback function: onAuto */
 #define  PANEL_YMIN                       5       /* control type: numeric, callback function: onGeneric */
 #define  PANEL_YMAX                       6       /* control type: numeric, callback function: onGeneric */
-#define  PANEL_AVERAGE                    7       /* control type: numeric, callback function: onChangeAverage */
-#define  PANEL_ACQUIRE                    8       /* control type: command, callback function: onAcquire */
-#define  PANEL_AUTOACQUIRE                9       /* control type: radioButton, callback function: (none) */
-#define  PANEL_START                      10      /* control type: scale, callback function: onChangeStart */
-#define  PANEL_END                        11      /* control type: scale, callback function: onChangeEnd */
-#define  PANEL_DIEL                       12      /* control type: numeric, callback function: onChangeK */
-#define  PANEL_RESET                      13      /* control type: command, callback function: onReset */
-#define  PANEL_ZOOM                       14      /* control type: command, callback function: onZoom */
-#define  PANEL_CLEAR                      15      /* control type: command, callback function: onClear */
-#define  PANEL_TIMER                      16      /* control type: timer, callback function: onTimer */
-#define  PANEL_PANELCURSOR                17      /* control type: deco, callback function: (none) */
-#define  PANEL_C1                         18      /* control type: textMsg, callback function: (none) */
-#define  PANEL_CURSOR1                    19      /* control type: textMsg, callback function: (none) */
-#define  PANEL_C2                         20      /* control type: textMsg, callback function: (none) */
-#define  PANEL_CURSOR2                    21      /* control type: textMsg, callback function: (none) */
+#define  PANEL_CURSOR1                    7       /* control type: textMsg, callback function: (none) */
+#define  PANEL_CURSOR2                    8       /* control type: textMsg, callback function: (none) */
+#define  PANEL_DELTA                      9       /* control type: textMsg, callback function: (none) */
+#define  PANEL_AVERAGE                    10      /* control type: numeric, callback function: onChangeAverage */
+#define  PANEL_MESSAGES                   11      /* control type: textBox, callback function: (none) */
+#define  PANEL_START                      12      /* control type: scale, callback function: onChangeStart */
+#define  PANEL_END                        13      /* control type: scale, callback function: onChangeEnd */
+#define  PANEL_DIEL                       14      /* control type: numeric, callback function: onChangeK */
+#define  PANEL_ZOOM                       15      /* control type: command, callback function: onZoom */
+#define  PANEL_RESET                      16      /* control type: command, callback function: onReset */
+#define  PANEL_CLEAR                      17      /* control type: command, callback function: onClear */
+#define  PANEL_WAVEFORM                   18      /* control type: graph, callback function: onWaveform */
+#define  PANEL_PANELCURSOR                19      /* control type: deco, callback function: (none) */
+#define  PANEL_C1                         20      /* control type: textMsg, callback function: (none) */
+#define  PANEL_C2                         21      /* control type: textMsg, callback function: (none) */
 #define  PANEL_D2                         22      /* control type: textMsg, callback function: (none) */
-#define  PANEL_WAVEFORM                   23      /* control type: graph, callback function: onWaveform */
-#define  PANEL_DELTA                      24      /* control type: textMsg, callback function: (none) */
+#define  PANEL_PANEBOTTOM                 23      /* control type: deco, callback function: (none) */
+#define  PANEL_TIMER                      24      /* control type: timer, callback function: onTimer */
 #define  PANEL_VERSION                    25      /* control type: textMsg, callback function: (none) */
 
 
