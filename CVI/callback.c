@@ -297,10 +297,11 @@ int CVICALLBACK onTimer (int panel, int control, int event,
 	{
 		case EVENT_TIMER_TICK:
 		{
-			int i;
-			GetCtrlVal (panel, PANEL_AUTOACQUIRE, &i);
+			int status;
+			GetCtrlVal (panel, PANEL_AUTOACQUIRE, &status);
 
-			if (i == 1)
+			// Don't run if autoacquire disabled
+			if (status == 1)
 			{
 				acquire ();
 			}
@@ -324,10 +325,17 @@ int CVICALLBACK onTimerCal (int panel, int control, int event,
 	switch (event)
 	{
 		case EVENT_TIMER_TICK:
-		{
-			vertCal ();
+		{   
+			int status;
+			GetCtrlVal (panel, PANEL_AUTOACQUIRE, &status);
 			
-			acquire ();
+			// Don't run if autoacquire disabled
+			if (status == 1)
+			{
+				vertCal ();
+				
+				acquire ();
+			}
 			
 			break;
 		}

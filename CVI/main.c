@@ -79,7 +79,7 @@ char *x_short[] =
 char *x_label_start[] =
 {
 	"START (m)",
-	"START (ft)" ,
+	"START (ft)",
 	"START (ns)"
 };
 
@@ -112,11 +112,20 @@ float x_max_range[] =
 	2000.0
 };
 
-char *label_dist[] =
+char *month_name[] =
 {
-	"(X2-X1) (m) ",
-	"(X2-X1) (ft)",
-	"(X2-X1) (ns)"
+	"JAN",
+	"FEB",
+	"MAR",
+	"APR",
+	"MAY",
+	"JUN",
+	"JUL",
+	"AUG",
+	"SEP",
+	"OCT",
+	"NOV",
+	"DEC"
 };
 
 // Horizontal values for each unit
@@ -622,6 +631,9 @@ void acquire (void)
 	// Trigger the DELAYED_DRAW
 	RefreshGraph (panelHandle, PANEL_WAVEFORM);
 	
+	// Show timestamp of acquisition
+	updateTimestamp ();
+	
 	// Position cursors and update control reading
 	updateCursors ();
 }
@@ -709,6 +721,24 @@ void showVersion (void)
 	status = sprintf (version, "%s / HL1101", version);
 	
 	status = SetCtrlVal (panelHandle, PANEL_VERSION, version);
+}
+
+// Show timestamp of acquisition
+void updateTimestamp (void)
+{
+	int status;
+	
+	char timestamp[64];
+	int	month, day, year;
+	int	hours, minutes, seconds;
+	
+	status = GetSystemDate (&month, &day, &year);
+	status = GetSystemTime (&hours, &minutes, &seconds);
+	
+	status = sprintf (timestamp, "%s %02d %02d | %02d:%02d:%02d", month_name[month-1], day, year, hours, minutes, seconds);
+	
+	// Show version, timestamp
+	status = SetCtrlVal (panelHandle, PANEL_TIMESTAMP, timestamp);
 }
 
 // Write message to status
@@ -1015,23 +1045,9 @@ void printWaveform (void)
 	// Disable timers during action
 	status = SuspendTimerCallbacks ();
 	
-	// Get timestamp of request
-	int	month, day, year;
-	int	hours, minutes, seconds;
-	
-	status = GetSystemDate (&month, &day, &year);
-	status = GetSystemTime (&hours, &minutes, &seconds);
-	
-	char timestamp[64];
-	
-	status = sprintf (timestamp, "> DATE: %02d/%02d/%02d\n> TIME: %02d:%02d:%02d\n", month, day, year, hours, minutes, seconds);
-	
 	// Set optimal printer settings
 	status = SetPrintAttribute (ATTR_PRINT_AREA_HEIGHT, VAL_USE_ENTIRE_PAPER);
 	status = SetPrintAttribute (ATTR_PRINT_AREA_WIDTH, VAL_INTEGRAL_SCALE);
-
-	// Show version, timestamp and print
-	status = SetCtrlVal (panelHandle, PANEL_MESSAGES, timestamp);
 	
 	status = PrintPanel (panelHandle, "", 1, VAL_FULL_PANEL, 1);
 	
@@ -1061,19 +1077,6 @@ void savePNG (void)
 		
 		return;
 	}
-
-	// Get timestamp of request
-	char timestamp[64];
-	int	month, day, year;
-	int	hours, minutes, seconds;
-	
-	status = GetSystemDate (&month, &day, &year);
-	status = GetSystemTime (&hours, &minutes, &seconds);
-	
-	status = sprintf (timestamp, "> DATE: %02d/%02d/%02d\n> TIME: %02d:%02d:%02d\n", month, day, year, hours, minutes, seconds);
-	
-	// Show version, timestamp
-	status = SetCtrlVal (panelHandle, PANEL_MESSAGES, timestamp);
 	
 	// Prepare image file
 	int imageFile;
@@ -1362,10 +1365,6 @@ void updateSize (void)
 		status = GetCtrlAttribute (panelHandle, GetCtrlArrayItem (rightHandle, i), ATTR_LEFT, &ctrlLeft);
 		status = SetCtrlAttribute (panelHandle, GetCtrlArrayItem (rightHandle, i), ATTR_LEFT, ctrlLeft + xOffset);
 	}
-	
-	// Resize message box									   ;
-	status = GetCtrlAttribute (panelHandle, PANEL_MESSAGES, ATTR_HEIGHT, &ctrlHeight);
-	status = SetCtrlAttribute (panelHandle, PANEL_MESSAGES, ATTR_HEIGHT, ctrlHeight + yOffset);
 	
 	// Move bottom control pane
 	status = GetNumCtrlArrayItems (bottomHandle, &count);

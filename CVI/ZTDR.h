@@ -38,8 +38,9 @@
 #define  PANEL_D2                         22      /* control type: textMsg, callback function: (none) */
 #define  PANEL_PANEBOTTOM                 23      /* control type: deco, callback function: (none) */
 #define  PANEL_CALTIMER                   24      /* control type: timer, callback function: onTimerCal */
-#define  PANEL_TIMER                      25      /* control type: timer, callback function: onTimer */
-#define  PANEL_VERSION                    26      /* control type: textMsg, callback function: (none) */
+#define  PANEL_VERSION                    25      /* control type: textMsg, callback function: (none) */
+#define  PANEL_TIMER                      26      /* control type: timer, callback function: onTimer */
+#define  PANEL_TIMESTAMP                  27      /* control type: textMsg, callback function: (none) */
 
 
      /* Control Arrays: */
