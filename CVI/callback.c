@@ -60,14 +60,14 @@ int CVICALLBACK onAcquire (int panel, int control, int event,
 }
 
 // Switch between autoscale and manual
-int CVICALLBACK onAuto (int panel, int control, int event,
+int CVICALLBACK onAutoScale (int panel, int control, int event,
 						void *callbackData, int eventData1, int eventData2)
 {
 	switch (event)
 	{
 		case EVENT_COMMIT:
 		{
-			changeAuto ();
+			changeAutoScale ();
 			
 			acquire ();
 			
@@ -317,6 +317,30 @@ int CVICALLBACK onTimer (int panel, int control, int event,
 	return 0;
 }
 
+// Timer-based acquisition, if set to auto-acquire
+int CVICALLBACK onTimerCal (int panel, int control, int event,
+							void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_TIMER_TICK:
+		{
+			vertCal ();
+			
+			acquire ();
+			
+			break;
+		}
+		
+		case EVENT_RIGHT_CLICK:
+		{		 
+			break;
+		}
+	}
+	
+	return 0;
+}
+
 // Update cursors on waveform acquisition
 int CVICALLBACK onWaveform (int panel, int control, int event,
 							void *callbackData, int eventData1, int eventData2)
@@ -376,6 +400,15 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 
 //==============================================================================
 // Callback functions from menu commands (sorted alphabetically)
+
+// Auto-calibration
+void CVICALLBACK onAutoCal (int menuBar, int menuItem, void *callbackData, 
+							int panel)
+{
+	changeAutoCal ();
+	
+	return 0;	
+}
 
 // Display changed to DOTS
 void CVICALLBACK onChangePlot1 (int menuBar, int menuItem, void *callbackData,

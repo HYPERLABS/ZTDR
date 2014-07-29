@@ -73,7 +73,8 @@ extern	double 	wfmFilter[NPOINTS_MAX];	// Filtered data from device
 // Global functions (TO DO: sort)
 
 void 	acquire (void);
-void 	changeAuto (void);
+void 	changeAutoCal (void);
+void 	changeAutoScale (void);
 void 	changeDiel (void);
 void 	changePlot (int unit);
 void 	changeUnitX (int unit);

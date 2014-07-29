@@ -17,7 +17,7 @@
 #define  PANEL                            1       /* callback function: onPanel */
 #define  PANEL_AUTOACQUIRE                2       /* control type: radioButton, callback function: (none) */
 #define  PANEL_ACQUIRE                    3       /* control type: command, callback function: onAcquire */
-#define  PANEL_AUTOSCALE                  4       /* control type: radioButton, callback function: onAuto */
+#define  PANEL_AUTOSCALE                  4       /* control type: radioButton, callback function: onAutoScale */
 #define  PANEL_YMIN                       5       /* control type: numeric, callback function: onGeneric */
 #define  PANEL_YMAX                       6       /* control type: numeric, callback function: onGeneric */
 #define  PANEL_CURSOR1                    7       /* control type: textMsg, callback function: (none) */
@@ -37,8 +37,9 @@
 #define  PANEL_C2                         21      /* control type: textMsg, callback function: (none) */
 #define  PANEL_D2                         22      /* control type: textMsg, callback function: (none) */
 #define  PANEL_PANEBOTTOM                 23      /* control type: deco, callback function: (none) */
-#define  PANEL_TIMER                      24      /* control type: timer, callback function: onTimer */
-#define  PANEL_VERSION                    25      /* control type: textMsg, callback function: (none) */
+#define  PANEL_CALTIMER                   24      /* control type: timer, callback function: onTimerCal */
+#define  PANEL_TIMER                      25      /* control type: timer, callback function: onTimer */
+#define  PANEL_VERSION                    26      /* control type: textMsg, callback function: (none) */
 
 
      /* Control Arrays: */
@@ -79,13 +80,14 @@
 #define  MENUBAR_CALIBRATION              29
 #define  MENUBAR_CALIBRATION_VERTCAL      30      /* callback function: onVertCal */
 #define  MENUBAR_CALIBRATION_FULLCAL      31      /* callback function: onTimeCal */
-#define  MENUBAR_CALIBRATION_AUTOCAL      32
+#define  MENUBAR_CALIBRATION_AUTOCAL      32      /* callback function: onAutoCal */
 
 
      /* Callback Prototypes: */
 
 int  CVICALLBACK onAcquire(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK onAuto(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+void CVICALLBACK onAutoCal(int menubar, int menuItem, void *callbackData, int panel);
+int  CVICALLBACK onAutoScale(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeAverage(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeEnd(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeK(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
@@ -113,6 +115,7 @@ int  CVICALLBACK onReset(int panel, int control, int event, void *callbackData, 
 void CVICALLBACK onStore(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onTimeCal(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onTimer(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onTimerCal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onVertCal(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onWaveform(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onZoom(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);

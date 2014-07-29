@@ -235,8 +235,9 @@ void main (int argc, char *argv[])
 	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, 2.25, -250);
 	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, 3.25, 0);
 	
-	// Start timer for subsequent acquisitions
+	// Start event timers
 	status = SetCtrlAttribute (panelHandle, PANEL_TIMER, ATTR_ENABLED, 1);
+	status = SetCtrlAttribute (panelHandle, PANEL_CALTIMER, ATTR_ENABLED, 1);
 	
 	RunUserInterface ();	
 	
@@ -730,8 +731,31 @@ void writeMsgCal (int msg)
 	}
 }
 
+// Toggle autoscale
+void changeAutoCal (void)
+{
+	int status;
+
+	// Get status of timer
+	int autoStatus;
+	status = GetCtrlAttribute (panelHandle, PANEL_CALTIMER, ATTR_ENABLED, &autoStatus);
+	
+	if (autoStatus == 1)
+	{
+		// Turn off timer and uncheck menu item
+		status = SetCtrlAttribute (panelHandle, PANEL_CALTIMER, ATTR_ENABLED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_CALIBRATION_AUTOCAL, ATTR_CHECKED, 0);
+	}
+	else
+	{
+		// Turn on timer and check menu item
+		status = SetCtrlAttribute (panelHandle, PANEL_CALTIMER, ATTR_ENABLED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_CALIBRATION_AUTOCAL, ATTR_CHECKED, 1);
+	}
+}
+
 // Toggle dimming of controls based on autoscale
-void changeAuto (void)
+void changeAutoScale (void)
 {
 	int status;
 	int val;
