@@ -51,21 +51,53 @@ extern "C" {
 #define MtoFT 3.2808
 #define FTtoM 0.3048
 
+// FTDI functionality	
+#define NPARAMS 26
+ 
+#define IDX_FREERUN 0
+#define IDX_STEPCNT_UPPER 1
+#define IDX_STEPCNT_LOWER 2
+#define IDX_RECLEN_UPPER 3
+#define IDX_RECLEN_LOWER 4
+#define IDX_DAC0_UPPER 5
+#define IDX_DAC0_LOWER 6 
+#define IDX_DAC1_UPPER 7
+#define IDX_DAC1_LOWER 8
+#define IDX_DAC2_UPPER 9
+#define IDX_DAC2_LOWER 10
+#define IDX_CALSTART_UPPER 11
+#define IDX_CALSTART_LOWER 12
+#define IDX_CALEND_UPPER 13
+#define IDX_CALEND_LOWER 14
+#define IDX_TMSTART_B3 15  
+#define IDX_TMSTART_B2 16
+#define IDX_TMSTART_B1 17
+#define IDX_TMSTART_B0 18
+#define IDX_TMEND_B3 19	 
+#define IDX_TMEND_B2 20
+#define IDX_TMEND_B1 21
+#define IDX_TMEND_B0 22
+#define IDX_OVERSAMPLE 23
+#define IDX_STROBECNT_UPPER 24
+#define IDX_STROBECNT_LOWER 25
+											 
+#define STD_TIMEOUT 200 
 
+	
 //==============================================================================
 // Types
 
-typedef unsigned int UINT32;
-typedef unsigned short UINT16;
-typedef unsigned char UINT8;
+__stdcall	typedef unsigned int UINT32;
+__stdcall	typedef unsigned short UINT16;
+__stdcall	typedef unsigned char UINT8;
 
-struct _delay16
+__stdcall	struct	_delay16
 {
 	UINT16 frac_val;
 	UINT16 int_val;
 };
 
-struct _delay8
+__stdcall	struct	_delay8
 {
 	UINT8 b0;
 	UINT8 b1;
@@ -74,91 +106,92 @@ struct _delay8
 };
 
 
-union _timeinf
+__stdcall	union _timeinf
 {
 	UINT32 time;
 	struct _delay16 time_s;
 	struct _delay8 time_b;
 };
 
-typedef union _timeinf timeinf;
+__stdcall	typedef union _timeinf timeinf;
 
 	
 //==============================================================================
 // External variables
 
-extern	int 	usb_opened;
-extern	int 	calIncrement;
-extern	double 	vampl;
+__stdcall	extern	int		usb_opened;
+__stdcall	extern	int 	calIncrement;
+__stdcall	extern	double	vampl;
 
 // Acquisition environment
-extern	double	diel;
-extern	int		plotType;
-extern	int 	yUnits;
-extern	int 	xUnits;
-extern	double	xStart;
-extern	double	xEnd;	
+__stdcall	extern	double	diel;
+__stdcall	extern	int 	yUnits;
+__stdcall	extern	int 	xUnits;
+__stdcall	extern	double	xStart;
+__stdcall	extern	double	xEnd;	
 
 // Number of data points acquired
-extern	UINT16 	recLen;
+__stdcall	extern		UINT16 	recLen;
 
 // Waveform storage
-extern	double 	wfmDistFt[NPOINTS_MAX]; // distance (ft)
-extern	double 	wfmDistM[NPOINTS_MAX]; // distance (m)
-extern	double 	wfmTime[NPOINTS_MAX]; // time (ns)
-extern	double 	wfmX[NPOINTS_MAX]; // converted to selected units 
+__stdcall	extern	double 	wfmDistFt[NPOINTS_MAX]; // distance (ft)
+__stdcall	extern	double 	wfmDistM[NPOINTS_MAX]; // distance (m)
+__stdcall	extern	double 	wfmTime[NPOINTS_MAX]; // time (ns)
+__stdcall	extern	double 	wfmX[NPOINTS_MAX]; // converted to selected units 
 
-extern	UINT16 	wfm[NPOINTS_MAX]; 		// Raw data from device
-extern	double 	wfmFilter[NPOINTS_MAX];	// Filtered data from device
-extern	double	wfmData[NPOINTS_MAX]; // converted to selected units
+__stdcall	extern	UINT16 	wfm[NPOINTS_MAX]; 		// Raw data from device
+__stdcall	extern	double 	wfmFilter[NPOINTS_MAX];	// Filtered data from device
+__stdcall	extern	double	wfmData[NPOINTS_MAX]; // converted to selected units
 
 // USBFIFO functionality
-extern	timeinf start_tm, end_tm;
+__stdcall	extern	timeinf start_tm, end_tm;
 
-extern	UINT16 	calstart; 
-extern	UINT16 	calend;
-extern	UINT16 	stepcount;
-extern	UINT16 	stepcountArray[5];
-extern	int 	freerun_en;
-extern 	UINT16 	dac0val, dac1val, dac2val;
-extern	UINT16 	strobecount;
+__stdcall	extern	UINT16 	calstart; 
+__stdcall	extern	UINT16 	calend;
+__stdcall	extern	UINT16 	stepcount;
+__stdcall	extern	UINT16 	stepcountArray[5];
+__stdcall	extern	int 	freerun_en;
+__stdcall	extern 	UINT16 	dac0val, dac1val, dac2val;
+__stdcall	extern	UINT16 	strobecount;
 
 
 //==============================================================================
 // Global functions (sorted alphabetically)
 
-void 	__stdcall 	calAcquireWaveform (int calStepIndex);
-void 	__stdcall 	calDAC (void);
-void 	__stdcall 	calFindDiscont (void);
-void 	__stdcall 	calFindMean (int calStepIndex);
-int 	__stdcall 	calFindStepcount (void);
-void 	__stdcall 	calReconstructData (void);
-void 	__stdcall 	calSetParams (void);
-void 	__stdcall 	calSetupTimescale (void);
-int 	__stdcall 	calTimebase (void); 
-double 	__stdcall 	meanArray (void);
-void 	__stdcall 	openDevice (void);
-void 	__stdcall 	reconstructData (double offset);
-void 	__stdcall 	setEnviron (int x, int y, double start, double end, double k);
-void 	__stdcall 	setupTimescale (void);
-void 	__stdcall 	vertCal (void);
-void 	__stdcall 	vertCalTimescale (void);
-void 	__stdcall 	vertCalZero (double windowStart);
-int 	__stdcall 	vertCalWriteParams (void);
-int 	__stdcall 	writeParams (void);
+__stdcall 	int 	acquireWaveform (void);
+__stdcall	void 	calAcquireWaveform (int calStepIndex);
+__stdcall	void 	calDAC (void);
+__stdcall	void 	calFindDiscont (void);
+__stdcall	void 	calFindMean (int calStepIndex);
+__stdcall	int 	calFindStepcount (void);
+__stdcall	void 	calReconstructData (void);
+__stdcall	void 	calSetParams (void);
+__stdcall	void 	calSetupTimescale (void);
+__stdcall	int 	calTimebase (void); 
+__stdcall	int 	initDevice (void);
+__stdcall	double 	meanArray (void);
+__stdcall	void 	openDevice (void);
+__stdcall	void 	reconstructData (double offset);
+__stdcall	void 	setEnviron (int x, int y, double start, double end, double k);
+__stdcall	void 	setupTimescale (void);
+__stdcall	void 	vertCal (void);
+__stdcall	void 	vertCalTimescale (void);
+__stdcall	void 	vertCalZero (double windowStart);
+__stdcall	int 	vertCalWriteParams (void);
+__stdcall	int 	writeParams (void);
 
 // USBFIFO functionality
-char 	__stdcall 	ftrdbyte (void);
-void 	__stdcall 	ftwrbyte (char ch);
-int 	__stdcall 	usbfifo_acquire (UINT8 *ret_val, UINT8 arg);
-void 	__stdcall 	usbfifo_close (void);
-void 	__stdcall 	usbfifo_getcomspd (char *buf, int len);
-int 	__stdcall 	usbfifo_gethostbps (void);
-void 	__stdcall 	usbfifo_getid (char *buf, int len);
-int 	__stdcall 	usbfifo_open (void);
-int 	__stdcall 	usbfifo_readblock (UINT8 block_no, UINT16 *buf);
-int 	__stdcall 	usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calend, timeinf tmstart, timeinf tmend, UINT16 stepcount,
-						   UINT16 strobecount, UINT8 noversample, UINT16 record_len, UINT16 dac0, UINT16 dac1, UINT16 dac2);
+__stdcall	char 	ftrdbyte (void);
+__stdcall	void 	ftwrbyte (char ch);
+__stdcall	int 	usbfifo_acquire (UINT8 *ret_val, UINT8 arg);
+__stdcall	void 	usbfifo_close (void);
+__stdcall	void 	usbfifo_getcomspd (char *buf, int len);
+__stdcall	int 	usbfifo_gethostbps (void);
+__stdcall	void 	usbfifo_getid (char *buf, int len);
+__stdcall	int 	usbfifo_open (void);
+__stdcall	int 	usbfifo_readblock (UINT8 block_no, UINT16 *buf);
+__stdcall	int 	usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calend, timeinf tmstart, timeinf tmend, UINT16 stepcount,
+					   UINT16 strobecount, UINT8 noversample, UINT16 record_len, UINT16 dac0, UINT16 dac1, UINT16 dac2);
 
 
 #ifdef __cplusplus

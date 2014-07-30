@@ -21,38 +21,6 @@
 //==============================================================================
 // Constants
 
-#define NPARAMS 26
- 
-#define IDX_FREERUN 0
-#define IDX_STEPCNT_UPPER 1
-#define IDX_STEPCNT_LOWER 2
-#define IDX_RECLEN_UPPER 3
-#define IDX_RECLEN_LOWER 4
-#define IDX_DAC0_UPPER 5
-#define IDX_DAC0_LOWER 6 
-#define IDX_DAC1_UPPER 7
-#define IDX_DAC1_LOWER 8
-#define IDX_DAC2_UPPER 9
-#define IDX_DAC2_LOWER 10
-#define IDX_CALSTART_UPPER 11
-#define IDX_CALSTART_LOWER 12
-#define IDX_CALEND_UPPER 13
-#define IDX_CALEND_LOWER 14
-#define IDX_TMSTART_B3 15  
-#define IDX_TMSTART_B2 16
-#define IDX_TMSTART_B1 17
-#define IDX_TMSTART_B0 18
-#define IDX_TMEND_B3 19	 
-#define IDX_TMEND_B2 20
-#define IDX_TMEND_B1 21
-#define IDX_TMEND_B0 22
-#define IDX_OVERSAMPLE 23
-#define IDX_STROBECNT_UPPER 24
-#define IDX_STROBECNT_LOWER 25
-
-const int 	dev_hostbps = 256000;
-
-#define STD_TIMEOUT 200 
 
 //==============================================================================
 // Types
@@ -85,6 +53,7 @@ UINT16	calstart_save = 540;
 // USBFIFO functionality
 FT_HANDLE 	dev_fifo_handle;
 FT_HANDLE 	dev_handle;
+int 		dev_hostbps = 256000; 
 
 // Time variables passed to device
 timeinf start_tm, end_tm;
@@ -131,7 +100,7 @@ double  wfmData[NPOINTS_MAX]; // converted to selected units
 // Global functions (top-level)
 
 // Initialize device
-int __stdcall initDevice (void)
+__stdcall int initDevice (void)
 {
 	int i;
 
@@ -159,7 +128,7 @@ int __stdcall initDevice (void)
 }
 
 // Acquisition with no UIR
-int __stdcall acquireWaveform (void)
+__stdcall int acquireWaveform (void)
 {
 	int status;
 	int i;
@@ -374,7 +343,7 @@ int __stdcall acquireWaveform (void)
 }
 
 // Open FTDI device
-void __stdcall openDevice (void)
+__stdcall void openDevice (void)
 {
 	char buf[32];
 	int hostbps;
@@ -393,7 +362,7 @@ void __stdcall openDevice (void)
 }
 
 // Pass to global enviornmental variables
-void __stdcall setEnviron (int x, int y, double start, double end, double k)
+__stdcall void setEnviron (int x, int y, double start, double end, double k)
 {
 	xUnits = x;
 	yUnits = y;
@@ -406,7 +375,7 @@ void __stdcall setEnviron (int x, int y, double start, double end, double k)
 // Global functions (timebase calibration)
 
 // Scale time range of window for waveform acquisition
-void __stdcall setupTimescale (void)
+__stdcall void setupTimescale (void)
 {   
 	int status;
 	
@@ -442,7 +411,7 @@ void __stdcall setupTimescale (void)
 }
 
 // Reconstruct data into useable form
-void __stdcall reconstructData (double offset)
+__stdcall void reconstructData (double offset)
 {
 	int i;
 	
@@ -470,7 +439,7 @@ void __stdcall reconstructData (double offset)
 }
 
 // Calculate offset from average 0
-double __stdcall meanArray (void)
+__stdcall double meanArray (void)
 {
 	int i;
 	
@@ -486,7 +455,7 @@ double __stdcall meanArray (void)
 }
 
 // Calibrate timebase ("full" calibration)
-int __stdcall calTimebase (void)
+__stdcall int calTimebase (void)
 {
 	int i;
 	
@@ -513,7 +482,7 @@ int __stdcall calTimebase (void)
 }
 
 // Set parameters for calibration
-void __stdcall calSetParams (void)
+__stdcall void calSetParams (void)
 {
 	int status;
 	
@@ -553,7 +522,7 @@ void __stdcall calSetParams (void)
 }
 
 // Acquire waveform for calibration
-void __stdcall calAcquireWaveform (int calStepIndex)
+__stdcall void calAcquireWaveform (int calStepIndex)
 {
 	int status = 0;
 	int i;
@@ -627,7 +596,7 @@ void __stdcall calAcquireWaveform (int calStepIndex)
 }
 
 // Reconstruct data segment for calibration
-void __stdcall calReconstructData (void)
+__stdcall void calReconstructData (void)
 {
 	int i, j;
 	
@@ -661,7 +630,7 @@ void __stdcall calReconstructData (void)
 }
 
 // Find mean of waveform segment
-void __stdcall calFindMean (int calStepIndex)
+__stdcall void calFindMean (int calStepIndex)
 {
 	int i;
 	double val;
@@ -679,7 +648,7 @@ void __stdcall calFindMean (int calStepIndex)
 }
 
 // Find optimal step count
-int __stdcall calFindStepcount (void)
+__stdcall int calFindStepcount (void)
 {
 	int i;
 
@@ -749,7 +718,7 @@ int __stdcall calFindStepcount (void)
 }
 
 // Calibrate DACs
-void __stdcall calDAC (void)
+__stdcall void calDAC (void)
 {
 	int i;
 	
@@ -836,7 +805,7 @@ void __stdcall calDAC (void)
 }
 
 // Set timescale for full calibration
-void __stdcall calSetupTimescale (void)
+__stdcall void calSetupTimescale (void)
 {
 	double val;
 
@@ -850,7 +819,7 @@ void __stdcall calSetupTimescale (void)
 }
 
 // TO DO: function description
-void __stdcall calFindDiscont (void)
+__stdcall void calFindDiscont (void)
 {
 	int i;
 
@@ -865,7 +834,7 @@ void __stdcall calFindDiscont (void)
 }
 
 // Write parameters to device
-int __stdcall writeParams (void)
+__stdcall int writeParams (void)
 {
 	int status;
 
@@ -890,7 +859,7 @@ int __stdcall writeParams (void)
 // Global functions (vert cal)
 
 // Calibrate vertical axis
-void __stdcall vertCal (void)
+__stdcall void vertCal (void)
 {
 	int status;
 	int i;
@@ -1057,7 +1026,7 @@ void __stdcall vertCal (void)
 }
 
 // Set timescale for vertCal at 0 ns
-void __stdcall vertCalZero (double windowStart)
+__stdcall void vertCalZero (double windowStart)
 {
 	double val;
 	
@@ -1068,7 +1037,7 @@ void __stdcall vertCalZero (double windowStart)
 }
 
 // Set timescale for vert cal
-void __stdcall vertCalTimescale (void)
+__stdcall void vertCalTimescale (void)
 {
 	double val;
 
@@ -1080,7 +1049,7 @@ void __stdcall vertCalTimescale (void)
 }
 
 // Write parameters for vertCal 
-int __stdcall vertCalWriteParams (void)
+__stdcall int vertCalWriteParams (void)
 {
 	int status;
 
@@ -1104,7 +1073,7 @@ int __stdcall vertCalWriteParams (void)
 // Global functions (USBFIFO)
 
 // Read FTDI byte
-char __stdcall ftrdbyte(void)
+__stdcall char ftrdbyte(void)
 {
 	char ch;
 	int n;
@@ -1115,7 +1084,7 @@ char __stdcall ftrdbyte(void)
 }
 
 // Write FTDI byte
-void __stdcall ftwrbyte(char ch)
+__stdcall void ftwrbyte(char ch)
 {
 	int n;
 
@@ -1123,7 +1092,7 @@ void __stdcall ftwrbyte(char ch)
 }
 
 // Acquire from FDTI device
-int __stdcall usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
+__stdcall int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
 {
 	char ch;
 	FT_STATUS stat;
@@ -1154,7 +1123,7 @@ int __stdcall usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
 }
 
 // Close FTDI device
-void __stdcall usbfifo_close (void)
+__stdcall void usbfifo_close (void)
 {
 	FT_STATUS stat;
 	
@@ -1170,7 +1139,7 @@ void __stdcall usbfifo_close (void)
 }
 
 // Get device comm speed
-void __stdcall usbfifo_getcomspd (char *buf, int len)
+__stdcall void usbfifo_getcomspd (char *buf, int len)
 {
 	int i;
 
@@ -1181,13 +1150,13 @@ void __stdcall usbfifo_getcomspd (char *buf, int len)
 }
 
 // Get host BPS
-int __stdcall usbfifo_gethostbps (void)
+__stdcall int usbfifo_gethostbps (void)
 {
 	return dev_hostbps;
 }
 
 // Get device ID
-void __stdcall usbfifo_getid (char *buf, int len)
+__stdcall void usbfifo_getid (char *buf, int len)
 {
 	int i;
 
@@ -1198,7 +1167,7 @@ void __stdcall usbfifo_getid (char *buf, int len)
 }
 
 // Open FTDI for use by software
-int __stdcall usbfifo_open()
+__stdcall int usbfifo_open()
 {
 	char ch;
 	int n;
@@ -1300,7 +1269,7 @@ int __stdcall usbfifo_open()
 }
 
 // Read data blocks of acquisition
-int __stdcall usbfifo_readblock(UINT8 block_no, UINT16 *buf)
+__stdcall int usbfifo_readblock(UINT8 block_no, UINT16 *buf)
 {
 #define BLOCK_LEN 256
 
@@ -1341,7 +1310,7 @@ int __stdcall usbfifo_readblock(UINT8 block_no, UINT16 *buf)
 }
 
 // Set parameters for acquisition
-int __stdcall usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calend, timeinf tmstart, timeinf tmend, UINT16 stepcount,
+__stdcall int usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calend, timeinf tmstart, timeinf tmend, UINT16 stepcount,
 					   UINT16 strobecount, UINT8 noversample, UINT16 record_len, UINT16 dac0, UINT16 dac1, UINT16 dac2)
 {
 	static UINT8 params[NPARAMS];
