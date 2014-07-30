@@ -74,11 +74,6 @@ int 	freerun_en = 0;
 UINT16 	dac0val = 0, dac1val = 0, dac2val = 0;
 UINT16 	strobecount = 2;
 
-
-
-
-
-// Debug mode variables | TO DO: cleanup
 char 	dev_comspdbuf[20];
 char 	dev_idbuf[20];
 int 	dev_opened = 0;
@@ -217,7 +212,7 @@ int usbfifo_open()
 
 		dev_opened = 0;
 	}
-	// TO DO: Debug mode functionality, not currently in use
+	
 	else
 	{
 		dev_opened = 1;

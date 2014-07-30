@@ -1146,8 +1146,6 @@ void savePNG (void)
 	
 	// Re-enable timers
 	status = ResumeTimerCallbacks ();
-	
-	// TO DO: add some functionality for serial number?
 }
 
 // Store waveform to file as ZTDR (format = 1) or CSV (= 0)
@@ -1269,7 +1267,6 @@ void recallWaveform (void)
 												
 	
 	// Read header row for environmental variables
-	// TO DO: change names of local variables
 	int xStored, yStored;
 	float windowstart, windowend;
 	float ymin, ymax;
@@ -1360,7 +1357,6 @@ void clearWaveform (void)
 {
 	int status;
 	
-	// TO DO: is this desired behavior?
 	status = SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 1);
 
 	// Remove recalled waveform, if any

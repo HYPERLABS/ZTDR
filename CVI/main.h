@@ -70,7 +70,7 @@ extern	double 	wfmFilter[NPOINTS_MAX];	// Filtered data from device
 
 
 //==============================================================================
-// Global functions (TO DO: sort)
+// Global functions
 
 void 	acquire (void);
 void 	changeAutoCal (void);

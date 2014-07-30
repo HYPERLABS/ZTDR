@@ -201,7 +201,6 @@ void calSetParams (void)
 	calstart = 0;
 	calend = 4095;
 
-	// TO DO: use this as a debug?
 	if (!usb_opened)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure."); 
@@ -216,7 +215,8 @@ void calSetParams (void)
 	if (status < 0)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
-		// TO DO: DO NOT RETURN HERE! THIS ACQUISITION WILL FAIL EVERY TIME!
+		// TO DO: DO NOT RETURN HERE! THE FIRST ACQUISITION WILL FAIL EVERY TIME!
+		// Need to avoid failing out of the next lines of code
 		//return;
 	}
 	
@@ -238,7 +238,6 @@ void calAcquireWaveform (int calStepIndex)
 	int status = 0;
 	int i;
 	
-	// TO DO: use these as a debug?
 	if (!usb_opened)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure.");
@@ -257,7 +256,6 @@ void calAcquireWaveform (int calStepIndex)
 	// Run acquisition for calibration
 	status = usbfifo_acquire (&acq_result, 0);
 
-	// TO DO: use this as a debug?
 	/*
 	if (ret < 0)
 	{
@@ -286,7 +284,6 @@ void calAcquireWaveform (int calStepIndex)
 		}
 	}
 	
-	// TO DO: use this as a debug?
 	/*
 	if (blocksok == 0)
 	{
@@ -394,12 +391,12 @@ int calFindStepcount (void)
 	
 	if ((min < 1) || (max > 4094))
 	{
-		// TO DO: is this the most likely point of failure?
+		// Calibration failed
 		calStatus = -1;
 	}
 	else
 	{
-		// TO DO: make more meaningful (i.e. cover more scenarios)
+		// Calibration success
 		calStatus = 1;
 	}
 
@@ -470,7 +467,6 @@ void calDAC (void)
 		calstart = CALSTART_DEFAULT;
 	}
 	
-	// TO DO: rename and check scope (see note above)
 	calstart_save = calstart;
 	
 	calend = 4094;
@@ -514,7 +510,6 @@ void calDAC (void)
 		calend = CALEND_DEFAULT;
 	}
 	
-	// TO DO: name and scope (note above)
 	calstart = calstart_save;
 
 	stepcount = (UINT16) stepcountSave +1;
@@ -589,7 +584,6 @@ void vertCal (void)
 	// Write the acquisition parameters 
 	if (vertCalWriteParams () <= 0)
 	{
-		// TO DO: use as debug
 		// SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
 		// return;
 	}
@@ -600,7 +594,6 @@ void vertCal (void)
  
 	if (status < 0)
 	{
-		// TO DO: use as debug		
 		// SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
 		// return;
 	}
@@ -641,7 +634,6 @@ void vertCal (void)
 	// Write the acquisition parameters    
 	if (vertCalWriteParams () <= 0)
 	{
-		// TO DO: debug
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
 		//return;
 	}
@@ -651,7 +643,6 @@ void vertCal (void)
 	
 	if (status < 0)
 	{
-		// TO DO: debug
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
 		//return;
 	}
@@ -673,7 +664,6 @@ void vertCal (void)
 
 	if (blocksok == 0)
 	{
-		// TO DO: debug
 		//setCtrlVal(panelHandle, PANEL_TXT_LOG, "Read failure.");
 		//return;
 	}
@@ -785,5 +775,3 @@ int vertCalWriteParams (void)
 		return 1;
 	}			 
 }
-
-// TO DO: this whole file optimized for DEBUG!
