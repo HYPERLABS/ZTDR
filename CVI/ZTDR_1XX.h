@@ -20,6 +20,8 @@ extern "C" {
 // Include files
 
 #include "cvidef.h"
+	
+#include "FTD2XX.h"
 
 	
 //==============================================================================
@@ -117,42 +119,56 @@ __stdcall	typedef union _timeinf timeinf;
 
 	
 //==============================================================================
-// External variables
+// Global variables
 
-__stdcall	extern	int		usb_opened;
-__stdcall	extern	int 	calIncrement;
-__stdcall	extern	double	vampl;
+__stdcall	int		usb_opened;
+
+// Calibration
+__stdcall	double 	calDiscLevel;
+__stdcall	double 	calLevels[5];
+__stdcall	double 	calThreshold;
+__stdcall	int 	calIncrement;
+__stdcall	double	vampl;
 
 // Acquisition environment
-__stdcall	extern	double	diel;
-__stdcall	extern	int 	yUnits;
-__stdcall	extern	int 	xUnits;
-__stdcall	extern	double	xStart;
-__stdcall	extern	double	xEnd;	
+__stdcall	double	diel;
+__stdcall	int 	yUnits;
+__stdcall	int 	xUnits;
+__stdcall	double	xStart;
+__stdcall	double	xEnd;	
 
 // Number of data points acquired
-__stdcall	extern		UINT16 	recLen;
+__stdcall	UINT16 	recLen;
 
 // Waveform storage
-__stdcall	extern	double 	wfmDistFt[NPOINTS_MAX]; // distance (ft)
-__stdcall	extern	double 	wfmDistM[NPOINTS_MAX]; // distance (m)
-__stdcall	extern	double 	wfmTime[NPOINTS_MAX]; // time (ns)
-__stdcall	extern	double 	wfmX[NPOINTS_MAX]; // converted to selected units 
+__stdcall	double 	wfmDistFt[NPOINTS_MAX]; // distance (ft)
+__stdcall	double 	wfmDistM[NPOINTS_MAX]; // distance (m)
+__stdcall	double 	wfmTime[NPOINTS_MAX]; // time (ns)
+__stdcall	double 	wfmX[NPOINTS_MAX]; // converted to selected units 
 
-__stdcall	extern	UINT16 	wfm[NPOINTS_MAX]; 		// Raw data from device
-__stdcall	extern	double 	wfmFilter[NPOINTS_MAX];	// Filtered data from device
-__stdcall	extern	double	wfmData[NPOINTS_MAX]; // converted to selected units
+__stdcall	UINT16 	wfm[NPOINTS_MAX]; 		// Raw data from device
+__stdcall	double 	wfmFilter[NPOINTS_MAX];	// Filtered data from device
+__stdcall	double	wfmData[NPOINTS_MAX]; // converted to selected units
+
+// Start/end time for device
+__stdcall	timeinf start_tm, end_tm;
 
 // USBFIFO functionality
-__stdcall	extern	timeinf start_tm, end_tm;
+__stdcall	FT_HANDLE 	dev_fifo_handle;
+__stdcall	FT_HANDLE 	dev_handle;
+__stdcall	int 		dev_hostbps; 
 
-__stdcall	extern	UINT16 	calstart; 
-__stdcall	extern	UINT16 	calend;
-__stdcall	extern	UINT16 	stepcount;
-__stdcall	extern	UINT16 	stepcountArray[5];
-__stdcall	extern	int 	freerun_en;
-__stdcall	extern 	UINT16 	dac0val, dac1val, dac2val;
-__stdcall	extern	UINT16 	strobecount;
+__stdcall	UINT16 	calstart; 
+__stdcall	UINT16 	calend;
+__stdcall	UINT16 	stepcount;
+__stdcall	UINT16 	stepcountArray[5];
+__stdcall	int 	freerun_en;
+__stdcall	UINT16 	dac0val, dac1val, dac2val;
+__stdcall	UINT16 	strobecount;
+
+__stdcall	char 	dev_comspdbuf[20];
+__stdcall	char 	dev_idbuf[20];
+__stdcall	int 	dev_opened;
 
 
 //==============================================================================

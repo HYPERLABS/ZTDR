@@ -11,6 +11,7 @@
 //==============================================================================
 // Include files
 
+#include <windows.h>
 #include "toolbox.h"
 #include <formatio.h>
 #include <userint.h>
@@ -1164,7 +1165,6 @@ void storeWaveform (int format)
 	// Create header row
 	double windowstart, windowend;
 	double ymin, ymax;
-	double diel;
 	
 	GetCtrlVal (panelHandle, PANEL_START, &windowstart);
 	GetCtrlVal (panelHandle, PANEL_END, &windowend);
@@ -1241,7 +1241,6 @@ void recallWaveform (void)
 	int xStored, yStored;
 	float windowstart, windowend;
 	float ymin, ymax;
-	float diel;
 	double vc;
 	
 	// Read header line
