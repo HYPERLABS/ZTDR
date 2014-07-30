@@ -123,9 +123,17 @@ __stdcall	typedef union _timeinf timeinf;
 
 
 //==============================================================================
-// Global functions (sorted alphabetically)
+// Global functions
 
+// User-facing functions
+__stdcall	int 	initDevice (void);
 __stdcall 	int 	acquireWaveform (int numAvg);
+__stdcall	int 	setEnviron (int x, int y, double start, double end, double k, int rec);
+__stdcall	double	fetchDataX (int idx);
+__stdcall	double	fetchDataY (int idx);
+
+
+// Other driver functions
 __stdcall	void 	calAcquireWaveform (int calStepIndex);
 __stdcall	void 	calDAC (void);
 __stdcall	void 	calFindDiscont (void);
@@ -135,11 +143,9 @@ __stdcall	void 	calReconstructData (void);
 __stdcall	void 	calSetParams (void);
 __stdcall	void 	calSetupTimescale (void);
 __stdcall	int 	calTimebase (void); 
-__stdcall	int 	initDevice (void);
 __stdcall	double 	meanArray (void);
 __stdcall	void 	openDevice (void);
 __stdcall	void 	reconstructData (double offset);
-__stdcall	void 	setEnviron (int x, int y, double start, double end, double k, int rec);
 __stdcall	void 	setupTimescale (void);
 __stdcall	void 	vertCal (void);
 __stdcall	void 	vertCalTimescale (void);

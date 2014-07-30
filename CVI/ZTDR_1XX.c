@@ -378,7 +378,7 @@ __stdcall int acquireWaveform (int numAvg)
 }
 
 // Set acquisition environment
-__stdcall void setEnviron (int x, int y, double start, double end, double k, int rec)
+__stdcall int setEnviron (int x, int y, double start, double end, double k, int rec)
 {
 	xUnits = x;
 	yUnits = y;
@@ -388,8 +388,24 @@ __stdcall void setEnviron (int x, int y, double start, double end, double k, int
 	recLen = rec;
 }
 
+// Acquire horizontal data
+__stdcall double	fetchDataX (int idx)
+{
+	double val = WfmX[i];
+	
+	return val;
+}
+
+// Acquire vertical data
+__stdcall double	fetchDataY (int idx)
+{
+	double val = wfmAvg[i];
+	
+	return val;		
+}
+
 //==============================================================================
-// Global functions (not user-facing)
+// Global functions (not user-facing, sorted by functionality)
 
 // Open FTDI device
 __stdcall void openDevice (void)
