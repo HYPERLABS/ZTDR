@@ -34,30 +34,18 @@ typedef unsigned char UINT8;
 
 // TO DO: are the BIG_ENDIAN references still valid?
 struct _delay16
-	{
-#ifdef BIG_ENDIAN
-		UINT16 int_val;
-		UINT16 frac_val;
-#else
-		UINT16 frac_val;
-		UINT16 int_val;
-#endif
-	};
+{
+	UINT16 frac_val;
+	UINT16 int_val;
+};
 
-	struct _delay8
-	{
-#ifdef BIG_ENDIAN
-		UINT8 b3;
-		UINT8 b2;
-		UINT8 b1;
-		UINT8 b0;
-#else
-		UINT8 b0;
-		UINT8 b1;
-		UINT8 b2;
-		UINT8 b3;
-#endif
-	};
+struct _delay8
+{
+	UINT8 b0;
+	UINT8 b1;
+	UINT8 b2;
+	UINT8 b3;
+};
 
 
 union _timeinf
