@@ -1198,7 +1198,7 @@ void storeWaveform (int format)
 		// Reset buffer
 		buf[0] = 0;
 	
-		status = sprintf (buf + strlen(buf), "%3.10f, %3.10f\n", wfmData[i], wfmX[i]);
+		status = sprintf (buf + strlen(buf), "%3.10f, %3.10f\n", wfmAvg[i], wfmX[i]);
 		
 		status = WriteFile (fd, buf, strlen(buf));
 	}
