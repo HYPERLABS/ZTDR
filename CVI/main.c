@@ -1,7 +1,7 @@
 //==============================================================================
 //
-// Title:		shared.c
-// Purpose:		Main ZTDR functionality for HL11xx TDR instruments
+// Title:		main.c
+// Purpose:		Main ZTDR functionality for LabWindows/CVI
 //
 // Created on:	7/22/2014 at 8:40:39 PM by Brian Doxey.
 // Copyright:	HYPERLABS. All Rights Reserved.
@@ -15,9 +15,9 @@
 #include <formatio.h>
 #include <userint.h>
 
-#include "driver.h"
+#include "ZTDR_1XX.h"
+#include "interface.h"
 #include "main.h"
-#include "ZTDR.h"
 
 
 //==============================================================================
@@ -167,13 +167,13 @@ void main (int argc, char *argv[])
 	}
 	
 	// Load UI
-	if ((panelHandle = LoadPanel (0, "ZTDR.uir", PANEL)) < 0)
+	if ((panelHandle = LoadPanel (0, "interface.uir", PANEL)) < 0)
 	{
 		return -1;
 	}
 	
 	// Load menu bar
-	menuHandle = LoadMenuBar (panelHandle, "ZTDR.uir", MENUBAR);
+	menuHandle = LoadMenuBar (panelHandle, "interface.uir", MENUBAR);
 	
 	// Display panel and store size
 	status = DisplayPanel (panelHandle);

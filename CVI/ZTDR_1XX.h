@@ -1,7 +1,7 @@
 //==============================================================================
 //
-// Title:		driver.h
-// Purpose:		Declaration of functions used by driver.c
+// Title:		ZTDR_1XX.h
+// Purpose:		ZTDR driver module and DLL functionality (v1.x.x)
 //
 // Created on:	7/28/2014 at 9:10:43 AM by Brian Doxey.
 // Copyright:	HYPERLABS. All Rights Reserved.
@@ -20,8 +20,6 @@ extern "C" {
 // Include files
 
 #include "cvidef.h"
-	
-#include "usbfifo.h"
 
 	
 //==============================================================================
@@ -57,6 +55,34 @@ extern "C" {
 //==============================================================================
 // Types
 
+typedef unsigned int UINT32;
+typedef unsigned short UINT16;
+typedef unsigned char UINT8;
+
+struct _delay16
+{
+	UINT16 frac_val;
+	UINT16 int_val;
+};
+
+struct _delay8
+{
+	UINT8 b0;
+	UINT8 b1;
+	UINT8 b2;
+	UINT8 b3;
+};
+
+
+union _timeinf
+{
+	UINT32 time;
+	struct _delay16 time_s;
+	struct _delay8 time_b;
+};
+
+typedef union _timeinf timeinf;
+
 	
 //==============================================================================
 // External variables
@@ -86,6 +112,17 @@ extern	UINT16 	wfm[NPOINTS_MAX]; 		// Raw data from device
 extern	double 	wfmFilter[NPOINTS_MAX];	// Filtered data from device
 extern	double	wfmData[NPOINTS_MAX]; // converted to selected units
 
+// USBFIFO functionality
+extern	timeinf start_tm, end_tm;
+
+extern	UINT16 	calstart; 
+extern	UINT16 	calend;
+extern	UINT16 	stepcount;
+extern	UINT16 	stepcountArray[5];
+extern	int 	freerun_en;
+extern 	UINT16 	dac0val, dac1val, dac2val;
+extern	UINT16 	strobecount;
+
 
 //==============================================================================
 // Global functions (sorted alphabetically)
@@ -109,6 +146,19 @@ void 	__stdcall 	vertCalTimescale (void);
 void 	__stdcall 	vertCalZero (double windowStart);
 int 	__stdcall 	vertCalWriteParams (void);
 int 	__stdcall 	writeParams (void);
+
+// USBFIFO functionality
+char 	__stdcall 	ftrdbyte (void);
+void 	__stdcall 	ftwrbyte (char ch);
+int 	__stdcall 	usbfifo_acquire (UINT8 *ret_val, UINT8 arg);
+void 	__stdcall 	usbfifo_close (void);
+void 	__stdcall 	usbfifo_getcomspd (char *buf, int len);
+int 	__stdcall 	usbfifo_gethostbps (void);
+void 	__stdcall 	usbfifo_getid (char *buf, int len);
+int 	__stdcall 	usbfifo_open (void);
+int 	__stdcall 	usbfifo_readblock (UINT8 block_no, UINT16 *buf);
+int 	__stdcall 	usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calend, timeinf tmstart, timeinf tmend, UINT16 stepcount,
+						   UINT16 strobecount, UINT8 noversample, UINT16 record_len, UINT16 dac0, UINT16 dac1, UINT16 dac2);
 
 
 #ifdef __cplusplus

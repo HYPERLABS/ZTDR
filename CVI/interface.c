@@ -1,6 +1,6 @@
 //==============================================================================
 //
-// Title:		callback.c
+// Title:		interface.c
 // Purpose:		Definitions of all UIR callback functions utilized in ZTDR
 //				This file contains only structural code; execution in ZTDR.c
 //
@@ -12,9 +12,9 @@
 //==============================================================================
 // Include files
 
-#include "driver.h"
+#include "ZTDR_1XX.h"
+#include "interface.h"
 #include "main.h"
-#include "ZTDR.h"
 
 //==============================================================================
 // Constants
