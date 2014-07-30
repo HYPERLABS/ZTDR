@@ -20,6 +20,8 @@ extern "C" {
 // Include files
 
 #include "cvidef.h"
+	
+#include "usbfifo.h"
 
 	
 //==============================================================================
