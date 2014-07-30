@@ -66,6 +66,7 @@ double 	wfmX[NPOINTS_MAX]; // converted to selected units
 UINT16 	wfm[NPOINTS_MAX]; // raw data from device
 double 	wfmFilter[NPOINTS_MAX];	// filtered data from device
 double  wfmData[NPOINTS_MAX]; // converted to selected units
+double  wfmAvg[NPOINTS_MAX]; // waveform after averaging
 
 // Start/end time for device
 timeinf start_tm, end_tm;
@@ -121,10 +122,10 @@ __stdcall int initDevice (void)
 }
 
 // Acquisition (UIR agnostic)
-__stdcall int acquireWaveform (void)
+__stdcall int acquireWaveform (int numAvg)
 {
 	int status;
-	int i;
+	int i, j;
 	
 	if (!usb_opened)
 	{
@@ -192,126 +193,159 @@ __stdcall int acquireWaveform (void)
 		return -5;
 	}
 	
-	// Acquisition (no averaging)
-	// TO DO: add averaging?
-	status = usbfifo_acquire (&acq_result, 0);
+	for (j = 0; j < numAvg; j++)
+	{
+		// Acquisition with averaging
+		status = usbfifo_acquire (&acq_result, 0);
 		
-	if (status < 0)
-	{
-		// Acquisition failure (main)
-		return -6;
-	}
-	
-	// Read blocks of data from block numbers 0-63 (max 64 blocks and 16384 pts)
-	blocksok = 1;
-	nblocks = recLen / 256;
-	
-	for (i = 0; i < nblocks; i++)
-	{
-		// Verify data integrity of block 
-		int ntries = 3;
-		while ((status = usbfifo_readblock((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
-	
 		if (status < 0)
 		{
-			blocksok = 0;
+			// Acquisition failure (main)
+			return -6;
 		}
-	}
+	
+		// Read blocks of data from block numbers 0-63 (max 64 blocks and 16384 pts)
+		blocksok = 1;
+		nblocks = recLen / 256;
+	
+		for (i = 0; i < nblocks; i++)
+		{
+			// Verify data integrity of block 
+			int ntries = 3;
+			while ((status = usbfifo_readblock((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
+	
+			if (status < 0)
+			{
+				blocksok = 0;
+			}
+		}
 
-	if (blocksok == 0)
-	{
-		// Block read failure (main)
-		return -7;
-	}
-	
-	// Reconstruct data and account for offset
-	reconstructData (offset);
-	
-	// Store data, perform rho conversion
-	for (i = 0; i < recLen; i++)
-	{   
-		// Convert first to Rho (baseline unit for conversions)
-		wfmData[i] = (double) (wfmFilter[i]) / (double) vampl - 1.0;
-	}
-	
-	// Y Axis scaling based on selected unit
-	switch (yUnits)
-	{   
-		case UNIT_MV:
+		if (blocksok == 0)
 		{
-			double ampl_factor = 250.0;
-			
-			for (i = 0; i < recLen; i++)
-			{
-				wfmData[i] *= ampl_factor;
-			}
-			
-			break;
+			// Block read failure (main)
+			return -7;
 		}
-		
-		case UNIT_NORM:
-		{
-			for (i = 0; i < recLen; i++)
-			{
-				wfmData[i] += 1.0;
-				
-				if (wfmData[i] < 0)
-				{
-					wfmData[i] = 0;
-				}
-			}
-			
-			break;
+	
+		// Reconstruct data and account for offset
+		reconstructData (offset);
+	
+		// Store data, perform rho conversion
+		for (i = 0; i < recLen; i++)
+		{   
+			// Convert first to Rho (baseline unit for conversions)
+			wfmData[i] = (double) (wfmFilter[i]) / (double) vampl - 1.0;
 		}
-		
-		case UNIT_OHM:
-		{
-			double impedance = 50;
+	
+		// Y Axis scaling based on selected unit
+		switch (yUnits)
+		{   
+			case UNIT_MV:
+			{
+				double ampl_factor = 250.0;
 			
-			for (i = 0; i < recLen; i++)
-			{   
-				// Make sure Rho values are in range for conversion
-				if (wfmData[i] <= -1)
+				for (i = 0; i < recLen; i++)
 				{
-					wfmData[i] = -0.999;
+					wfmData[i] *= ampl_factor;
 				}
-				else if (wfmData[i] >= 1)
+			
+				break;
+			}
+		
+			case UNIT_NORM:
+			{
+				for (i = 0; i < recLen; i++)
 				{
-					wfmData[i] = 0.999;
-				}
+					wfmData[i] += 1.0;
 				
-				// Convert to impedance from Rho
-				wfmData[i] = (double) impedance * ((double) (1.0) + (double) (wfmData[i])) / ((double) (1.0) - (double) (wfmData[i]));
+					if (wfmData[i] < 0)
+					{
+						wfmData[i] = 0;
+					}
+				}
+			
+				break;
+			}
+		
+			case UNIT_OHM:
+			{
+				double impedance = 50;
+			
+				for (i = 0; i < recLen; i++)
+				{   
+					// Make sure Rho values are in range for conversion
+					if (wfmData[i] <= -1)
+					{
+						wfmData[i] = -0.999;
+					}
+					else if (wfmData[i] >= 1)
+					{
+						wfmData[i] = 0.999;
+					}
+				
+					// Convert to impedance from Rho
+					wfmData[i] = (double) impedance * ((double) (1.0) + (double) (wfmData[i])) / ((double) (1.0) - (double) (wfmData[i]));
 	   		    
-				if(wfmData[i] >= 500)
-				{ 
-					wfmData[i] = 500.0;
+					if(wfmData[i] >= 500)
+					{ 
+						wfmData[i] = 500.0;
+					}
+					else if(wfmData[i] < 0)
+					{ 
+						wfmData[i] = 0;
+					}
 				}
-				else if(wfmData[i] < 0)
-				{ 
-					wfmData[i] = 0;
-				}
-			}
 			
-			break;
+				break;
+			}
+		
+			default: // RHO, data already in this unit
+			{ 
+				for (i=0; i < recLen; i++)
+				{ 
+					if (wfmData[i] <= -1)
+					{
+						wfmData[i] = -0.999;
+					}
+			
+					if (wfmData[i] >= 1)
+					{
+						wfmData[i] = 0.999;
+					}
+				}
+			
+				break;
+			}
+		}
+	
+		// Horizontal units in time
+		if (xUnits == UNIT_NS)
+		{
+			for (i = 0; i < recLen; i++)
+			{
+				wfmX[i] = wfmTime[i];
+			}
+		}
+		// Horizontal units in meters
+		else if (xUnits == UNIT_M) 
+		{
+			for (i = 0; i < recLen; i++)
+			{
+				wfmX[i] = wfmDistM[i];
+			}
+		}
+		// Horizontal units in feet
+		else 
+		{
+			for (i = 0; i < recLen; i++)
+			{
+				wfmX[i] = wfmDistFt[i];
+			}
 		}
 		
-		default: // RHO, data already in this unit
-		{ 
-			for (i=0; i < recLen; i++)
-			{ 
-				if (wfmData[i] <= -1)
-				{
-					wfmData[i] = -0.999;
-				}
-			
-				if (wfmData[i] >= 1)
-				{
-					wfmData[i] = 0.999;
-				}
-			}
-			
-			break;
+		// Average waveforms
+		for (i = 0; i< recLen; i++)
+		{
+			wfmAvg[i] = (j* wfmAvg[i] + wfmData[i])/(j+1);
 		}
 	}
 	

@@ -663,9 +663,13 @@ int CVICALLBACK onDebug (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 			{
-				int status; 
+				int status;
 				
-				status = acquireWaveform ();
+				int numAvg;
+				
+				status = GetCtrlVal (panel, PANEL_AVERAGE, &numAvg);
+				
+				status = acquireWaveform (numAvg);
 				
 				int egg = 1;
 			}

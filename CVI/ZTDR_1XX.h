@@ -125,7 +125,7 @@ __stdcall	typedef union _timeinf timeinf;
 //==============================================================================
 // Global functions (sorted alphabetically)
 
-__stdcall 	int 	acquireWaveform (void);
+__stdcall 	int 	acquireWaveform (int numAvg);
 __stdcall	void 	calAcquireWaveform (int calStepIndex);
 __stdcall	void 	calDAC (void);
 __stdcall	void 	calFindDiscont (void);

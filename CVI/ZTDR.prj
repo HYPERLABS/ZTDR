@@ -178,7 +178,7 @@ Custom Directory to Copy DLL = ""
 Generate Source Documentation = "None"
 Runtime Support = "Full Runtime Support"
 Runtime Binding = "Shared"
-Embed Project .UIRs = False
+Embed Project .UIRs = True
 Generate Map File = False
 Embed Timestamp = True
 Create Console Application = False
@@ -265,7 +265,7 @@ Custom Directory to Copy DLL = ""
 Generate Source Documentation = "None"
 Runtime Support = "Full Runtime Support"
 Runtime Binding = "Shared"
-Embed Project .UIRs = False
+Embed Project .UIRs = True
 Generate Map File = False
 Embed Timestamp = True
 Create Console Application = False
@@ -535,7 +535,7 @@ Type Lib FP File = ""
 Type Lib Guid = ""
 Runtime Support = "Full Runtime Support"
 Instrument Driver Support Only = False
-Embed Project .UIRs = False
+Embed Project .UIRs = True
 Generate Map File = False
 
 [External Compiler Support]
