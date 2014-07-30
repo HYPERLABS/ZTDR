@@ -139,7 +139,7 @@ __stdcall	int 	initDevice (void);
 __stdcall	double 	meanArray (void);
 __stdcall	void 	openDevice (void);
 __stdcall	void 	reconstructData (double offset);
-__stdcall	void 	setEnviron (int x, int y, double start, double end, double k);
+__stdcall	void 	setEnviron (int x, int y, double start, double end, double k, int rec);
 __stdcall	void 	setupTimescale (void);
 __stdcall	void 	vertCal (void);
 __stdcall	void 	vertCalTimescale (void);

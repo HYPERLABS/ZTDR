@@ -363,13 +363,14 @@ __stdcall void openDevice (void)
 }
 
 // Pass to global enviornmental variables
-__stdcall void setEnviron (int x, int y, double start, double end, double k)
+__stdcall void setEnviron (int x, int y, double start, double end, double k, int rec)
 {
 	xUnits = x;
 	yUnits = y;
 	xStart = start;
 	xEnd = end;
 	diel = k;
+	recLen = rec;
 }
 
 //==============================================================================
