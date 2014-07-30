@@ -188,23 +188,16 @@ void main (int argc, char *argv[])
 	int status;
 	int i;
 
-	// Initial values for maximum length of array
-	for (i=0; i < NPOINTS_MAX; i++)
-	{
-		wfm[i] = 0;
-		wfmFilter[i] = 0.0;
-	}
-
-	// Verify instrument functionality
+	// Verify CVIRTE is running
 	if (InitCVIRTE (0, argv, 0) == 0)
 	{
-		return -1;	/* out of memory */
+		return -1;
 	}
 	
 	// Load UI
 	if ((panelHandle = LoadPanel (0, "interface.uir", PANEL)) < 0)
 	{
-		return -1;
+		return -2;
 	}
 	
 	// Load menu bar
@@ -224,27 +217,19 @@ void main (int argc, char *argv[])
 	
 	// Show software version
 	showVersion ();
-
-	// Set increment for 50 ns timescale
-	calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 )/
-						  (((double) 50e-9) / (double) 65536.0));
-
-	// Set up device
-	setupTimescale ();
-	openDevice ();
 	
 	// Show startup message
 	int calStatus = 0;
 	writeMsgCal (calStatus);
 	
-	// Full timebase calibration
-	calStatus = calTimebase ();
+	// Peform unified initialization and calibration
+	calStatus = initDevice ();
+	
+	// Indicate cal status
+	writeMsgCal (calStatus);
 	
 	// Run first acquisition
 	acquire ();
-
-	// Indicate cal status
-	writeMsgCal (calStatus);
 	
 	// Set initial cursor positions
 	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, 2.25, -250);
@@ -644,32 +629,6 @@ void acquire (void)
 	updateCursors ();
 }
 
-// Update cursor readings
-void updateCursors (void)
-{  	
-	int status;
-	
-	double c1x, c1y, c2x, c2y;
-	static char buf[128];
-
-	c1x = c1y = c2x = c2y = 0;
-	
-	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
-	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
-
-	// Cursor 1
-	status = sprintf (buf, " %.2f %s, %.2f %s", c1x, x_short[xUnits], c1y, y_short[yUnits]);
-	status = SetCtrlVal (panelHandle, PANEL_CURSOR1,  buf);
-
-	// Cursor 2
-	status = sprintf (buf, " %.2f %s, %.2f %s", c2x, x_short[xUnits], c2y, y_short[yUnits]);
-	status = SetCtrlVal (panelHandle, PANEL_CURSOR2, buf);
-
-	// Delta
-	status = sprintf(buf, " %.2f %s, %.2f %s", c2x-c1x, x_short[xUnits], c2y-c1y, y_short[yUnits]);
-	status = SetCtrlVal (panelHandle, PANEL_DELTA, buf);
-}
-
 // Verify necessary folders
 void checkDirs (void)
 {
@@ -1017,6 +976,32 @@ void changeUnitY (int unit)
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, y_label[yUnits]);
 }
 
+// Update cursor readings
+void updateCursors (void)
+{  	
+	int status;
+	
+	double c1x, c1y, c2x, c2y;
+	static char buf[128];
+
+	c1x = c1y = c2x = c2y = 0;
+	
+	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
+	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
+
+	// Cursor 1
+	status = sprintf (buf, " %.2f %s, %.2f %s", c1x, x_short[xUnits], c1y, y_short[yUnits]);
+	status = SetCtrlVal (panelHandle, PANEL_CURSOR1,  buf);
+
+	// Cursor 2
+	status = sprintf (buf, " %.2f %s, %.2f %s", c2x, x_short[xUnits], c2y, y_short[yUnits]);
+	status = SetCtrlVal (panelHandle, PANEL_CURSOR2, buf);
+
+	// Delta
+	status = sprintf(buf, " %.2f %s, %.2f %s", c2x-c1x, x_short[xUnits], c2y-c1y, y_short[yUnits]);
+	status = SetCtrlVal (panelHandle, PANEL_DELTA, buf);
+}
+
 // Cursor-based zoom
 void zoom (void)
 {   
@@ -1048,6 +1033,7 @@ void resetZoom (void)
 }
 
 // Resize acquisition window
+// TO DO: rename this one?
 void resizeWindow (void)
 {
 	int status;

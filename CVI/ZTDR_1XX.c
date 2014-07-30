@@ -90,9 +90,9 @@ int 	dev_opened = 0;
 
 
 //==============================================================================
-// Global functions (top-level)
+// Global functions (user-facing)
 
-// Initialize device
+// Initialize and calibrate device (UIR agnostic)
 __stdcall int initDevice (void)
 {
 	int i;
@@ -120,7 +120,7 @@ __stdcall int initDevice (void)
 	return calStatus;
 }
 
-// Acquisition with no UIR
+// Acquisition (UIR agnostic)
 __stdcall int acquireWaveform (void)
 {
 	int status;
@@ -343,6 +343,20 @@ __stdcall int acquireWaveform (void)
 	return 1;
 }
 
+// Set acquisition environment
+__stdcall void setEnviron (int x, int y, double start, double end, double k, int rec)
+{
+	xUnits = x;
+	yUnits = y;
+	xStart = start;
+	xEnd = end;
+	diel = k;
+	recLen = rec;
+}
+
+//==============================================================================
+// Global functions (not user-facing)
+
 // Open FTDI device
 __stdcall void openDevice (void)
 {
@@ -361,20 +375,6 @@ __stdcall void openDevice (void)
 		devbps = atoi (buf);
 	}
 }
-
-// Pass to global enviornmental variables
-__stdcall void setEnviron (int x, int y, double start, double end, double k, int rec)
-{
-	xUnits = x;
-	yUnits = y;
-	xStart = start;
-	xEnd = end;
-	diel = k;
-	recLen = rec;
-}
-
-//==============================================================================
-// Global functions (timebase calibration)
 
 // Scale time range of window for waveform acquisition
 __stdcall void setupTimescale (void)
@@ -857,9 +857,6 @@ __stdcall int writeParams (void)
 		return 1;
 	}
 }
-
-//==============================================================================
-// Global functions (vert cal)
 
 // Calibrate vertical axis
 __stdcall void vertCal (void)
