@@ -24,49 +24,13 @@ extern "C" {
 //==============================================================================
 // Constants
 
-// Max data points of USBFIFO
-#define NPOINTS_MAX 16384
-	
-// Horizontal units
-#define UNIT_M 0
-#define UNIT_FT 1
-#define UNIT_NS 2
 
-// Vertical units
-#define UNIT_MV 0
-#define UNIT_NORM 1  
-#define UNIT_OHM 2
-#define UNIT_RHO 3
-
-// Unit conversion
-#define MtoFT 3.2808
-#define FTtoM 0.3048
-	
 //==============================================================================
 // Types
 
 
 //==============================================================================
 // External variables
-
-// Acquisition environment
-extern	double	diel;
-extern	int		plotType;
-extern	int 	yUnits;
-extern	int 	xUnits;
-extern	double	xStart;
-extern	double	xEnd;	
-
-// Number of data points acquired
-extern	UINT16 	recLen;
-
-// Waveform storage
-double 	wfmDistFt[NPOINTS_MAX]; // distance (ft)
-double 	wfmDistM[NPOINTS_MAX]; // distance (m)
-double 	wfmTime[NPOINTS_MAX]; // time (ns)
-
-extern	UINT16 	wfm[NPOINTS_MAX]; 		// Raw data from device
-extern	double 	wfmFilter[NPOINTS_MAX];	// Filtered data from device
 
 
 //==============================================================================

@@ -129,11 +129,9 @@ char *month_name[] =
 };
 
 // Horizontal values for each unit
-double 	wfmX[NPOINTS_MAX];			// Active waveform
 double 	wfmRecallX[NPOINTS_MAX]; 	// Recalled waveform
 
 // Vertical values in different modes
-double  wfmData[NPOINTS_MAX];		// Converted to selected units
 double  wfmAvg[NPOINTS_MAX]; 		// After waveform averaging
 double 	wfmRecall[NPOINTS_MAX]; 	// Recalled waveform
 
@@ -150,27 +148,6 @@ int		rightHandle, bottomHandle;
 
 // Panel size
 int		width, height;
-
-
-//==============================================================================
-// External global variables
-// Control states needed outside UIR
-double	diel = 2.25; // coax
-int 	yUnits = 0; // mV
-int 	xUnits = 0; // m
-double	xStart = 0.0; // m
-double	xEnd = 10.0; // m
-
-// Number of data points acquired
-UINT16 	recLen	= 1024;
-
-// Waveform storage
-double 	wfmDistFt[NPOINTS_MAX]; // distance (ft)
-double 	wfmDistM[NPOINTS_MAX]; // distance (m)
-double 	wfmTime[NPOINTS_MAX]; // time (ns)
-
-UINT16 	wfm[NPOINTS_MAX]; // raw data from device
-double 	wfmFilter[NPOINTS_MAX];	// filtered data from device
 
 
 //==============================================================================

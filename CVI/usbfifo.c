@@ -89,7 +89,7 @@ FT_HANDLE 	dev_handle;
 // Global functions (alphabetical, not by functionality)
 
 // Read FTDI byte
-static char ftrdbyte(void)
+char __stdcall ftrdbyte(void)
 {
 	char ch;
 	int n;
@@ -100,7 +100,7 @@ static char ftrdbyte(void)
 }
 
 // Write FTDI byte
-void ftwrbyte(char ch)
+void __stdcall ftwrbyte(char ch)
 {
 	int n;
 
@@ -108,7 +108,7 @@ void ftwrbyte(char ch)
 }
 
 // Acquire from FDTI device
-int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
+int __stdcall usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
 {
 	char ch;
 	FT_STATUS stat;
@@ -139,7 +139,7 @@ int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
 }
 
 // Close FTDI device
-void usbfifo_close (void)
+void __stdcall usbfifo_close (void)
 {
 	FT_STATUS stat;
 	
@@ -155,7 +155,7 @@ void usbfifo_close (void)
 }
 
 // Get device comm speed
-void usbfifo_getcomspd (char *buf, int len)
+void __stdcall usbfifo_getcomspd (char *buf, int len)
 {
 	int i;
 
@@ -166,13 +166,13 @@ void usbfifo_getcomspd (char *buf, int len)
 }
 
 // Get host BPS
-int usbfifo_gethostbps (void)
+int __stdcall usbfifo_gethostbps (void)
 {
 	return dev_hostbps;
 }
 
 // Get device ID
-void usbfifo_getid (char *buf, int len)
+void __stdcall usbfifo_getid (char *buf, int len)
 {
 	int i;
 
@@ -183,7 +183,7 @@ void usbfifo_getid (char *buf, int len)
 }
 
 // Open FTDI for use by software
-int usbfifo_open()
+int __stdcall usbfifo_open()
 {
 	char ch;
 	int n;
@@ -285,7 +285,7 @@ int usbfifo_open()
 }
 
 // Read data blocks of acquisition
-int usbfifo_readblock(UINT8 block_no, UINT16 *buf)
+int __stdcall usbfifo_readblock(UINT8 block_no, UINT16 *buf)
 {
 #define BLOCK_LEN 256
 
@@ -326,7 +326,7 @@ int usbfifo_readblock(UINT8 block_no, UINT16 *buf)
 }
 
 // Set parameters for acquisition
-int usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calend, timeinf tmstart, timeinf tmend, UINT16 stepcount,
+int __stdcall usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calend, timeinf tmstart, timeinf tmend, UINT16 stepcount,
 					   UINT16 strobecount, UINT8 noversample, UINT16 record_len, UINT16 dac0, UINT16 dac1, UINT16 dac2)
 {
 	static UINT8 params[NPARAMS];

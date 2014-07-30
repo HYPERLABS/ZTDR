@@ -12,14 +12,14 @@
 //==============================================================================
 // Include files
 
+#include <windows.h>
+#include <utility.h>
 #include <ansi_c.h>
 
 #include "FTD2XX.h"
 
 #include "usbfifo.h"
 #include "driver.h"
-#include "main.h"
-#include "ZTDR.h"
 
 //==============================================================================
 // Constants
@@ -54,10 +54,277 @@ double 	vampl = 679.0;
 UINT16	calstart_save = 540;
 
 //==============================================================================
+// External global variables
+
+// Control states needed outside UIR
+double	diel = 2.25; // coax
+int 	yUnits = 0; // mV
+int 	xUnits = 0; // m
+double	xStart = 0.0; // m
+double	xEnd = 10.0; // m
+
+// Number of data points acquired
+UINT16 	recLen	= 1024;
+
+// Waveform storage
+double 	wfmDistFt[NPOINTS_MAX]; // distance (ft)
+double 	wfmDistM[NPOINTS_MAX]; // distance (m)
+double 	wfmTime[NPOINTS_MAX]; // time (ns)
+double 	wfmX[NPOINTS_MAX]; // converted to selected units
+
+UINT16 	wfm[NPOINTS_MAX]; // raw data from device
+double 	wfmFilter[NPOINTS_MAX];	// filtered data from device
+double  wfmData[NPOINTS_MAX]; // converted to selected units
+
+
+//==============================================================================
 // Global functions (sorted by function)
 
+// Initialize device
+int __stdcall initDevice (void)
+{
+	int i;
+
+	// Initial values for maximum length of array
+	for (i=0; i < NPOINTS_MAX; i++)
+	{
+		wfm[i] = 0;
+		wfmFilter[i] = 0.0;
+	}
+	
+	// Set increment for 50 ns timescale
+	calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 )/
+						  (((double) 50e-9) / (double) 65536.0));
+	
+	// Set up device
+	setupTimescale ();
+	openDevice ();
+	
+	// Calibration status
+	// TO DO: use this
+	int calStatus = 0; // Full timebase calibration
+	calStatus = calTimebase ();
+	
+	return 1;
+}
+
+// Acquisition with no UIR
+int __stdcall acquireWaveform (void)
+{
+	int status;
+	int i;
+	
+	if (!usb_opened)
+	{
+		// Comm failure
+		return -1;
+	}
+	
+	// Set window to acquire offset at 0 ns
+	vertCalZero (0);
+
+	// Write the acquisition parameters
+	if (vertCalWriteParams () <= 0)
+	{
+		// Write params failure (cal)
+		return -2;
+	}
+	
+	// Acquire data
+	UINT8 acq_result;
+	status = usbfifo_acquire (&acq_result, 0);
+	
+	if (status < 0)
+	{
+		// Acquisition failure (cal)
+		return -3;
+	}
+	
+	int blocksok;
+	int nblocks;
+	
+	// Read blocks of data from block numbers 0-63 (max 64 blocks if 16384 pts)
+	blocksok = 1;
+	nblocks = recLen / 256;
+	
+	for (i=0; i < nblocks; i++)
+	{
+		// Verify data integrity of block
+		int ntries = 3;
+		
+		while ((status = usbfifo_readblock ((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
+		
+		if (status < 0)
+		{
+			blocksok = 0;
+		}
+	}
+	
+	if (blocksok == 0)
+	{
+		// Block read failure (cal)
+		return -4;
+	}
+	
+	// Reconstruct data and find offset for acquisition
+	reconstructData (0);
+	double offset;
+	offset = meanArray();
+	
+	// Timescale and parameters for main acquisition
+	setupTimescale ();
+	
+	if (writeParams () <= 0)
+	{
+		// Write params failure (main)
+		return -5;
+	}
+	
+	// Acquisition (no averaging)
+	// TO DO: add averaging?
+	status = usbfifo_acquire (&acq_result, 0);
+		
+	if (status < 0)
+	{
+		// Acquisition failure (main)
+		return -6;
+	}
+	
+	// Read blocks of data from block numbers 0-63 (max 64 blocks and 16384 pts)
+	blocksok = 1;
+	nblocks = recLen / 256;
+	
+	for (i = 0; i < nblocks; i++)
+	{
+		// Verify data integrity of block 
+		int ntries = 3;
+		while ((status = usbfifo_readblock((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
+	
+		if (status < 0)
+		{
+			blocksok = 0;
+		}
+	}
+
+	if (blocksok == 0)
+	{
+		// Block read failure (main)
+		return -7;
+	}
+	
+	// Reconstruct data and account for offset
+	reconstructData (offset);
+	
+	// Store data, perform rho conversion
+	for (i = 0; i < recLen; i++)
+	{   
+		// Convert first to Rho (baseline unit for conversions)
+		wfmData[i] = (double) (wfmFilter[i]) / (double) vampl - 1.0;
+	}
+	
+	// Y Axis scaling based on selected unit
+	switch (yUnits)
+	{   
+		case UNIT_MV:
+		{
+			double ampl_factor = 250.0;
+			
+			for (i = 0; i < recLen; i++)
+			{
+				wfmData[i] *= ampl_factor;
+			}
+		}
+		
+		case UNIT_NORM:
+		{
+			for (i = 0; i < recLen; i++)
+			{
+				wfmData[i] += 1.0;
+				
+				if (wfmData[i] < 0)
+				{
+					wfmData[i] = 0;
+				}
+			}
+		}
+		
+		case UNIT_OHM:
+		{
+			double impedance = 50;
+			
+			for (i = 0; i < recLen; i++)
+			{   
+				// Make sure Rho values are in range for conversion
+				if (wfmData[i] <= -1)
+				{
+					wfmData[i] = -0.999;
+				}
+				else if (wfmData[i] >= 1)
+				{
+					wfmData[i] = 0.999;
+				}
+				
+				// Convert to impedance from Rho
+				wfmData[i] = (double) impedance * ((double) (1.0) + (double) (wfmData[i])) / ((double) (1.0) - (double) (wfmData[i]));
+	   		    
+				if(wfmData[i] >= 500)
+				{ 
+					wfmData[i] = 500.0;
+				}
+				else if(wfmData[i] < 0)
+				{ 
+					wfmData[i] = 0;
+				}
+			}
+		}
+		
+		default: // RHO, data already in this unit
+		{ 
+			for (i=0; i < recLen; i++)
+			{ 
+				if (wfmData[i] <= -1)
+				{
+					wfmData[i] = -0.999;
+				}
+			
+				if (wfmData[i] >= 1)
+				{
+					wfmData[i] = 0.999;
+				}
+			}
+		}
+	}
+	
+	// Horizontal units in time
+	if (xUnits == UNIT_NS)
+	{
+		for (i = 0; i < recLen; i++)
+		{
+			wfmX[i] = wfmTime[i];
+		}
+	}
+	// Horizontal units in meters
+	else if (xUnits == UNIT_M) 
+	{
+		for (i = 0; i < recLen; i++)
+		{
+			wfmX[i] = wfmDistM[i];
+		}
+	}
+	// Horizontal units in feet
+	else 
+	{
+		for (i = 0; i < recLen; i++)
+		{
+			wfmX[i] = wfmDistFt[i];
+		}
+	}
+	
+	return 1;
+}
+
 // Open FTDI device
-void openDevice (void)
+void __stdcall openDevice (void)
 {
 	char buf[32];
 	int hostbps;
@@ -76,7 +343,7 @@ void openDevice (void)
 }
 
 // Pass to global enviornmental variables
-void setEnviron (int x, int y, double start, double end, double k)
+void __stdcall setEnviron (int x, int y, double start, double end, double k)
 {
 	xUnits = x;
 	yUnits = y;
@@ -86,7 +353,7 @@ void setEnviron (int x, int y, double start, double end, double k)
 }
 
 // Scale time range of window for waveform acquisition
-void setupTimescale (void)
+void __stdcall setupTimescale (void)
 {   
 	int status;
 	
@@ -122,7 +389,7 @@ void setupTimescale (void)
 }
 
 // Reconstruct data into useable form
-void reconstructData (double offset)
+void __stdcall reconstructData (double offset)
 {
 	int i;
 	
@@ -150,7 +417,7 @@ void reconstructData (double offset)
 }
 
 // Calculate offset from average 0
-double meanArray (void)
+double __stdcall meanArray (void)
 {
 	int i;
 	
@@ -166,7 +433,7 @@ double meanArray (void)
 }
 
 // Calibrate timebase ("full" calibration)
-int calTimebase (void)
+int __stdcall calTimebase (void)
 {
 	int i;
 	
@@ -193,7 +460,7 @@ int calTimebase (void)
 }
 
 // Set parameters for calibration
-void calSetParams (void)
+void __stdcall calSetParams (void)
 {
 	int status;
 	
@@ -233,7 +500,7 @@ void calSetParams (void)
 }
 
 // Acquire waveform for calibration
-void calAcquireWaveform (int calStepIndex)
+void __stdcall calAcquireWaveform (int calStepIndex)
 {
 	int status = 0;
 	int i;
@@ -307,7 +574,7 @@ void calAcquireWaveform (int calStepIndex)
 }
 
 // Reconstruct data segment for calibration
-void calReconstructData (void)
+void __stdcall calReconstructData (void)
 {
 	int i, j;
 	
@@ -341,7 +608,7 @@ void calReconstructData (void)
 }
 
 // Find mean of waveform segment
-void calFindMean (int calStepIndex)
+void __stdcall calFindMean (int calStepIndex)
 {
 	int i;
 	double val;
@@ -359,7 +626,7 @@ void calFindMean (int calStepIndex)
 }
 
 // Find optimal step count
-int calFindStepcount (void)
+int __stdcall calFindStepcount (void)
 {
 	int i;
 
@@ -429,7 +696,7 @@ int calFindStepcount (void)
 }
 
 // Calibrate DACs
-void calDAC (void)
+void __stdcall calDAC (void)
 {
 	int i;
 	
@@ -516,7 +783,7 @@ void calDAC (void)
 }
 
 // Set timescale for full calibration
-void calSetupTimescale (void)
+void __stdcall calSetupTimescale (void)
 {
 	double val;
 
@@ -530,7 +797,7 @@ void calSetupTimescale (void)
 }
 
 // TO DO: function description
-void calFindDiscont (void)
+void __stdcall calFindDiscont (void)
 {
 	int i;
 
@@ -545,7 +812,7 @@ void calFindDiscont (void)
 }
 
 // Write parameters to device
-int writeParams (void)
+int __stdcall writeParams (void)
 {
 	int status;
 
@@ -567,7 +834,7 @@ int writeParams (void)
 }
 
 // Calibrate vertical axis
-void vertCal (void)
+void __stdcall vertCal (void)
 {
 	int status;
 	int i;
@@ -734,7 +1001,7 @@ void vertCal (void)
 }
 
 // Set timescale for vertCal at 0 ns
-void vertCalZero (double windowStart)
+void __stdcall vertCalZero (double windowStart)
 {
 	double val;
 	
@@ -745,7 +1012,7 @@ void vertCalZero (double windowStart)
 }
 
 // Set timescale for vert cal
-void vertCalTimescale (void)
+void __stdcall vertCalTimescale (void)
 {
 	double val;
 
@@ -757,7 +1024,7 @@ void vertCalTimescale (void)
 }
 
 // Write parameters for vertCal 
-int vertCalWriteParams (void)
+int __stdcall vertCalWriteParams (void)
 {
 	int status;
 

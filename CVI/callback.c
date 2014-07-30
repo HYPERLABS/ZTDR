@@ -376,7 +376,7 @@ int CVICALLBACK onWaveform (int panel, int control, int event,
 	return 0;
 }
 
-// Zoom on selection /* TO DO */
+// Zoom on selection
 int CVICALLBACK onZoom (int panel, int control, int event,
 						void *callbackData, int eventData1, int eventData2)
 {

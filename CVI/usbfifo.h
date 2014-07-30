@@ -86,16 +86,16 @@ extern	UINT16 	strobecount;
 //==============================================================================
 // Global functions
 
-char 	ftrdbyte (void);
-void 	ftwrbyte (char ch);
-int 	usbfifo_acquire (UINT8 *ret_val, UINT8 arg);
-void 	usbfifo_close (void);
-void 	usbfifo_getcomspd (char *buf, int len);
-int 	usbfifo_gethostbps (void);
-void 	usbfifo_getid (char *buf, int len);
-int 	usbfifo_open (void);
-int 	usbfifo_readblock (UINT8 block_no, UINT16 *buf);
-int 	usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calend, timeinf tmstart, timeinf tmend, UINT16 stepcount,
+char 	__stdcall 	ftrdbyte (void);
+void 	__stdcall 	ftwrbyte (char ch);
+int 	__stdcall 	usbfifo_acquire (UINT8 *ret_val, UINT8 arg);
+void 	__stdcall 	usbfifo_close (void);
+void 	__stdcall 	usbfifo_getcomspd (char *buf, int len);
+int 	__stdcall 	usbfifo_gethostbps (void);
+void 	__stdcall 	usbfifo_getid (char *buf, int len);
+int 	__stdcall 	usbfifo_open (void);
+int 	__stdcall 	usbfifo_readblock (UINT8 block_no, UINT16 *buf);
+int 	__stdcall 	usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calend, timeinf tmstart, timeinf tmend, UINT16 stepcount,
 						   UINT16 strobecount, UINT8 noversample, UINT16 record_len, UINT16 dac0, UINT16 dac1, UINT16 dac2);
 
 
