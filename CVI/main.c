@@ -38,6 +38,40 @@
 
 
 //==============================================================================
+// External global variables (roughly grouped by function)
+
+// Initialization
+extern	int 	usb_opened;
+
+// Calibration
+extern 	int 	calIncrement;
+extern	double	vampl;
+
+// Acquisition environment
+extern	double	diel; // coax
+extern	int 	yUnits; // mV
+extern	int 	xUnits; // m
+extern	double	xStart; // m
+extern	double	xEnd; // m
+
+// Number of data points acquired
+extern	UINT16 	recLen;
+
+// Waveform storage
+extern	double 	wfmDistFt[]; // distance (ft)
+extern	double 	wfmDistM[]; // distance (m)
+extern	double 	wfmTime[]; // time (ns)
+extern	double 	wfmX[]; // converted to selected units
+
+extern	UINT16 	wfm[]; // raw data from device
+extern	double 	wfmFilter[];	// filtered data from device
+extern	double  wfmData[]; // converted to selected units
+
+// Start/end time for device
+extern	timeinf start_tm, end_tm;
+
+
+//==============================================================================
 // Global variables (roughly grouped by function)
 
 // Unit labels and ranges

@@ -119,56 +119,7 @@ __stdcall	typedef union _timeinf timeinf;
 
 	
 //==============================================================================
-// Global variables
-
-__stdcall	int		usb_opened;
-
-// Calibration
-__stdcall	double 	calDiscLevel;
-__stdcall	double 	calLevels[5];
-__stdcall	double 	calThreshold;
-__stdcall	int 	calIncrement;
-__stdcall	double	vampl;
-
-// Acquisition environment
-__stdcall	double	diel;
-__stdcall	int 	yUnits;
-__stdcall	int 	xUnits;
-__stdcall	double	xStart;
-__stdcall	double	xEnd;	
-
-// Number of data points acquired
-__stdcall	UINT16 	recLen;
-
-// Waveform storage
-__stdcall	double 	wfmDistFt[NPOINTS_MAX]; // distance (ft)
-__stdcall	double 	wfmDistM[NPOINTS_MAX]; // distance (m)
-__stdcall	double 	wfmTime[NPOINTS_MAX]; // time (ns)
-__stdcall	double 	wfmX[NPOINTS_MAX]; // converted to selected units 
-
-__stdcall	UINT16 	wfm[NPOINTS_MAX]; 		// Raw data from device
-__stdcall	double 	wfmFilter[NPOINTS_MAX];	// Filtered data from device
-__stdcall	double	wfmData[NPOINTS_MAX]; // converted to selected units
-
-// Start/end time for device
-__stdcall	timeinf start_tm, end_tm;
-
-// USBFIFO functionality
-__stdcall	FT_HANDLE 	dev_fifo_handle;
-__stdcall	FT_HANDLE 	dev_handle;
-__stdcall	int 		dev_hostbps; 
-
-__stdcall	UINT16 	calstart; 
-__stdcall	UINT16 	calend;
-__stdcall	UINT16 	stepcount;
-__stdcall	UINT16 	stepcountArray[5];
-__stdcall	int 	freerun_en;
-__stdcall	UINT16 	dac0val, dac1val, dac2val;
-__stdcall	UINT16 	strobecount;
-
-__stdcall	char 	dev_comspdbuf[20];
-__stdcall	char 	dev_idbuf[20];
-__stdcall	int 	dev_opened;
+// External variables
 
 
 //==============================================================================

@@ -651,3 +651,26 @@ void CVICALLBACK onVertCal (int menuBar, int menuItem, void *callbackData,
 	
 	return 0;	
 }
+
+//==============================================================================
+// Debug callback
+
+// Debug button
+int CVICALLBACK onDebug (int panel, int control, int event,
+						 void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+			{
+				int status; 
+				
+				status = acquireWaveform ();
+				
+				int egg = 1;
+			}
+			
+			break;
+	}
+	return 0;
+}

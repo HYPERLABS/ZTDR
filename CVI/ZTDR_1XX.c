@@ -36,55 +36,57 @@
 
 //==============================================================================
 // Global variables
-/* TO DO: commented out all vars that aren't intialized, because they're defined in .h
-   Remove later if OK*/
 
 // Initialization
-extern	int 	usb_opened = 0;
+int 	usb_opened = 0;
 
 // Calibration
-// extern	double 	calDiscLevel;
-// extern	double 	calLevels[5];
-// extern	double 	calThreshold;
-// extern	int 	calIncrement;
-extern	double 	vampl = 679.0;
-
-// USBFIFO functionality
-extern	FT_HANDLE 	dev_fifo_handle;
-extern	FT_HANDLE 	dev_handle;
-extern	int 		dev_hostbps = 256000; 
-								
-extern	UINT16 	calstart = 540; 
-extern	UINT16 	calend = 3870;
-extern	UINT16 	stepcount = 6;
-extern	UINT16 	stepcountArray[5] = {4, 5, 6, 7, 8};
-extern	int 	freerun_en = 0;
-extern	UINT16 	dac0val = 0, dac1val = 0, dac2val = 0;
-extern	UINT16 	strobecount = 2;
-
-// extern	char 	dev_comspdbuf[20];
-// extern	char 	dev_idbuf[20];
-extern	int 	dev_opened = 0;
+double 	calDiscLevel;
+double 	calLevels[5];
+double 	calThreshold;
+int 	calIncrement;
+double	vampl = 679;
 
 // Acquisition environment
-extern	double	diel = 2.25; // coax
-extern	int 	yUnits = 0; // mV
-extern	int 	xUnits = 0; // m
-extern	double	xStart = 0.0; // m
-extern	double	xEnd = 10.0; // m
+double	diel = 2.25; // coax
+int 	yUnits = 0; // mV
+int 	xUnits = 0; // m
+double	xStart = 0.0; // m
+double	xEnd = 10.0; // m
 
 // Number of data points acquired
-extern	UINT16 	recLen	= 1024;
+UINT16 	recLen	= 1024;
 
 // Waveform storage
-extern	double 	wfmDistFt[NPOINTS_MAX]; // distance (ft)
-extern	double 	wfmDistM[NPOINTS_MAX]; // distance (m)
-extern	double 	wfmTime[NPOINTS_MAX]; // time (ns)
-extern	double 	wfmX[NPOINTS_MAX]; // converted to selected units
+double 	wfmDistFt[NPOINTS_MAX]; // distance (ft)
+double 	wfmDistM[NPOINTS_MAX]; // distance (m)
+double 	wfmTime[NPOINTS_MAX]; // time (ns)
+double 	wfmX[NPOINTS_MAX]; // converted to selected units
 
-extern	UINT16 	wfm[NPOINTS_MAX]; // raw data from device
-extern	double 	wfmFilter[NPOINTS_MAX];	// filtered data from device
-extern	double  wfmData[NPOINTS_MAX]; // converted to selected units
+UINT16 	wfm[NPOINTS_MAX]; // raw data from device
+double 	wfmFilter[NPOINTS_MAX];	// filtered data from device
+double  wfmData[NPOINTS_MAX]; // converted to selected units
+
+// Start/end time for device
+timeinf start_tm, end_tm;
+
+
+// USBFIFO functionality
+FT_HANDLE 	dev_fifo_handle;
+FT_HANDLE 	dev_handle;
+int 		dev_hostbps = 256000; 
+								
+UINT16 	calstart = 540; 
+UINT16 	calend = 3870;
+UINT16 	stepcount = 6;
+UINT16 	stepcountArray[5] = {4, 5, 6, 7, 8};
+int 	freerun_en = 0;
+UINT16 	dac0val = 0, dac1val = 0, dac2val = 0;
+UINT16 	strobecount = 2;
+
+char 	dev_comspdbuf[20];
+char 	dev_idbuf[20];
+int 	dev_opened = 0;
 
 
 //==============================================================================
@@ -115,7 +117,7 @@ __stdcall int initDevice (void)
 	int calStatus = 0; // Full timebase calibration
 	calStatus = calTimebase ();
 	
-	return 1;
+	return calStatus;
 }
 
 // Acquisition with no UIR
@@ -243,6 +245,8 @@ __stdcall int acquireWaveform (void)
 			{
 				wfmData[i] *= ampl_factor;
 			}
+			
+			break;
 		}
 		
 		case UNIT_NORM:
@@ -256,6 +260,8 @@ __stdcall int acquireWaveform (void)
 					wfmData[i] = 0;
 				}
 			}
+			
+			break;
 		}
 		
 		case UNIT_OHM:
@@ -286,6 +292,8 @@ __stdcall int acquireWaveform (void)
 					wfmData[i] = 0;
 				}
 			}
+			
+			break;
 		}
 		
 		default: // RHO, data already in this unit
@@ -302,6 +310,8 @@ __stdcall int acquireWaveform (void)
 					wfmData[i] = 0.999;
 				}
 			}
+			
+			break;
 		}
 	}
 	
