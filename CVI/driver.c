@@ -12,11 +12,7 @@
 //==============================================================================
 // Include files
 
-#include <windows.h>
-#include <utility.h>
 #include <ansi_c.h>
-
-#include "FTD2XX.h"
 
 #include "usbfifo.h"
 #include "driver.h"

@@ -11,16 +11,10 @@
 //==============================================================================
 // Include files
 
-#include <windows.h>
 #include "toolbox.h"
-#include <utility.h>
 #include <formatio.h>
-#include <ansi_c.h>
 #include <userint.h>
 
-#include "FTD2XX.h"
-
-#include "usbfifo.h"
 #include "driver.h"
 #include "main.h"
 #include "ZTDR.h"
