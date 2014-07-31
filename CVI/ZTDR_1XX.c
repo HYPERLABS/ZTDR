@@ -528,8 +528,6 @@ __stdcall void reconstructData (double offset)
 		
 		curt.time += incr;
 	}
-	
-	int egg = 1;
 }
 
 // Calculate offset from average 0

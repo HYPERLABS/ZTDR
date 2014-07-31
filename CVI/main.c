@@ -391,12 +391,18 @@ void acquire (void)
 		}
 	}	
 
-	// Determine whehter to autoscale
+	// Determine whether to autoscale
 	int autoScale;
 	status = GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &autoScale);
 
-	// Manual scaling
-	if (autoScale == 0)
+	// YMAX/YMIN behavior
+	if (autoScale == 1)
+	{
+		status = SetCtrlVal (panelHandle, PANEL_YMAX, ymax);
+		status = SetCtrlVal (panelHandle, PANEL_YMIN, ymin);
+		
+	}
+	else
 	{
 		status = GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
 		status = GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
@@ -978,7 +984,7 @@ void storeWaveform (int format)
 	else
 	{
 		status = sprintf (filename, ".csv");
-		status = FileSelectPopup ("logs", filename, "CSV File (*.csv)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+		status = FileSelectPopup ("datalogs", filename, "CSV (*.csv)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
 	}
 
 	// Don't attempt to save if user cancels
@@ -1072,13 +1078,14 @@ void recallWaveform (void)
 	
 	// Read header row for environmental variables
 	int xStored, yStored;
-	float windowstart, windowend;
+	float startStored, endStored;
 	float ymin, ymax;
+	float dielStored;
 	double vc;
 	
 	// Read header line
 	status = ReadLine (fd, buf, buf_len - 1);
-	sscanf (buf, "%d, %d, %f, %f, %f, %f, %f", &yStored, &xStored, &windowstart, &windowend, &ymin, &ymax, &diel);
+	sscanf (buf, "%d, %d, %f, %f, %f, %f, %f", &yStored, &xStored, &startStored, &endStored, &ymin, &ymax, &dielStored);
 	vc = (double) 3E8 / sqrt (diel);
 							   
 	// Read X, Y values
@@ -1095,11 +1102,7 @@ void recallWaveform (void)
 	
 	// Data read finished
 	status = CloseFile(fd);
-	
-	// Convert data to usable values
-	start_tm.time = (UINT32) windowstart;
-	end_tm.time = (UINT32) windowend;
-	
+								   
 	// Set control values from stored waveform
 	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 0);
 	
@@ -1108,15 +1111,16 @@ void recallWaveform (void)
 	changeUnitY (yStored);
 
 	// Update controls
-	SetCtrlVal (panelHandle, PANEL_START, (double) start_tm.time);
-	SetCtrlVal (panelHandle, PANEL_END, (double) end_tm.time);
-	SetCtrlVal (panelHandle, PANEL_DIEL, diel);
+	SetCtrlVal (panelHandle, PANEL_START, (double) startStored);
+	SetCtrlVal (panelHandle, PANEL_END, (double) endStored);
+	SetCtrlVal (panelHandle, PANEL_DIEL, (double) dielStored);
 	SetCtrlVal (panelHandle, PANEL_YMAX, (double) ymax);
 	SetCtrlVal (panelHandle, PANEL_YMIN, (double) ymin);
 	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, x_label[xUnits]);
 	
 	// Change window and K
 	resizeWindow ();
+	setupTimescale ();
 	changeDiel ();
 	
 	// Remove any other recalled waveforms
@@ -1124,6 +1128,13 @@ void recallWaveform (void)
 	{
 		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmStored, VAL_IMMEDIATE_DRAW);
 		WfmStored =0;
+	}
+	
+	// Remove any other recalled waveforms
+	if (WfmActive)
+	{
+		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmActive, VAL_IMMEDIATE_DRAW);
+		WfmActive =0;
 	}
 	
 	// Scale waveform acquisition window
