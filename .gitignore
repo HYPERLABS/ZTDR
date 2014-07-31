@@ -2,6 +2,7 @@
 cvibuild/
 cvirte/
 install/
+dll/
 build/
 *.exe
 *.cds

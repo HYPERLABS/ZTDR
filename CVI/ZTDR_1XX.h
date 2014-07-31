@@ -1,9 +1,9 @@
 //==============================================================================
 //
 // Title:		ZTDR_1XX.h
+// Release:		1.0.1 (07/31/2014)
 // Purpose:		ZTDR driver module and DLL functionality (v1.x.x)
 //
-// Created on:	7/28/2014 at 9:10:43 AM by Brian Doxey.
 // Copyright:	HYPERLABS. All Rights Reserved.
 //
 //==============================================================================
