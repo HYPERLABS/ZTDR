@@ -107,14 +107,13 @@ __stdcall int initDevice (void)
 	
 	// Set increment for 50 ns timescale
 	calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 )/
-						  (((double) 50e-9) / (double) 65536.0));
+						  (((double) 50.0e-9) / (double) 65536.0));
 	
 	// Set up device
 	setupTimescale ();
 	openDevice ();
 	
 	// Calibration status
-	// TO DO: use this
 	int calStatus = 0; // Full timebase calibration
 	calStatus = calTimebase ();
 	
@@ -460,8 +459,6 @@ __stdcall void setupTimescale (void)
 
 	start_tm.time = (UINT32) (val1 / 50.0*0xFFFF);
 	end_tm.time = (UINT32) (val2 / 50.0*0xFFFF);
-	
-	int egg =1 ;
 }
 
 // Reconstruct data into useable form
@@ -573,8 +570,6 @@ __stdcall void calSetParams (void)
 	
 	val = 0;
 	end_tm.time = (UINT32) (val / 50.0*0xFFFF);
-	
-	int egg = 1;
 }
 
 // Acquire waveform for calibration
@@ -898,8 +893,6 @@ __stdcall int writeParams (void)
 	status = usbfifo_setparams ((UINT8) freerun_en, calstart, calend, start_tm, end_tm, stepcount,
 								strobecount, 0, recLen, dac0val, dac1val, dac2val);
 	
-	int egg = 1;
-	
 	if (status < 0)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Params failed.");
@@ -925,7 +918,7 @@ __stdcall void vertCal (void)
 	}
 
 	// Calculate offset of waveform by averaging samples at 0 ns 
-	vertCalZero (CAL_WINDOW_START);
+	vertCalZero (CAL_WINDOW_ZERO);
 
 	// Write the acquisition parameters 
 	if (vertCalWriteParams () <= 0)
@@ -944,7 +937,7 @@ __stdcall void vertCal (void)
 		// return;
 	}
 
-	// Read blocks of data from block numbers 0-63 (max 64, with 16384 pts)
+	// Read blocks of data from block numbers
 	int blocksok;
 	int nblocks;
 	blocksok = 1;
@@ -1023,15 +1016,14 @@ __stdcall void vertCal (void)
 	{
 		i = i + 1;
 	}
-
-	
+	 
 	int i50;
 	i50 = i;
 	
 	// Compute a calibrated vstart as average of points from 0 to (i50 - CAL_GUARD) at calIncrement
 	// Normalize calIncrement to waveform index
 	int calInterval;
-	calInterval = (int) (CAL_GUARD / (CAL_WINDOW / 1024));
+	calInterval = (int) (CAL_GUARD * 0.5 / (CAL_WINDOW / 1024));
 	
 	int tempID;
 	tempID = i50 - calInterval;
@@ -1060,7 +1052,7 @@ __stdcall void vertCal (void)
 		tempID = 1023;
 	}
 
-	tempID2 = i50 + 3 * calInterval;
+	tempID2 = i50 + 4 * calInterval;
 	
 	if (tempID2 > 1023)
 	{
@@ -1095,11 +1087,11 @@ __stdcall void vertCalTimescale (void)
 {
 	double val;
 
-	val = 10;
+	val = 0;
 	start_tm.time = (UINT32) (val / 50.0*0xFFFF);
 	
-	val = 10;
-	end_tm.time = start_tm.time + ((UINT32) (val / 50.0*0xFFFF));
+	val = 50;
+	end_tm.time = (UINT32) (val / 50.0*0xFFFF);
 }
 
 // Write parameters for vertCal 

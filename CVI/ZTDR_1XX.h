@@ -29,9 +29,9 @@ extern "C" {
 
 #define CALSTART_DEFAULT 540
 #define CALEND_DEFAULT 3870
-#define CAL_WINDOW_START 10 // ns
-#define CAL_WINDOW 10.0e-9  // 10 ns
-#define CAL_GUARD 0.65e-9 // 0.5 ns
+#define CAL_WINDOW_ZERO 0 // ns
+#define CAL_WINDOW 50.0e-9  // 10 ns
+#define CAL_GUARD 2.0e-9 // 0.5 ns
 	
 #define FILTER_WIDTH 4
 #define	CAL_RECLEN 1024 // data points for calibration
