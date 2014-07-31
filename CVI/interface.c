@@ -665,10 +665,12 @@ int CVICALLBACK onDebug (int panel, int control, int event,
 				int status;
 				int i;
 				
+				storeWaveform (0);
+				
 				int numAvg = 4;
 				int length = 1024;
 				
-				status = setEnviron (0, 0, 0.00, 20.0, 2.25, length);
+				status = setEnviron (0, 0, 0.00, 10.0, 2.25, length);
 				status = acquireWaveform (numAvg);
 				
 				double wfmDataX[length];
@@ -679,6 +681,8 @@ int CVICALLBACK onDebug (int panel, int control, int event,
 					wfmDataX[i] = fetchDataX (i);
 					wfmDataY[i] = fetchDataY (i);
 				}
+				
+				dumpFile ("eggwool.csv");
 				
 				int egg = 1;
 			}

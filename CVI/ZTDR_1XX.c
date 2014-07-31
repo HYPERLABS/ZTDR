@@ -390,7 +390,7 @@ __stdcall int setEnviron (int x, int y, double start, double end, double k, int 
 }
 
 // Acquire horizontal data
-__stdcall double	fetchDataX (int idx)
+__stdcall double fetchDataX (int idx)
 {
 	double val = wfmX[idx];
 	
@@ -398,12 +398,53 @@ __stdcall double	fetchDataX (int idx)
 }
 
 // Acquire vertical data
-__stdcall double	fetchDataY (int idx)
+__stdcall double fetchDataY (int idx)
 {
 	double val = wfmAvg[idx];
 	
 	return val;		
 }
+
+// Dump data to CSV
+__stdcall int dumpFile (char *filename)
+{
+	int status;	
+	int i;
+	
+	// Open selected file for write
+	FILE *fd;
+	fd = fopen (filename, "w");
+	
+	// Set up data buffer;
+	char buf[128];
+	buf[0] = 0;
+
+	// Create header row
+	double windowstart, windowend;
+	double ymin, ymax;
+	
+	// Write header row
+	status = sprintf (buf + strlen(buf), "%d, %d, %3.10f, %3.10f, %3.3f\n", yUnits, xUnits, xStart, xEnd, diel);
+	
+	status = fwrite (buf, 1, strlen (buf), fd);
+	
+	// Log X/Y data
+	for (i = 0; i < recLen; i++)
+	{
+		// Reset buffer
+		buf[0] = 0;
+	
+		status = sprintf (buf + strlen (buf), "%3.10f, %3.10f\n", wfmAvg[i], wfmX[i]);
+		
+		status = fwrite (buf, 1, strlen (buf), fd);
+	}
+	
+	status = fclose(fd);
+
+	// TO DO: feedback on whether successful
+	return 1;
+}
+
 
 //==============================================================================
 // Global functions (not user-facing, sorted by functionality)

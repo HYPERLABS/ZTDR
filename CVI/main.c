@@ -1002,17 +1002,14 @@ void storeWaveform (int format)
 	double windowstart, windowend;
 	double ymin, ymax;
 	
-	GetCtrlVal (panelHandle, PANEL_START, &windowstart);
-	GetCtrlVal (panelHandle, PANEL_END, &windowend);
 	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
 	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
-	GetCtrlVal (panelHandle, PANEL_DIEL, &diel);;
 	
 	// Write header row
 	if (format == 1)
 	{
 		// Header for .ZTDR
-		status = sprintf (buf + strlen(buf), "%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.3f\n", yUnits, xUnits, windowstart, windowend, ymin, ymax, diel);
+		status = sprintf (buf + strlen(buf), "%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.3f\n", yUnits, xUnits, xStart, xEnd, ymin, ymax, diel);
 	}
 	else
 	{
