@@ -664,12 +664,22 @@ int CVICALLBACK onDebug (int panel, int control, int event,
 		case EVENT_COMMIT:
 			{
 				int status;
+				int i;
 				
-				int numAvg;
+				int numAvg = 4;
+				int length = 4096;
 				
-				status = GetCtrlVal (panel, PANEL_AVERAGE, &numAvg);
-				
+				status = setEnviron (0, 0, 0.00, 10.0, 2.25, length);
 				status = acquireWaveform (numAvg);
+				
+				double wfmDataX[length];
+				double wfmDataY[length];
+				
+				for (i = 0; i < length; i++)
+				{
+					wfmDataX[i] = fetchDataX (i);
+					wfmDataY[i] = fetchDataY (i);
+				}
 				
 				int egg = 1;
 			}

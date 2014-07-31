@@ -343,9 +343,9 @@ __stdcall int acquireWaveform (int numAvg)
 		}
 		
 		// Average waveforms
-		for (i = 0; i< recLen; i++)
+		for (i = 0; i < recLen; i++)
 		{
-			wfmAvg[i] = (j* wfmAvg[i] + wfmData[i])/(j+1);
+			wfmAvg[i] = (j * wfmAvg[i] + wfmData[i]) / (j + 1);
 		}
 	}
 	
@@ -386,12 +386,14 @@ __stdcall int setEnviron (int x, int y, double start, double end, double k, int 
 	xEnd = end;
 	diel = k;
 	recLen = rec;
+	
+	return 1;
 }
 
 // Acquire horizontal data
 __stdcall double	fetchDataX (int idx)
 {
-	double val = WfmX[i];
+	double val = wfmX[idx];
 	
 	return val;
 }
@@ -399,7 +401,7 @@ __stdcall double	fetchDataX (int idx)
 // Acquire vertical data
 __stdcall double	fetchDataY (int idx)
 {
-	double val = wfmAvg[i];
+	double val = wfmAvg[idx];
 	
 	return val;		
 }
@@ -488,6 +490,8 @@ __stdcall void reconstructData (double offset)
 		
 		curt.time += incr;
 	}
+	
+	int egg = 1;
 }
 
 // Calculate offset from average 0
