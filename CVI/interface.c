@@ -88,9 +88,8 @@ int CVICALLBACK onChangeAverage (int panel, int control, int event,
 	switch (event)
 	{
 		case EVENT_COMMIT:
-		{
-			
-			void acquire ();
+		{   
+			acquire ();
 			
 			break;
 		}
