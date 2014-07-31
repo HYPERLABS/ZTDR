@@ -34,7 +34,9 @@ extern "C" {
 #define CAL_GUARD 0.65e-9 // 0.5 ns
 	
 #define FILTER_WIDTH 4
-
+#define	CAL_RECLEN 1024 // data points for calibration
+	
+	
 // Max data points of USBFIFO
 #define NPOINTS_MAX 16384
 	

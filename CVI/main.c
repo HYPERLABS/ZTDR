@@ -1204,6 +1204,18 @@ void updateSize (void)
 								
 	status = GetPanelAttribute (panelHandle, ATTR_WIDTH, &newWidth);
 	status = GetPanelAttribute (panelHandle, ATTR_HEIGHT, &newHeight);
+
+	// Prevent sizing too small
+	if (newWidth < 1024)
+	{
+		newWidth = 1024;
+		status = SetPanelAttribute (panelHandle, ATTR_WIDTH, newWidth);
+	}
+	if (newHeight < 576)
+	{
+		newHeight = 576;
+		status = SetPanelAttribute (panelHandle, ATTR_HEIGHT, newHeight);
+	}
 	
 	int xOffset, yOffset;
 	

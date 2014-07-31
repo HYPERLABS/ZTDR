@@ -667,9 +667,9 @@ int CVICALLBACK onDebug (int panel, int control, int event,
 				int i;
 				
 				int numAvg = 4;
-				int length = 4096;
+				int length = 1024;
 				
-				status = setEnviron (0, 0, 0.00, 10.0, 2.25, length);
+				status = setEnviron (0, 0, 0.00, 20.0, 2.25, length);
 				status = acquireWaveform (numAvg);
 				
 				double wfmDataX[length];
