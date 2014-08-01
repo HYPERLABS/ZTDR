@@ -255,11 +255,6 @@ __stdcall int acquireWaveform (int numAvg)
 				for (i = 0; i < recLen; i++)
 				{
 					wfmData[i] += 1.0;
-				
-					if (wfmData[i] < 0)
-					{
-						wfmData[i] = 0;
-					}
 				}
 			
 				break;
@@ -271,16 +266,6 @@ __stdcall int acquireWaveform (int numAvg)
 			
 				for (i = 0; i < recLen; i++)
 				{   
-					// Make sure Rho values are in range for conversion
-					if (wfmData[i] <= -1)
-					{
-						wfmData[i] = -0.999;
-					}
-					else if (wfmData[i] >= 1)
-					{
-						wfmData[i] = 0.999;
-					}
-				
 					// Convert to impedance from Rho
 					wfmData[i] = (double) impedance * ((double) (1.0) + (double) (wfmData[i])) / ((double) (1.0) - (double) (wfmData[i]));
 	   		    
@@ -301,15 +286,7 @@ __stdcall int acquireWaveform (int numAvg)
 			{ 
 				for (i=0; i < recLen; i++)
 				{ 
-					if (wfmData[i] <= -1)
-					{
-						wfmData[i] = -0.999;
-					}
-			
-					if (wfmData[i] >= 1)
-					{
-						wfmData[i] = 0.999;
-					}
+					// No further conversion necessary
 				}
 			
 				break;
