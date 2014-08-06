@@ -18,9 +18,7 @@ extern "C" {
 	
 //==============================================================================
 // Include files
-
-#include "cvidef.h"
-	
+					 
 #include "FTD2XX.h"
 
 	
@@ -129,11 +127,11 @@ __stdcall	typedef union _timeinf timeinf;
 
 // User-facing functions
 __stdcall	int 	initDevice (void);
-__stdcall 	int 	acquireWaveform (int numAvg);
 __stdcall	int 	setEnviron (int x, int y, double start, double end, double k, int rec);
+__stdcall 	int 	acquireWaveform (int numAvg);
+__stdcall 	int 	dumpFile (char *filename);
 __stdcall	double	fetchDataX (int idx);
 __stdcall	double	fetchDataY (int idx);
-__stdcall 	int 	dumpFile (char *filename);
 
 
 // Other driver functions
