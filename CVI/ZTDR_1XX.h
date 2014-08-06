@@ -89,17 +89,17 @@ extern "C" {
 //==============================================================================
 // Types
 
-__stdcall	typedef unsigned int UINT32;
-__stdcall	typedef unsigned short UINT16;
-__stdcall	typedef unsigned char UINT8;
+typedef unsigned int UINT32;
+typedef unsigned short UINT16;
+typedef unsigned char UINT8;
 
-__stdcall	struct	_delay16
+struct	_delay16
 {
 	UINT16 frac_val;
 	UINT16 int_val;
 };
 
-__stdcall	struct	_delay8
+struct	_delay8
 {
 	UINT8 b0;
 	UINT8 b1;
@@ -108,14 +108,14 @@ __stdcall	struct	_delay8
 };
 
 
-__stdcall	union _timeinf
+union _timeinf
 {
 	UINT32 time;
 	struct _delay16 time_s;
 	struct _delay8 time_b;
 };
 
-__stdcall	typedef union _timeinf timeinf;
+typedef union _timeinf timeinf;
 
 	
 //==============================================================================
@@ -126,45 +126,45 @@ __stdcall	typedef union _timeinf timeinf;
 // Global functions
 
 // User-facing functions
-__stdcall	int 	initDevice (void);
-__stdcall	int 	setEnviron (int x, int y, double start, double end, double k, int rec);
-__stdcall 	int 	acquireWaveform (int numAvg);
-__stdcall 	int 	dumpFile (char *filename);
-__stdcall	double	fetchDataX (int idx);
-__stdcall	double	fetchDataY (int idx);
+int		__stdcall 	initDevice (void);
+int 	__stdcall	setEnviron (int x, int y, double start, double end, double k, int rec);
+int 	__stdcall	acquireWaveform (int numAvg);
+int 	__stdcall	dumpFile (char *filename);
+double	__stdcall	fetchDataX (int idx);
+double	__stdcall	fetchDataY (int idx);
 
 
 // Other driver functions
-__stdcall	void 	calAcquireWaveform (int calStepIndex);
-__stdcall	void 	calDAC (void);
-__stdcall	void 	calFindDiscont (void);
-__stdcall	void 	calFindMean (int calStepIndex);
-__stdcall	int 	calFindStepcount (void);
-__stdcall	void 	calReconstructData (void);
-__stdcall	void 	calSetParams (void);
-__stdcall	void 	calSetupTimescale (void);
-__stdcall	int 	calTimebase (void); 
-__stdcall	double 	meanArray (void);
-__stdcall	void 	openDevice (void);
-__stdcall	void 	reconstructData (double offset);
-__stdcall	void 	setupTimescale (void);
-__stdcall	void 	vertCal (void);
-__stdcall	void 	vertCalTimescale (void);
-__stdcall	void 	vertCalZero (double windowStart);
-__stdcall	int 	vertCalWriteParams (void);
-__stdcall	int 	writeParams (void);
+void 	__stdcall	calAcquireWaveform (int calStepIndex);
+void 	__stdcall	calDAC (void);
+void 	__stdcall	calFindDiscont (void);
+void 	__stdcall	calFindMean (int calStepIndex);
+int 	__stdcall	calFindStepcount (void);
+void 	__stdcall	calReconstructData (void);
+void 	__stdcall	calSetParams (void);
+void 	__stdcall	calSetupTimescale (void);
+int 	__stdcall	calTimebase (void); 
+double 	__stdcall	meanArray (void);
+void 	__stdcall	openDevice (void);
+void 	__stdcall	reconstructData (double offset);
+void 	__stdcall	setupTimescale (void);
+void 	__stdcall	vertCal (void);
+void 	__stdcall	vertCalTimescale (void);
+void 	__stdcall	vertCalZero (double windowStart);
+int 	__stdcall	vertCalWriteParams (void);
+int 	__stdcall	writeParams (void);
 
 // USBFIFO functionality
-__stdcall	char 	ftrdbyte (void);
-__stdcall	void 	ftwrbyte (char ch);
-__stdcall	int 	usbfifo_acquire (UINT8 *ret_val, UINT8 arg);
-__stdcall	void 	usbfifo_close (void);
-__stdcall	void 	usbfifo_getcomspd (char *buf, int len);
-__stdcall	int 	usbfifo_gethostbps (void);
-__stdcall	void 	usbfifo_getid (char *buf, int len);
-__stdcall	int 	usbfifo_open (void);
-__stdcall	int 	usbfifo_readblock (UINT8 block_no, UINT16 *buf);
-__stdcall	int 	usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calend, timeinf tmstart, timeinf tmend, UINT16 stepcount,
+char 	__stdcall	ftrdbyte (void);
+void 	__stdcall	ftwrbyte (char ch);
+int 	__stdcall	usbfifo_acquire (UINT8 *ret_val, UINT8 arg);
+void 	__stdcall	usbfifo_close (void);
+void 	__stdcall	usbfifo_getcomspd (char *buf, int len);
+int 	__stdcall	usbfifo_gethostbps (void);
+void 	__stdcall	usbfifo_getid (char *buf, int len);
+int 	__stdcall	usbfifo_open (void);
+int 	__stdcall	usbfifo_readblock (UINT8 block_no, UINT16 *buf);
+int 	__stdcall	usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calend, timeinf tmstart, timeinf tmend, UINT16 stepcount,
 					   UINT16 strobecount, UINT8 noversample, UINT16 record_len, UINT16 dac0, UINT16 dac1, UINT16 dac2);
 
 

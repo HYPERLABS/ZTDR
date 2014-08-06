@@ -151,7 +151,7 @@ Type Lib FP File = ""
 Config Name = "Release"
 Is 64-Bit = False
 Is Release = True
-Default Calling Convention = "cdecl"
+Default Calling Convention = "stdcall"
 Optimization Level = "No optimizations"
 Require Prototypes = True
 Show Warning IDs in Build Output = False
@@ -387,7 +387,7 @@ Type Lib FP File Is Rel = False
 Type Lib FP File = ""
 
 [Compiler Options]
-Default Calling Convention = "cdecl"
+Default Calling Convention = "stdcall"
 Require Prototypes = True
 Require Return Values = True
 Enable Pointer Mismatch Warning = False
