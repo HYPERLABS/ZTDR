@@ -25,6 +25,7 @@ extern "C" {
 //==============================================================================
 // Constants	
 
+// Calibration
 #define CALSTART_DEFAULT 540
 #define CALEND_DEFAULT 3870
 #define CAL_WINDOW_ZERO 0 // ns
@@ -132,7 +133,6 @@ int 	__stdcall	acquireWaveform (int numAvg);
 int 	__stdcall	dumpFile (char *filename);
 double	__stdcall	fetchDataX (int idx);
 double	__stdcall	fetchDataY (int idx);
-
 
 // Other driver functions
 void 	__stdcall	calAcquireWaveform (int calStepIndex);

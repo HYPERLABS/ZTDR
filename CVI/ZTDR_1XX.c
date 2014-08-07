@@ -3,7 +3,7 @@
 // Title:		ZTDR_1XX.c
 // Purpose:		ZTDR driver module and DLL functionality (v1.x.x)
 //
-// Created on:	7/28/2014 at 9:10:43 AM by Brian Doxey.
+// Created on:	7/28/2014 at 9:10:43 AM.
 // Copyright:	HYPERLABS. All Rights Reserved.
 //
 //==============================================================================
@@ -91,7 +91,7 @@ int 	dev_opened = 0;
 
 
 //==============================================================================
-// Global functions (user-facing)
+// Global functions (user-facing, sorted by functionality)
 
 // Initialize and calibrate device (UIR agnostic)
 __stdcall int initDevice (void)

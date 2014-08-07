@@ -3,6 +3,7 @@
 // Title:		main.h
 // Purpose:		Main ZTDR functionality for LabWindows/CVI 
 //
+// Created on:	7/22/2014 at 8:40:39 PM.
 // Copyright:	HYPERLABS. All Rights Reserved.
 //
 //==============================================================================
