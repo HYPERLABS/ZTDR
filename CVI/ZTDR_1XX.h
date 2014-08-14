@@ -4,7 +4,7 @@
 // Release:		1.0.1 (07/31/2014)
 // Purpose:		ZTDR driver module and DLL functionality (v1.x.x)
 //
-// Copyright:	HYPERLABS. All Rights Reserved.
+// Copyright:	HYPERLABS, 2014. All Rights Reserved.
 //
 //==============================================================================
 
