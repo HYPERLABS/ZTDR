@@ -811,15 +811,15 @@ void updateCursors (void)
 	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
 
 	// Cursor 1
-	status = sprintf (buf, " %.2f %s, %.2f %s", c1x, x_short[xUnits], c1y, y_short[yUnits]);
+	status = sprintf (buf, " %.3f %s, %.3f %s", c1x, x_short[xUnits], c1y, y_short[yUnits]);
 	status = SetCtrlVal (panelHandle, PANEL_CURSOR1,  buf);
 
 	// Cursor 2
-	status = sprintf (buf, " %.2f %s, %.2f %s", c2x, x_short[xUnits], c2y, y_short[yUnits]);
+	status = sprintf (buf, " %.3f %s, %.3f %s", c2x, x_short[xUnits], c2y, y_short[yUnits]);
 	status = SetCtrlVal (panelHandle, PANEL_CURSOR2, buf);
 
 	// Delta
-	status = sprintf(buf, " %.2f %s, %.2f %s", c2x-c1x, x_short[xUnits], c2y-c1y, y_short[yUnits]);
+	status = sprintf(buf, " %.3f %s, %.3f %s", c2x-c1x, x_short[xUnits], c2y-c1y, y_short[yUnits]);
 	status = SetCtrlVal (panelHandle, PANEL_DELTA, buf);
 }
 
