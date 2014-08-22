@@ -1126,14 +1126,14 @@ void recallWaveform (void)
 	if (WfmStored)
 	{
 		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmStored, VAL_IMMEDIATE_DRAW);
-		WfmStored =0;
+		WfmStored = 0;
 	}
 	
-	// Remove any other recalled waveforms
+	// Remove any active waveforms
 	if (WfmActive)
 	{
 		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmActive, VAL_IMMEDIATE_DRAW);
-		WfmActive =0;
+		WfmActive = 0;
 	}
 	
 	// Scale waveform acquisition window
