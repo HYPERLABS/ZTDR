@@ -970,8 +970,8 @@ void storeWaveform (int format)
 	status = SuspendTimerCallbacks ();
 	
 	// File setup
-	char save_file[260];
-	char filename[40];
+	char save_file[512];
+	char filename[64];
 	
 	// Save dialog
 	if (format == 1)
@@ -999,7 +999,7 @@ void storeWaveform (int format)
 	fd = OpenFile (save_file, VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
 	
 	// Set up data buffer;
-	char buf[128];
+	char buf[128]
 	buf[0] = 0;
 
 	// Create header row
