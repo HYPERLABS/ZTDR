@@ -202,15 +202,15 @@ void main (int argc, char *argv[])
 	// Load menu bar
 	menuHandle = LoadMenuBar (panelHandle, "interface.uir", MENUBAR);
 	
-	// Display panel and store size
-	status = DisplayPanel (panelHandle);
-	status = GetPanelAttribute(panelHandle, ATTR_WIDTH, &width);
-	status = GetPanelAttribute(panelHandle, ATTR_HEIGHT, &height);
-	
 	// Load control arrays
 	rightHandle = GetCtrlArrayFromResourceID (panelHandle, RIGHT);
 	bottomHandle = GetCtrlArrayFromResourceID (panelHandle, BOTTOM);
 	
+	// Display panel and store size
+	status = DisplayPanel (panelHandle);
+	status = GetPanelAttribute(panelHandle, ATTR_WIDTH, &width);
+	status = GetPanelAttribute(panelHandle, ATTR_HEIGHT, &height);
+																	 
 	// Make sure relevant output directories exist
 	checkDirs ();
 	
@@ -854,7 +854,6 @@ void resetZoom (void)
 }
 
 // Resize acquisition window
-// TO DO: rename this one?
 void resizeWindow (void)
 {
 	int status;

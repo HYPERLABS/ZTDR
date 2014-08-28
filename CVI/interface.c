@@ -2,7 +2,7 @@
 //
 // Title:		interface.c
 // Purpose:		Definitions of all UIR callback functions utilized in ZTDR
-//				Contains largely structural code; most execution in ZTDR.c
+//				Contains largely structural code; most execution in main.c
 //
 // Copyright:	(c) 2014, HYPERLABS INC. All rights reserved.
 //
