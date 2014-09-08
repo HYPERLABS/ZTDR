@@ -390,6 +390,10 @@ void acquire (void)
 
 			break;
 		}
+		
+		// Show rounded values in min/max boxes
+		status = SetCtrlVal (panelHandle, PANEL_YMIN, ymin);
+		status = SetCtrlVal (panelHandle, PANEL_YMAX, ymax);
 	}	
 
 	// Determine whether to autoscale
