@@ -74,6 +74,8 @@ extern	timeinf start_tm, end_tm;
 //==============================================================================
 // Global variables (roughly grouped by function)
 
+// TODO: better names for these
+
 // Unit labels and ranges
 char *y_label[] =
 {
@@ -158,24 +160,24 @@ char *month_name[] =
 };
 
 // Horizontal values for each unit
-double 	wfmRecallX[NPOINTS_MAX]; 	// Recalled waveform
+double wfmRecallX[NPOINTS_MAX]; 	// Recalled waveform
 
 // Vertical values in different modes
-double 	wfmRecall[NPOINTS_MAX]; 	// Recalled waveform
+double wfmRecall[NPOINTS_MAX]; 	// Recalled waveform
 
 // Default plot type
-int		plotType = 2L; // dots
+int	plotType = 2L; // dots
 
 // Waveform handles
-int 	WfmActive; 	// current acquisition
-int 	WfmStored;	// stored waveform
+int WfmActive; 	// current acquisition
+int WfmStored;	// stored waveform
 
 // UIR elements
-int 	panelHandle, menuHandle;
-int		rightHandle, bottomHandle;
+int panelHandle, menuHandle;
+int	rightHandle, bottomHandle;
 
 // Panel size
-int		width, height;
+int	windowWidth, windowHeight;
 
 
 //==============================================================================
@@ -208,8 +210,8 @@ void main (int argc, char *argv[])
 	
 	// Display panel and store size
 	status = DisplayPanel (panelHandle);
-	status = GetPanelAttribute(panelHandle, ATTR_WIDTH, &width);
-	status = GetPanelAttribute(panelHandle, ATTR_HEIGHT, &height);
+	status = GetPanelAttribute(panelHandle, ATTR_WIDTH, &windowWidth);
+	status = GetPanelAttribute(panelHandle, ATTR_HEIGHT, &windowHeight);
 																	 
 	// Make sure relevant output directories exist
 	checkDirs ();
@@ -999,7 +1001,7 @@ void storeWaveform (int format)
 	fd = OpenFile (save_file, VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
 	
 	// Set up data buffer;
-	char buf[128]
+	char buf[128];
 	buf[0] = 0;
 
 	// Create header row
@@ -1226,8 +1228,8 @@ void updateSize (void)
 	int xOffset, yOffset;
 	
 	// Calculate size change
-	xOffset = newWidth - width;
-	yOffset = newHeight - height;
+	xOffset = newWidth - windowWidth;
+	yOffset = newHeight - windowHeight;
 
 	// Control position and size
 	int ctrlWidth, ctrlHeight;
@@ -1259,8 +1261,8 @@ void updateSize (void)
 	}
 	
 	// Resize bottom control pane									   ;
-	status = GetCtrlAttribute (panelHandle, PANEL_PANEBOTTOM, ATTR_WIDTH, &ctrlWidth);
-	status = SetCtrlAttribute (panelHandle, PANEL_PANEBOTTOM, ATTR_WIDTH, ctrlWidth + xOffset);
+	status = GetCtrlAttribute (panelHandle, PANEL_PANELBOTTOM, ATTR_WIDTH, &ctrlWidth);
+	status = SetCtrlAttribute (panelHandle, PANEL_PANELBOTTOM, ATTR_WIDTH, ctrlWidth + xOffset);
 	
 	// Resize window start control
 	status = GetCtrlAttribute (panelHandle, PANEL_START, ATTR_WIDTH, &ctrlWidth);
@@ -1272,11 +1274,11 @@ void updateSize (void)
 	status = GetCtrlAttribute (panelHandle, PANEL_RESET, ATTR_LEFT, &ctrlLeft);
 	status = SetCtrlAttribute (panelHandle, PANEL_RESET, ATTR_LEFT, ctrlLeft + xOffset / 2);
 	
-	// Resize window size control
+	// Resize window end control
 	status = GetCtrlAttribute (panelHandle, PANEL_END, ATTR_WIDTH, &ctrlWidth);
 	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_WIDTH, ctrlWidth + (xOffset / 3));
 	
-	// Reposition window size control
+	// Reposition window end control
 	status = GetCtrlAttribute (panelHandle, PANEL_END, ATTR_LEFT, &ctrlLeft);
 	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_LEFT, ctrlLeft + (xOffset * 2/3));
 	
@@ -1293,8 +1295,8 @@ void updateSize (void)
 	status = SetCtrlAttribute (panelHandle, PANEL_DIEL, ATTR_LEFT, ctrlLeft + xOffset);
 	
 	// Write new window size to globals
-	width = newWidth;
-	height = newHeight;
+	windowWidth = newWidth;
+	windowHeight = newHeight;
 	
 	// Re-enable timers
 	status = ResumeTimerCallbacks ();
