@@ -94,11 +94,9 @@ int 	dev_opened = 0;
 
 // Initialize and calibrate device (UIR agnostic)
 __stdcall int initDevice (void)
-{
-	int i;
-
+{   
 	// Initial values for maximum length of array
-	for (i=0; i < NPOINTS_MAX; i++)
+	for (int i=0; i < NPOINTS_MAX; i++)
 	{
 		wfm[i] = 0;
 		wfmFilter[i] = 0.0;
@@ -123,7 +121,6 @@ __stdcall int initDevice (void)
 __stdcall int acquireWaveform (int numAvg)
 {
 	int status;
-	int i, j;
 	
 	if (!usb_opened)
 	{
@@ -158,7 +155,7 @@ __stdcall int acquireWaveform (int numAvg)
 	blocksok = 1;
 	nblocks = recLen / 256;
 	
-	for (i=0; i < nblocks; i++)
+	for (int i=0; i < nblocks; i++)
 	{
 		// Verify data integrity of block
 		int ntries = 3;
@@ -191,7 +188,7 @@ __stdcall int acquireWaveform (int numAvg)
 		return -5;
 	}
 	
-	for (j = 0; j < numAvg; j++)
+	for (int j = 0; j < numAvg; j++)
 	{
 		// Acquisition with averaging
 		status = usbfifo_acquire (&acq_result, 0);
@@ -360,7 +357,7 @@ __stdcall int setEnviron (int x, int y, double start, double end, double k, int 
 	xStart = start;
 	xEnd = end;
 	diel = k;
-	recLen = rec;
+	recLen = (UINT16) rec;
 	
 	return 1;
 }
@@ -1364,7 +1361,7 @@ __stdcall int usbfifo_readblock(UINT8 block_no, UINT16 *buf)
 	
 	for (i=0;i<BLOCK_LEN;i++)
 	{
-		buf[i] = (((UINT16) rawbuf8[2 * i + 1]) << 8) | ((UINT16) rawbuf8[2 * i]);
+		buf[i] = (UINT16) (((UINT16) rawbuf8[2 * i + 1]) << 8) | ((UINT16) rawbuf8[2 * i]);
 	}
 	
 	return 1;
@@ -1386,19 +1383,19 @@ __stdcall int usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calen
 
 	params[IDX_FREERUN] = freerun_en;
 	params[IDX_STEPCNT_UPPER] = stepcount >> 8;
-	params[IDX_STEPCNT_LOWER] = stepcount;
+	params[IDX_STEPCNT_LOWER] = (UINT8) stepcount;
 	params[IDX_RECLEN_UPPER] = record_len >> 8;
-	params[IDX_RECLEN_LOWER] = record_len;
+	params[IDX_RECLEN_LOWER] = (UINT8) record_len;
 	params[IDX_DAC0_UPPER] = dac0 >> 8;
-	params[IDX_DAC0_LOWER] = dac0;
+	params[IDX_DAC0_LOWER] = (UINT8) dac0;
 	params[IDX_DAC1_UPPER] = dac1 >> 8;
-	params[IDX_DAC1_LOWER] = dac1;
+	params[IDX_DAC1_LOWER] = (UINT8) dac1;
 	params[IDX_DAC2_UPPER] = dac2 >> 8;
-	params[IDX_DAC2_LOWER] = dac2;
+	params[IDX_DAC2_LOWER] = (UINT8) dac2;
 	params[IDX_CALSTART_UPPER] = calstart >> 8;
-	params[IDX_CALSTART_LOWER] = calstart;
+	params[IDX_CALSTART_LOWER] = (UINT8) calstart;
 	params[IDX_CALEND_UPPER] = calend >> 8;
-	params[IDX_CALEND_LOWER] = calend;
+	params[IDX_CALEND_LOWER] = (UINT8) calend;
 	params[IDX_TMSTART_B3] = tmstart.time_b.b3;
 	params[IDX_TMSTART_B2] = tmstart.time_b.b2;
 	params[IDX_TMSTART_B1] = tmstart.time_b.b1;
@@ -1409,7 +1406,7 @@ __stdcall int usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calen
 	params[IDX_TMEND_B0] = tmend.time_b.b0;
 	params[IDX_OVERSAMPLE] = noversample;
 	params[IDX_STROBECNT_UPPER] = strobecount >> 8;
-	params[IDX_STROBECNT_LOWER] = strobecount;
+	params[IDX_STROBECNT_LOWER] = (UINT8) strobecount;
 
 	ftwrbyte('p');
 	ret = FT_Write(dev_handle, params, NPARAMS, &n);
