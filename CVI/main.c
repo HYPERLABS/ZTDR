@@ -77,7 +77,7 @@ extern	timeinf start_tm, end_tm;
 // TODO: better names for these
 
 // Unit labels and ranges
-char *y_label[] =
+char *labelY[] =
 {
 	"VOLTS (mV)",
 	"NORMALIZED",
@@ -85,14 +85,14 @@ char *y_label[] =
 	"REFLECT COEFF (Rho)"
 };
 
-char *x_label[] =
+char *labelX[] =
 {
 	"ROUNDTRIP (m)",
 	"ROUNDTRIP (ft)",
 	"ROUNDTRIP (ns)"
 };
 
-char *y_short[] =
+char *shortY[] =
 {
 	"mV",
 	"Norm",
@@ -100,14 +100,14 @@ char *y_short[] =
 	"Rho"
 };
 
-char *x_short[] =
+char *shortX[] =
 {
 	"m",
 	"ft",
 	"ns"
 };
 
-char *x_label_start[] =
+char *labelStartX[] =
 {
 	"START (m)",
 	"START (ft)",
@@ -115,35 +115,35 @@ char *x_label_start[] =
 };
 
 
-char *x_label_end[] =
+char *labelEndX[] =
 {
 	"END (m)",
 	"END (ft)",
 	"END (ns)"
 };
 
-float x_dflt_start[] =
+float defaultStart[] =
 {
 	0.0,
 	0.0,
 	0.0
 };
 
-float x_dflt_end[]  =
+float defaultEnd[]  =
 {
 	10.0,
 	33.3,
 	50.0
 };
 
-float x_max_range[] =
+float maxRange[] =
 {
 	400.0,
 	1332,
 	2000.0
 };
 
-char *month_name[] =
+char *monthName[] =
 {
 	"JAN",
 	"FEB",
@@ -534,7 +534,7 @@ void updateTimestamp (void)
 	status = GetSystemDate (&month, &day, &year);
 	status = GetSystemTime (&hours, &minutes, &seconds);
 	
-	status = sprintf (timestamp, "%s %02d %02d | %02d:%02d:%02d", month_name[month-1], day, year, hours, minutes, seconds);
+	status = sprintf (timestamp, "%s %02d %02d | %02d:%02d:%02d", monthName[month-1], day, year, hours, minutes, seconds);
 	
 	// Show version, timestamp
 	status = SetCtrlVal (panelHandle, PANEL_TIMESTAMP, timestamp);
@@ -724,16 +724,16 @@ void changeUnitX (int unit)
 	}
 	
 	// Update X labels and limits
-	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, x_label[xUnits]);
+	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, labelX[xUnits]);
 	
-	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_LABEL_TEXT, x_label_start[xUnits]);
-	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_LABEL_TEXT, x_label_end[xUnits]);
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_LABEL_TEXT, labelStartX[xUnits]);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_LABEL_TEXT, labelEndX[xUnits]);
 	
-	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MAX_VALUE, x_max_range[xUnits]);
-	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_MAX_VALUE, x_max_range[xUnits]);
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MAX_VALUE, maxRange[xUnits]);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_MAX_VALUE, maxRange[xUnits]);
 	
-	status = SetCtrlVal (panelHandle, PANEL_START, x_dflt_start[xUnits]);
-	status = SetCtrlVal (panelHandle, PANEL_END, x_dflt_end[xUnits]);
+	status = SetCtrlVal (panelHandle, PANEL_START, defaultStart[xUnits]);
+	status = SetCtrlVal (panelHandle, PANEL_END, defaultEnd[xUnits]);
 }
 
 // Change vertical units
@@ -807,7 +807,7 @@ void changeUnitY (int unit)
 		status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YPRECISION, 2);
 	}
 	
-	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, y_label[yUnits]);
+	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, labelY[yUnits]);
 }
 
 // Update cursor readings
@@ -824,15 +824,15 @@ void updateCursors (void)
 	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
 
 	// Cursor 1
-	status = sprintf (buf, " %.3f %s, %.3f %s", c1x, x_short[xUnits], c1y, y_short[yUnits]);
+	status = sprintf (buf, " %.3f %s, %.3f %s", c1x, shortX[xUnits], c1y, shortY[yUnits]);
 	status = SetCtrlVal (panelHandle, PANEL_CURSOR1,  buf);
 
 	// Cursor 2
-	status = sprintf (buf, " %.3f %s, %.3f %s", c2x, x_short[xUnits], c2y, y_short[yUnits]);
+	status = sprintf (buf, " %.3f %s, %.3f %s", c2x, shortX[xUnits], c2y, shortY[yUnits]);
 	status = SetCtrlVal (panelHandle, PANEL_CURSOR2, buf);
 
 	// Delta
-	status = sprintf(buf, " %.3f %s, %.3f %s", c2x-c1x, x_short[xUnits], c2y-c1y, y_short[yUnits]);
+	status = sprintf(buf, " %.3f %s, %.3f %s", c2x-c1x, shortX[xUnits], c2y-c1y, shortY[yUnits]);
 	status = SetCtrlVal (panelHandle, PANEL_DELTA, buf);
 }
 
@@ -862,8 +862,8 @@ void zoom (void)
 // Reset to default window
 void resetZoom (void)
 {
-	SetCtrlVal (panelHandle, PANEL_START, x_dflt_start[xUnits]);
-	SetCtrlVal (panelHandle, PANEL_END, x_dflt_end[xUnits]);	
+	SetCtrlVal (panelHandle, PANEL_START, defaultStart[xUnits]);
+	SetCtrlVal (panelHandle, PANEL_END, defaultEnd[xUnits]);	
 }
 
 // Resize acquisition window
@@ -1031,7 +1031,7 @@ void storeWaveform (int format)
 	else
 	{
 		// Header for .CSV
-		status = sprintf (buf + strlen(buf), "%s, %s\n", y_label[yUnits], x_label[xUnits]);
+		status = sprintf (buf + strlen(buf), "%s, %s\n", labelY[yUnits], labelX[xUnits]);
 	}
 	
 	status = WriteFile (fd, buf, strlen (buf));
@@ -1127,7 +1127,7 @@ void recallWaveform (void)
 	SetCtrlVal (panelHandle, PANEL_DIEL, (double) dielStored);
 	SetCtrlVal (panelHandle, PANEL_YMAX, (double) ymax);
 	SetCtrlVal (panelHandle, PANEL_YMIN, (double) ymin);
-	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, x_label[xUnits]);
+	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, labelX[xUnits]);
 	
 	// Change window and K
 	resizeWindow ();

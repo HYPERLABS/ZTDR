@@ -413,8 +413,7 @@ __stdcall int dumpFile (char *filename)
 	}
 	
 	status = fclose(fd);
-
-	// TO DO: feedback on whether successful
+	
 	return 1;
 }
 
@@ -568,9 +567,9 @@ __stdcall void calSetParams (void)
 	
 	if (status < 0)
 	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
-		// TO DO: DO NOT RETURN HERE! THE FIRST ACQUISITION WILL FAIL EVERY TIME!
-		// Need to avoid failing out of the next lines of code
+		// Don't return; need to avoid failing out of the next lines of code
+		// First acquisition will fail every time
+		
 		//return;
 	}
 	
