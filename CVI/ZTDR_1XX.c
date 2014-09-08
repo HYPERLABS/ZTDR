@@ -203,7 +203,7 @@ __stdcall int acquireWaveform (int numAvg)
 		blocksok = 1;
 		nblocks = recLen / 256;
 	
-		for (i = 0; i < nblocks; i++)
+		for (int i = 0; i < nblocks; i++)
 		{
 			// Verify data integrity of block 
 			int ntries = 3;
@@ -225,7 +225,7 @@ __stdcall int acquireWaveform (int numAvg)
 		reconstructData (offset);
 	
 		// Store data, perform rho conversion
-		for (i = 0; i < recLen; i++)
+		for (int i = 0; i < recLen; i++)
 		{   
 			// Convert first to Rho (baseline unit for conversions)
 			wfmData[i] = (double) (wfmFilter[i]) / (double) vampl - 1.0;
@@ -238,7 +238,7 @@ __stdcall int acquireWaveform (int numAvg)
 			{
 				double ampl_factor = 250.0;
 			
-				for (i = 0; i < recLen; i++)
+				for (int i = 0; i < recLen; i++)
 				{
 					wfmData[i] *= ampl_factor;
 				}
@@ -248,7 +248,7 @@ __stdcall int acquireWaveform (int numAvg)
 		
 			case UNIT_NORM:
 			{
-				for (i = 0; i < recLen; i++)
+				for (int i = 0; i < recLen; i++)
 				{
 					wfmData[i] += 1.0;
 				}
@@ -260,7 +260,7 @@ __stdcall int acquireWaveform (int numAvg)
 			{
 				double impedance = 50;
 			
-				for (i = 0; i < recLen; i++)
+				for (int i = 0; i < recLen; i++)
 				{   
 					// Convert to impedance from Rho
 					wfmData[i] = (double) impedance * ((double) (1.0) + (double) (wfmData[i])) / ((double) (1.0) - (double) (wfmData[i]));
@@ -280,7 +280,7 @@ __stdcall int acquireWaveform (int numAvg)
 		
 			default: // RHO, data already in this unit
 			{ 
-				for (i=0; i < recLen; i++)
+				for (int i=0; i < recLen; i++)
 				{ 
 					// No further conversion necessary
 				}
@@ -292,7 +292,7 @@ __stdcall int acquireWaveform (int numAvg)
 		// Horizontal units in time
 		if (xUnits == UNIT_NS)
 		{
-			for (i = 0; i < recLen; i++)
+			for (int i = 0; i < recLen; i++)
 			{
 				wfmX[i] = wfmTime[i];
 			}
@@ -300,7 +300,7 @@ __stdcall int acquireWaveform (int numAvg)
 		// Horizontal units in meters
 		else if (xUnits == UNIT_M) 
 		{
-			for (i = 0; i < recLen; i++)
+			for (int i = 0; i < recLen; i++)
 			{
 				wfmX[i] = wfmDistM[i];
 			}
@@ -308,14 +308,14 @@ __stdcall int acquireWaveform (int numAvg)
 		// Horizontal units in feet
 		else 
 		{
-			for (i = 0; i < recLen; i++)
+			for (int i = 0; i < recLen; i++)
 			{
 				wfmX[i] = wfmDistFt[i];
 			}
 		}
 		
 		// Average waveforms
-		for (i = 0; i < recLen; i++)
+		for (int i = 0; i < recLen; i++)
 		{
 			wfmAvg[i] = (j * wfmAvg[i] + wfmData[i]) / (j + 1);
 		}
@@ -324,7 +324,7 @@ __stdcall int acquireWaveform (int numAvg)
 	// Horizontal units in time
 	if (xUnits == UNIT_NS)
 	{
-		for (i = 0; i < recLen; i++)
+		for (int i = 0; i < recLen; i++)
 		{
 			wfmX[i] = wfmTime[i];
 		}
@@ -332,7 +332,7 @@ __stdcall int acquireWaveform (int numAvg)
 	// Horizontal units in meters
 	else if (xUnits == UNIT_M) 
 	{
-		for (i = 0; i < recLen; i++)
+		for (int i = 0; i < recLen; i++)
 		{
 			wfmX[i] = wfmDistM[i];
 		}
@@ -340,7 +340,7 @@ __stdcall int acquireWaveform (int numAvg)
 	// Horizontal units in feet
 	else 
 	{
-		for (i = 0; i < recLen; i++)
+		for (int i = 0; i < recLen; i++)
 		{
 			wfmX[i] = wfmDistFt[i];
 		}
@@ -381,8 +381,7 @@ __stdcall double fetchDataY (int idx)
 // Dump data to CSV
 __stdcall int dumpFile (char *filename)
 {
-	int status;	
-	int i;
+	int status;
 	
 	// Open selected file for write
 	FILE *fd;
@@ -391,10 +390,6 @@ __stdcall int dumpFile (char *filename)
 	// Set up data buffer;
 	char buf[128];
 	buf[0] = 0;
-
-	// Create header row
-	double windowstart, windowend;
-	double ymin, ymax;
 	
 	// Write header row
 	status = sprintf (buf + strlen(buf), "%d, %d, %3.10f, %3.10f, %3.3f\n", yUnits, xUnits, xStart, xEnd, dielK);
@@ -402,7 +397,7 @@ __stdcall int dumpFile (char *filename)
 	status = fwrite (buf, 1, strlen (buf), fd);
 	
 	// Log X/Y data
-	for (i = 0; i < recLen; i++)
+	for (int i = 0; i < recLen; i++)
 	{
 		// Reset buffer
 		buf[0] = 0;
@@ -443,8 +438,6 @@ __stdcall void openDevice (void)
 // Scale time range of window for waveform acquisition
 __stdcall void setupTimescale (void)
 {   
-	int status;
-	
 	double val1, val2, vel;
 	
 	// If X Axis set to time
@@ -477,8 +470,6 @@ __stdcall void setupTimescale (void)
 // Reconstruct data into useable form
 __stdcall void reconstructData (double offset)
 {
-	int i;
-	
 	double vel;
 	
 	vel = (double) 3E8 / sqrt (dielK);
@@ -490,7 +481,7 @@ __stdcall void reconstructData (double offset)
 	
 	curt.time = start_tm.time;
 	
-	for (i = 0; i < recLen; i++)
+	for (int i = 0; i < recLen; i++)
 	{	
 		wfmFilter[i] = (double) wfm[i] - offset;
 		
@@ -505,12 +496,10 @@ __stdcall void reconstructData (double offset)
 // Calculate offset from average 0
 __stdcall double meanArray (void)
 {
-	int i;
-	
 	long val;
 	val = 0;
 	
-	for (i = 24; i < 1024; i++)
+	for (int i = 24; i < 1024; i++)
 	{
 		val += wfmFilter[i];
 	}
@@ -521,12 +510,10 @@ __stdcall double meanArray (void)
 // Calibrate timebase ("full" calibration)
 __stdcall int calTimebase (void)
 {
-	int i;
-	
 	calSetParams ();
 	
 	// Acquire data for each of 5 data segments
-	for (i=0; i<5; i++)
+	for (int i=0; i<5; i++)
 	{
 		stepcount = stepcountArray[(UINT16) i];
 		
@@ -587,7 +574,6 @@ __stdcall void calSetParams (void)
 __stdcall void calAcquireWaveform (int calStepIndex)
 {
 	int status = 0;
-	int i;
 	
 	if (!usb_opened)
 	{
@@ -622,7 +608,7 @@ __stdcall void calAcquireWaveform (int calStepIndex)
 	blocksok = 1;
 	nblocks = recLen / 256;
 	
-	for (i = 0; i < nblocks; i++)
+	for (int i = 0; i < nblocks; i++)
 	{
 		// Verify data integrity of block
 		int ntries = 3;
@@ -694,12 +680,11 @@ __stdcall void calReconstructData (void)
 // Find mean of waveform segment
 __stdcall void calFindMean (int calStepIndex)
 {
-	int i;
 	double val;
 
 	val = 0.00;
 	
-	for (i=0; i < recLen; i++)
+	for (int i=0; i < recLen; i++)
 	{
 		val = val + wfmFilter[i];
 	}
@@ -712,8 +697,6 @@ __stdcall void calFindMean (int calStepIndex)
 // Find optimal step count
 __stdcall int calFindStepcount (void)
 {
-	int i;
-
 	int idxMin, idxMax;
 	idxMin = 0;
 	idxMax = 0;
@@ -724,7 +707,7 @@ __stdcall int calFindStepcount (void)
 	min = 4095.0;
 
 	// Cycle each of 5 data segments
-	for (i = 0; i < 5; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		if (calLevels[i] < min)
 		{
@@ -757,7 +740,7 @@ __stdcall int calFindStepcount (void)
 	int idxOpt;
 	idxOpt = 0;
 	
-	for (i = 4; i > 0; i--)
+	for (int i = 4; i > 0; i--)
 	{
 		if (calLevels[i] < val)
 		{
@@ -782,15 +765,13 @@ __stdcall int calFindStepcount (void)
 // Calibrate DACs
 __stdcall void calDAC (void)
 {
-	int i;
-	
 	calstart = 0;
 
 	calSetupTimescale ();
 	
 	calAcquireWaveform (-1);
 	
-	i = 0;
+	int i = 0;
 	
 	while ((calDiscLevel < calThreshold) && (i < 10) && (calstart <= 1100))
 	{
@@ -884,11 +865,9 @@ __stdcall void calSetupTimescale (void)
 // TO DO: function description
 __stdcall void calFindDiscont (void)
 {
-	int i;
-
 	calDiscLevel = 0;
 
-	for (i = 0; i < recLen; i++)
+	for (int i = 0; i < recLen; i++)
 	{
 		calDiscLevel = calDiscLevel + wfmFilter[i];
 	}
@@ -920,8 +899,7 @@ __stdcall int writeParams (void)
 __stdcall void vertCal (void)
 {
 	int status;
-	int i;
-	
+
 	if (!usb_opened)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure.");
@@ -954,7 +932,7 @@ __stdcall void vertCal (void)
 	blocksok = 1;
 	nblocks = recLen / 256;
 	
-	for (i = 0; i < nblocks; i++)
+	for (int i = 0; i < nblocks; i++)
 	{
 		// Verify data integrity of block
 		int ntries = 3;
@@ -1000,7 +978,7 @@ __stdcall void vertCal (void)
 	// Read blocks of data from block numbers 0-63 (16384 pts)
 	blocksok = 1;
 	nblocks = recLen / 256;
-	for (i = 0; i < nblocks; i++)
+	for (int i = 0; i < nblocks; i++)
 	{
 		// Verify data integrity of block 
 		int ntries = 3;
@@ -1021,7 +999,7 @@ __stdcall void vertCal (void)
 	reconstructData (0);
 	
 	// Find the 50% crossing from vstart to approx. vstart + 1200 (step size)
-	i=0;
+	int i=0;
 
 	while (wfmFilter[i] < (vstart + 400.0) && (i <= 1022))
 	{
@@ -1198,9 +1176,7 @@ __stdcall void usbfifo_close (void)
 // Get device comm speed
 __stdcall void usbfifo_getcomspd (char *buf, int len)
 {
-	int i;
-
-	for (i = 0; i < strlen (dev_comspdbuf) + 1 && i < len && i < 19; i++)
+	for (UINT16 i = 0; i < strlen (dev_comspdbuf) + 1 && i < len && i < 19; i++)
 	{
 		*buf++ = dev_comspdbuf[i];
 	}
@@ -1215,9 +1191,7 @@ __stdcall int usbfifo_gethostbps (void)
 // Get device ID
 __stdcall void usbfifo_getid (char *buf, int len)
 {
-	int i;
-
-	for (i = 0; i < strlen (dev_idbuf) + 1 && i < len && i < 19; i++)
+	for (UINT16 i = 0; i < strlen (dev_idbuf) + 1 && i < len && i < 19; i++)
 	{
 		*buf++ = dev_idbuf[i];
 	}
@@ -1229,7 +1203,6 @@ __stdcall int usbfifo_open()
 	char ch;
 	int n;
 	FT_STATUS stat, statfifo;
-	char buf[20];
 
 	if (dev_opened)
 	{

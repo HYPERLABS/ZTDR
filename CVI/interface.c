@@ -618,8 +618,7 @@ int CVICALLBACK onDebug (int panel, int control, int event,
 		case EVENT_COMMIT:
 			{
 				int status;
-				int i;
-				
+
 				storeWaveform (0);
 				
 				int numAvg = 4;
@@ -631,7 +630,7 @@ int CVICALLBACK onDebug (int panel, int control, int event,
 				double wfmDataX[length];
 				double wfmDataY[length];
 				
-				for (i = 0; i < length; i++)
+				for (int i = 0; i < length; i++)
 				{
 					wfmDataX[i] = fetchDataX (i);
 					wfmDataY[i] = fetchDataY (i);

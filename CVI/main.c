@@ -122,21 +122,21 @@ char *labelEndX[] =
 	"END (ns)"
 };
 
-float defaultStart[] =
+double defaultStart[] =
 {
 	0.0,
 	0.0,
 	0.0
 };
 
-float defaultEnd[]  =
+double defaultEnd[]  =
 {
 	10.0,
 	33.3,
 	50.0
 };
 
-float maxRange[] =
+double maxRange[] =
 {
 	400.0,
 	1332,
@@ -187,19 +187,12 @@ int	windowWidth, windowHeight;
 void main (int argc, char *argv[])
 {
 	int status;
-	int i;
 
 	// Verify CVIRTE is running
-	if (InitCVIRTE (0, argv, 0) == 0)
-	{
-		return -1;
-	}
+	status = InitCVIRTE (0, argv, 0);
 	
 	// Load UI
-	if ((panelHandle = LoadPanel (0, "interface.uir", PANEL)) < 0)
-	{
-		return -2;
-	}
+	panelHandle = LoadPanel (0, "interface.uir", PANEL);
 	
 	// Load menu bar
 	menuHandle = LoadMenuBar (panelHandle, "interface.uir", MENUBAR);
@@ -250,16 +243,13 @@ void main (int argc, char *argv[])
 	RunUserInterface ();	
 	
 	DiscardPanel (panelHandle);
-	
-	return 0;
 }
 
 // Main acquisition function
 void acquire (void)
 {
 	int status;
-	int i, j;
-	
+
 	// Number of waveforms to average
 	int numAvg;
 	GetCtrlVal (panelHandle, PANEL_AVERAGE, &numAvg);
@@ -280,7 +270,7 @@ void acquire (void)
 			ymax = -500;
 			ymin = 500;
 			
-			for (i = 0; i < recLen; i++)
+			for (int i = 0; i < recLen; i++)
 			{   
 				if (wfmAvg[i] > ymax)
 				{
@@ -311,7 +301,7 @@ void acquire (void)
 			ymin = 2.00;
 			ymax =  0.00;
 			
-			for (i = 0; i < recLen; i++)
+			for (int i = 0; i < recLen; i++)
 			{	
 				if (wfmAvg[i] > ymax)
 				{
@@ -342,7 +332,7 @@ void acquire (void)
 			ymin = 500.00;
 			ymax =  0.00;
 			
-			for (i = 0; i < recLen; i++)
+			for (int i = 0; i < recLen; i++)
 			{   
 				if (wfmAvg[i] > ymax)
 				{
@@ -373,7 +363,7 @@ void acquire (void)
 			ymin = 1.00;
 			ymax =  -1.00;
 			
-			for (i=0; i < recLen; i++)
+			for (int i=0; i < recLen; i++)
 			{  
 				if (wfmAvg[i] > ymax)
 				{
@@ -397,11 +387,7 @@ void acquire (void)
 
 			break;
 		}
-		
-		// Show rounded values in min/max boxes
-		status = SetCtrlVal (panelHandle, PANEL_YMIN, ymin);
-		status = SetCtrlVal (panelHandle, PANEL_YMAX, ymax);
-	}	
+	}
 
 	// Determine whether to autoscale
 	int autoScale;
@@ -977,7 +963,6 @@ void savePNG (void)
 void storeWaveform (int format)
 {   
 	int status;	
-	int i;
 
 	// Disable timers during action
 	status = SuspendTimerCallbacks ();
@@ -1016,7 +1001,6 @@ void storeWaveform (int format)
 	buf[0] = 0;
 
 	// Create header row
-	double windowstart, windowend;
 	double ymin, ymax;
 	
 	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
@@ -1037,7 +1021,7 @@ void storeWaveform (int format)
 	status = WriteFile (fd, buf, strlen (buf));
 	
 	// Log X/Y data
-	for (i = 0; i < recLen; i++)
+	for (int i = 0; i < recLen; i++)
 	{
 		// Reset buffer
 		buf[0] = 0;
@@ -1057,8 +1041,7 @@ void storeWaveform (int format)
 void recallWaveform (void)
 {
 	int status;
-	int i;
-	
+
 	// Disable timers during action
 	SuspendTimerCallbacks ();
 	
@@ -1100,7 +1083,7 @@ void recallWaveform (void)
 	vc = (double) 3E8 / sqrt (dielStored);
 							   
 	// Read X, Y values
-	for(i = 0; i < recLen; i++)
+	for (int i = 0; i < recLen; i++)
 	{  
 		float x, y;
 		
