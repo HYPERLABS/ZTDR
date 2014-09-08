@@ -408,9 +408,7 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 void CVICALLBACK onAutoCal (int menuBar, int menuItem, void *callbackData, 
 							int panel)
 {
-	changeAutoCal ();
-	
-	return 0;	
+	changeAutoCal ();	
 }
 
 // Change to dark background
@@ -419,9 +417,7 @@ void CVICALLBACK onChangeBg1 (int menuBar, int menuItem, void *callbackData,
 {
 	changeBg (0);
 
-	acquire ();
-	
-	return 0;	
+	acquire ();	
 }
 
 // Change to light background
@@ -430,9 +426,7 @@ void CVICALLBACK onChangeBg2 (int menuBar, int menuItem, void *callbackData,
 {
 	changeBg (1);
 
-	acquire ();
-	
-	return 0;	
+	acquire ();	
 }
 
 // Display changed to DOTS
@@ -441,9 +435,7 @@ void CVICALLBACK onChangePlot1 (int menuBar, int menuItem, void *callbackData,
 {
 	changePlot (0);
 
-	acquire ();
-	
-	return 0;	
+	acquire ();	
 }
 
 // Display changed to THIN_LINE
@@ -452,9 +444,7 @@ void CVICALLBACK onChangePlot2 (int menuBar, int menuItem, void *callbackData,
 {
 	changePlot (1);
 
-	acquire ();
-	
-	return 0;	
+	acquire ();	
 }
 
 // Display changed to FAT_LINE
@@ -463,9 +453,7 @@ void CVICALLBACK onChangePlot3 (int menuBar, int menuItem, void *callbackData,
 {
 	changePlot (2);
 
-	acquire ();
-	
-	return 0;	
+	acquire ();	
 }
 
 // Horizontal units changed to M
@@ -478,9 +466,7 @@ void CVICALLBACK onChangeX1 (int menuBar, int menuItem, void *callbackData,
 	
 	setupTimescale ();
 
-	acquire ();
-	
-	return 0;	
+	acquire ();	
 }
 
 // Horizontal units changed to FT
@@ -493,9 +479,7 @@ void CVICALLBACK onChangeX2 (int menuBar, int menuItem, void *callbackData,
 	
 	setupTimescale ();
 
-	acquire ();
-	
-	return 0;	
+	acquire ();	
 }
 
 // Horizontal units changed to NS
@@ -508,9 +492,7 @@ void CVICALLBACK onChangeX3 (int menuBar, int menuItem, void *callbackData,
 	
 	setupTimescale ();
 
-	acquire ();
-	
-	return 0;	
+	acquire ();	
 }
 
 // Vertical units changed to mV
@@ -519,9 +501,7 @@ void CVICALLBACK onChangeY1 (int menuBar, int menuItem, void *callbackData,
 {
 	changeUnitY (0);
 	
-	acquire ();
-	
-	return 0;	
+	acquire ();	
 }
 
 // Vertical units changed to Norm
@@ -530,9 +510,7 @@ void CVICALLBACK onChangeY2 (int menuBar, int menuItem, void *callbackData,
 {
 	changeUnitY (1);
 	
-	acquire ();
-	
-	return 0;	
+	acquire ();	
 }
 
 // Vertical units changed to Ohm
@@ -541,9 +519,7 @@ void CVICALLBACK onChangeY3 (int menuBar, int menuItem, void *callbackData,
 {
 	changeUnitY (2);
 	
-	acquire ();
-	
-	return 0;	
+	acquire ();	
 }
 
 // Vertical units changed to Rho
@@ -552,9 +528,7 @@ void CVICALLBACK onChangeY4 (int menuBar, int menuItem, void *callbackData,
 {
 	changeUnitY (3);
 	
-	acquire ();
-	
-	return 0;	
+	acquire ();	
 }
 
 // Clear stored waveform (from menu)
@@ -566,17 +540,13 @@ void CVICALLBACK onClearMenu (int menuBar, int menuItem, void *callbackData,
 	setupTimescale ();
 			
 	acquire ();
-	
-	return 0;
 }
 
 // Save CSV file
 void CVICALLBACK onCSV (int menuBar, int menuItem, void *callbackData, 
 							int panel)
 {
-	storeWaveform (0);
-	
-	return 0;	
+	storeWaveform (0);	
 }
 
 // Exit program
@@ -585,9 +555,7 @@ void CVICALLBACK onExit (int menuBar, int menuItem, void *callbackData,
 {
 	usbfifo_close ();
 
-	QuitUserInterface (0);
-	
-	return 0;	
+	QuitUserInterface (0);	
 }
 
 // Save waveform as PNG
@@ -595,8 +563,6 @@ void CVICALLBACK onPNG (int menuBar, int menuItem, void *callbackData,
 							 int panel)
 {
 	savePNG ();
-	
-	return 0;
 }
 
 // Print waveform
@@ -604,8 +570,6 @@ void CVICALLBACK onPrint (int menuBar, int menuItem, void *callbackData,
 							 int panel)
 {
 	printWaveform ();
-	
-	return 0;
 }
 
 // Recall waveform
@@ -613,8 +577,6 @@ void CVICALLBACK onRecall (int menuBar, int menuItem, void *callbackData,
 							 int panel)
 {
 	recallWaveform ();
-	
-	return 0;
 }
 
 // Store waveform
@@ -622,8 +584,6 @@ void CVICALLBACK onStore (int menuBar, int menuItem, void *callbackData,
 							 int panel)
 {
 	storeWaveform (1);
-	
-	return 0;
 }
 
 // Timebase calibration
@@ -635,8 +595,6 @@ void CVICALLBACK onTimeCal (int menuBar, int menuItem, void *callbackData,
 	calTimebase ();
 	
 	acquire ();
-	
-	return 0;
 }
 
 // Vertical calibration
@@ -645,9 +603,7 @@ void CVICALLBACK onVertCal (int menuBar, int menuItem, void *callbackData,
 {
 	vertCal ();
 	
-	acquire ();
-	
-	return 0;	
+	acquire ();	
 }
 
 //==============================================================================
@@ -682,8 +638,6 @@ int CVICALLBACK onDebug (int panel, int control, int event,
 				}
 				
 				dumpFile ("eggwool.csv");
-				
-				int egg = 1;
 			}
 			
 			break;
