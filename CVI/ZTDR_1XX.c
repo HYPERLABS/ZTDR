@@ -469,8 +469,8 @@ __stdcall void setupTimescale (void)
 		// Calculate distance in feet, if selected
 		if (xUnits == UNIT_FT)
 		{
-			val1 = val1 / MtoFT;
-			val2 = val2 / MtoFT;
+			val1 = val1 / M_TO_FT;
+			val2 = val2 / M_TO_FT;
 		}
 	}
 
@@ -500,7 +500,7 @@ __stdcall void reconstructData (double offset)
 		
 		wfmTime[i] = ((double) curt.time) / ((double) 0xFFFF) * 50.0;
 		wfmDistM[i] = wfmTime[i] * vel * 1E-9;
-		wfmDistFt[i] = wfmTime[i] * vel * 1E-9 * MtoFT;
+		wfmDistFt[i] = wfmTime[i] * vel * 1E-9 * M_TO_FT;
 		
 		curt.time += incr;
 	}
