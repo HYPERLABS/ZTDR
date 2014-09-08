@@ -47,7 +47,7 @@ extern 	int 	calIncrement;
 extern	double	vampl;
 
 // Acquisition environment
-extern	double	diel; // coax
+extern	double	dielK; // coax
 extern	int 	yUnits; // mV
 extern	int 	xUnits; // m
 extern	double	xStart; // m
@@ -682,7 +682,7 @@ void changeDiel (void)
 {
 	int status;
 	
-	status = GetCtrlVal (panelHandle, PANEL_DIEL, &diel);  
+	status = GetCtrlVal (panelHandle, PANEL_DIEL, &dielK);  
 }
 
 // Change horizontal units
@@ -1019,7 +1019,7 @@ void storeWaveform (int format)
 	if (format == 1)
 	{
 		// Header for .ZTDR
-		status = sprintf (buf + strlen(buf), "%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.3f\n", yUnits, xUnits, xStart, xEnd, ymin, ymax, diel);
+		status = sprintf (buf + strlen(buf), "%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.3f\n", yUnits, xUnits, xStart, xEnd, ymin, ymax, dielK);
 	}
 	else
 	{
@@ -1090,7 +1090,7 @@ void recallWaveform (void)
 	// Read header line
 	status = ReadLine (fd, buf, buf_len - 1);
 	sscanf (buf, "%d, %d, %f, %f, %f, %f, %f", &yStored, &xStored, &startStored, &endStored, &ymin, &ymax, &dielStored);
-	vc = (double) 3E8 / sqrt (diel);
+	vc = (double) 3E8 / sqrt (dielStored);
 							   
 	// Read X, Y values
 	for(i = 0; i < recLen; i++)

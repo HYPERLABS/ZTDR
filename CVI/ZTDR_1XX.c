@@ -47,7 +47,7 @@ int 	calIncrement;
 double	vampl = 679;
 
 // Acquisition environment
-double	diel = 2.25; // coax
+double	dielK = 2.25; // coax
 int 	yUnits = 0; // mV
 int 	xUnits = 0; // m
 double	xStart = 0.0; // m
@@ -356,7 +356,7 @@ __stdcall int setEnviron (int x, int y, double start, double end, double k, int 
 	yUnits = y;
 	xStart = start;
 	xEnd = end;
-	diel = k;
+	dielK = k;
 	recLen = (UINT16) rec;
 	
 	return 1;
@@ -397,7 +397,7 @@ __stdcall int dumpFile (char *filename)
 	double ymin, ymax;
 	
 	// Write header row
-	status = sprintf (buf + strlen(buf), "%d, %d, %3.10f, %3.10f, %3.3f\n", yUnits, xUnits, xStart, xEnd, diel);
+	status = sprintf (buf + strlen(buf), "%d, %d, %3.10f, %3.10f, %3.3f\n", yUnits, xUnits, xStart, xEnd, dielK);
 	
 	status = fwrite (buf, 1, strlen (buf), fd);
 	
@@ -459,7 +459,7 @@ __stdcall void setupTimescale (void)
 	else
 	{
 		// Calculate distance in meters
-		vel = (double) 3E8 / sqrt (diel);
+		vel = (double) 3E8 / sqrt (dielK);
 		val1 = xStart * 1E9 / vel;
 		val2 = xEnd * 1E9 / vel;
 
@@ -482,7 +482,7 @@ __stdcall void reconstructData (double offset)
 	
 	double vel;
 	
-	vel = (double) 3E8 / sqrt (diel);
+	vel = (double) 3E8 / sqrt (dielK);
 
 	UINT32 incr;
 	timeinf curt;
