@@ -229,16 +229,23 @@ void main (int argc, char *argv[])
 	// Indicate cal status
 	writeMsgCal (calStatus);
 	
-	// Run first acquisition
-	acquire ();
+	if (calStatus == 1)
+	{ 
+		// Run first acquisition
+		acquire ();
 	
-	// Set initial cursor positions
-	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, 2.25, -250);
-	SetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, 3.25, 0);
+		// Set initial cursor positions
+		SetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, 2.25, -250);
+		SetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, 3.25, 0);
 	
-	// Start event timers
-	status = SetCtrlAttribute (panelHandle, PANEL_TIMER, ATTR_ENABLED, 1);
-	status = SetCtrlAttribute (panelHandle, PANEL_CALTIMER, ATTR_ENABLED, 1);
+		// Start event timers
+		status = SetCtrlAttribute (panelHandle, PANEL_TIMER, ATTR_ENABLED, 1);
+		status = SetCtrlAttribute (panelHandle, PANEL_CALTIMER, ATTR_ENABLED, 1);
+	}
+	else if (calStatus == -1)
+	{
+		// Instrument not connected or calibration failed
+	}
 	
 	RunUserInterface ();	
 	
@@ -547,7 +554,7 @@ void writeMsgCal (int msg)
 	{
 		status = SetCtrlVal (panelHandle, PANEL_MESSAGES, " DONE!\n");
 	}
-	else if (msg == 2)
+	else
 	{
 		status = SetCtrlVal (panelHandle, PANEL_MESSAGES, " FAILED!\n");
 	}
