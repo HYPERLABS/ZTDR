@@ -51,8 +51,8 @@ extern "C" {
 #define UNIT_RHO 3
 
 // Unit conversion
-#define MtoFT 3.2808
-#define FTtoM 0.3048
+#define M_TO_FT 3.2808
+#define FT_TO_M 0.3048
 
 // FTDI functionality	
 #define NPARAMS 26
