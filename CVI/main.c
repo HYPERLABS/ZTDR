@@ -873,7 +873,7 @@ void resizeWindow (void)
 	{
 		int adjust = 0;
 		
-		if (xUnits == UNIT_MV)
+		if (xUnits == UNIT_M)
 		{
 			adjust = 2;
 		}
