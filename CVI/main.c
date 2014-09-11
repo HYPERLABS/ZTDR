@@ -114,7 +114,6 @@ char *labelStartX[] =
 	"START (ns)"
 };
 
-
 char *labelEndX[] =
 {
 	"END (m)",
@@ -237,7 +236,10 @@ void main (int argc, char *argv[])
 	}
 	else if (calStatus == -1)
 	{
-		// Instrument not connected or calibration failed
+		// Instrument not connected or initial calibration failed
+		status = MessagePopup ("Initial calibration failed", "Please make sure the instrument is connected and try again."); 
+		
+		QuitUserInterface (0);
 	}
 	
 	RunUserInterface ();	
