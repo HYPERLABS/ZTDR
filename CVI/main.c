@@ -237,7 +237,7 @@ void main (int argc, char *argv[])
 	else if (calStatus == -1)
 	{
 		// Instrument not connected or initial calibration failed
-		status = MessagePopup ("Initial calibration failed", "Please make sure the instrument is connected and try again."); 
+		status = MessagePopup ("Error", "Could not initialize the TDR device.");
 		
 		QuitUserInterface (0);
 	}
