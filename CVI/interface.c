@@ -352,12 +352,13 @@ int CVICALLBACK onWaveform (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 		{
+			updateCursors ();
+			
 			break;
 		}
 
-		case EVENT_VAL_CHANGED:
+		case EVENT_VAL_CHANGED: 
 		{
-			updateCursors ();
 
 			break;
 		}
