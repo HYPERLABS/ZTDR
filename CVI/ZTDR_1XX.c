@@ -225,7 +225,7 @@ __stdcall int acquireWaveform (int numAvg)
 		reconstructData (offset);
 	
 		// Store data, perform rho conversion
-		for (int i = 0; i < recLen; i++)
+		for (i = 0; i < recLen; i++)
 		{   
 			// Convert first to Rho (baseline unit for conversions)
 			wfmData[i] = (double) (wfmFilter[i]) / (double) vampl - 1.0;
@@ -315,7 +315,7 @@ __stdcall int acquireWaveform (int numAvg)
 		}
 		
 		// Average waveforms
-		for (int i = 0; i < recLen; i++)
+		for (i = 0; i < recLen; i++)
 		{
 			wfmAvg[i] = (j * wfmAvg[i] + wfmData[i]) / (j + 1);
 		}
@@ -740,7 +740,7 @@ __stdcall int calFindStepcount (void)
 	int idxOpt;
 	idxOpt = 0;
 	
-	for (int i = 4; i > 0; i--)
+	for (i = 4; i > 0; i--)
 	{
 		if (calLevels[i] < val)
 		{
@@ -978,7 +978,7 @@ __stdcall void vertCal (void)
 	// Read blocks of data from block numbers 0-63 (16384 pts)
 	blocksok = 1;
 	nblocks = recLen / 256;
-	for (int i = 0; i < nblocks; i++)
+	for (i = 0; i < nblocks; i++)
 	{
 		// Verify data integrity of block 
 		int ntries = 3;
@@ -999,7 +999,7 @@ __stdcall void vertCal (void)
 	reconstructData (0);
 	
 	// Find the 50% crossing from vstart to approx. vstart + 1200 (step size)
-	int i=0;
+	i=0;
 
 	while (wfmFilter[i] < (vstart + 400.0) && (i <= 1022))
 	{
