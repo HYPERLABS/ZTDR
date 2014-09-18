@@ -1240,8 +1240,11 @@ void updateSize (void)
 	
 	// Move right-hand control panel
 	status = GetNumCtrlArrayItems (rightHandle, &count);
-   		  
-	for (int i = 0; i < count; i++)
+   	
+	// Define here to avoid redefine errors
+	int i;
+	
+	for (i = 0; i < count; i++)
 	{   
 		status = GetCtrlAttribute (panelHandle, GetCtrlArrayItem (rightHandle, i), ATTR_LEFT, &ctrlLeft);
 		status = SetCtrlAttribute (panelHandle, GetCtrlArrayItem (rightHandle, i), ATTR_LEFT, ctrlLeft + xOffset);
@@ -1250,7 +1253,7 @@ void updateSize (void)
 	// Move bottom control pane
 	status = GetNumCtrlArrayItems (bottomHandle, &count);
    		  
-	for (int i = 0; i < count; i++)
+	for (i = 0; i < count; i++)
 	{
 		status = GetCtrlAttribute (panelHandle, GetCtrlArrayItem (bottomHandle, i), ATTR_TOP, &ctrlTop);
 		status = SetCtrlAttribute (panelHandle, GetCtrlArrayItem (bottomHandle, i), ATTR_TOP, ctrlTop + yOffset);

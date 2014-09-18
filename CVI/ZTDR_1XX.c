@@ -203,7 +203,10 @@ __stdcall int acquireWaveform (int numAvg)
 		blocksok = 1;
 		nblocks = recLen / 256;
 	
-		for (int i = 0; i < nblocks; i++)
+		// Define here to avoid redefine errors
+		int i;
+		
+		for (i = 0; i < nblocks; i++)
 		{
 			// Verify data integrity of block 
 			int ntries = 3;
@@ -225,7 +228,7 @@ __stdcall int acquireWaveform (int numAvg)
 		reconstructData (offset);
 	
 		// Store data, perform rho conversion
-		for (int i = 0; i < recLen; i++)
+		for (i = 0; i < recLen; i++)
 		{   
 			// Convert first to Rho (baseline unit for conversions)
 			wfmData[i] = (double) (wfmFilter[i]) / (double) vampl - 1.0;
@@ -238,7 +241,7 @@ __stdcall int acquireWaveform (int numAvg)
 			{
 				double ampl_factor = 250.0;
 			
-				for (int i = 0; i < recLen; i++)
+				for (i = 0; i < recLen; i++)
 				{
 					wfmData[i] *= ampl_factor;
 				}
@@ -248,7 +251,7 @@ __stdcall int acquireWaveform (int numAvg)
 		
 			case UNIT_NORM:
 			{
-				for (int i = 0; i < recLen; i++)
+				for (i = 0; i < recLen; i++)
 				{
 					wfmData[i] += 1.0;
 				}
@@ -260,7 +263,7 @@ __stdcall int acquireWaveform (int numAvg)
 			{
 				double impedance = 50;
 			
-				for (int i = 0; i < recLen; i++)
+				for (i = 0; i < recLen; i++)
 				{   
 					// Convert to impedance from Rho
 					wfmData[i] = (double) impedance * ((double) (1.0) + (double) (wfmData[i])) / ((double) (1.0) - (double) (wfmData[i]));
@@ -280,7 +283,7 @@ __stdcall int acquireWaveform (int numAvg)
 		
 			default: // RHO, data already in this unit
 			{ 
-				for (int i=0; i < recLen; i++)
+				for (i=0; i < recLen; i++)
 				{ 
 					// No further conversion necessary
 				}
@@ -292,7 +295,7 @@ __stdcall int acquireWaveform (int numAvg)
 		// Horizontal units in time
 		if (xUnits == UNIT_NS)
 		{
-			for (int i = 0; i < recLen; i++)
+			for (i = 0; i < recLen; i++)
 			{
 				wfmX[i] = wfmTime[i];
 			}
@@ -300,7 +303,7 @@ __stdcall int acquireWaveform (int numAvg)
 		// Horizontal units in meters
 		else if (xUnits == UNIT_M) 
 		{
-			for (int i = 0; i < recLen; i++)
+			for (i = 0; i < recLen; i++)
 			{
 				wfmX[i] = wfmDistM[i];
 			}
@@ -308,14 +311,14 @@ __stdcall int acquireWaveform (int numAvg)
 		// Horizontal units in feet
 		else 
 		{
-			for (int i = 0; i < recLen; i++)
+			for (i = 0; i < recLen; i++)
 			{
 				wfmX[i] = wfmDistFt[i];
 			}
 		}
 		
 		// Average waveforms
-		for (int i = 0; i < recLen; i++)
+		for (i = 0; i < recLen; i++)
 		{
 			wfmAvg[i] = (j * wfmAvg[i] + wfmData[i]) / (j + 1);
 		}
@@ -652,7 +655,10 @@ __stdcall void calReconstructData (void)
 	timeinf curt;
 	curt.time = start_tm.time;
 	
-	for (int i = 0; i < recLen; i++)
+	// Define here to avoid redefine errors
+	int i;
+	
+	for (i = 0; i < recLen; i++)
 	{						 		
 		wfmFilter[i] = (double) wfm[i];
 		wfmTime[i] = ((double) curt.time) / ((double) 0xFFFF) * 50.0;
@@ -660,7 +666,7 @@ __stdcall void calReconstructData (void)
 	}
 	
 	// Smooth data for better resolution
-	for (int i = FILTER_WIDTH / 2; i < recLen - FILTER_WIDTH / 2; i++)
+	for (i = FILTER_WIDTH / 2; i < recLen - FILTER_WIDTH / 2; i++)
 	{
 		double val;
 		
@@ -704,8 +710,11 @@ __stdcall int calFindStepcount (void)
 	max = 0.00;
 	min = 4095.0;
 
+	// Define here to avoid redefine errors
+	int i;
+	
 	// Cycle each of 5 data segments
-	for (int i = 0; i < 5; i++)
+	for (i = 0; i < 5; i++)
 	{
 		if (calLevels[i] < min)
 		{
@@ -738,7 +747,7 @@ __stdcall int calFindStepcount (void)
 	int idxOpt;
 	idxOpt = 0;
 	
-	for (int i = 4; i > 0; i--)
+	for (i = 4; i > 0; i--)
 	{
 		if (calLevels[i] < val)
 		{
@@ -930,7 +939,10 @@ __stdcall void vertCal (void)
 	blocksok = 1;
 	nblocks = recLen / 256;
 	
-	for (int i = 0; i < nblocks; i++)
+	// Define here to avoid redefine errors
+	int i;
+	
+	for (i = 0; i < nblocks; i++)
 	{
 		// Verify data integrity of block
 		int ntries = 3;
@@ -976,7 +988,8 @@ __stdcall void vertCal (void)
 	// Read blocks of data from block numbers 0-63 (16384 pts)
 	blocksok = 1;
 	nblocks = recLen / 256;
-	for (int i = 0; i < nblocks; i++)
+	
+	for (i = 0; i < nblocks; i++)
 	{
 		// Verify data integrity of block 
 		int ntries = 3;
@@ -997,7 +1010,7 @@ __stdcall void vertCal (void)
 	reconstructData (0);
 	
 	// Find the 50% crossing from vstart to approx. vstart + 1200 (step size)
-	int i = 0;
+	i = 0;
 
 	while (wfmFilter[i] < (vstart + 400.0) && (i <= 1022))
 	{
@@ -1196,7 +1209,7 @@ __stdcall void usbfifo_getid (char *buf, int len)
 }
 
 // Open FTDI for use by software
-__stdcall int usbfifo_open()
+__stdcall int usbfifo_open (void)
 {
 	char ch;
 	int n;
