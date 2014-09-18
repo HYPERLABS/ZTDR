@@ -559,27 +559,27 @@ void changePlot (int unit)
 		// Dots
 		plotType = 2L;
 		
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_DOTS, ATTR_CHECKED, 1);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_THINLINE, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_FATLINE, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_DOTS, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_THINLINE, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_FATLINE, ATTR_CHECKED, 0);
 	}
 	else if (unit == 1)
 	{
 		// Thin line
 		plotType = 0L;
 		
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_DOTS, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_THINLINE, ATTR_CHECKED, 1);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_FATLINE, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_DOTS, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_THINLINE, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_FATLINE, ATTR_CHECKED, 0);
 	}
 	else if (unit == 2)
 	{
 		// Thick line
 		plotType = 5L;
 		
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_DOTS, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_THINLINE, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_FATLINE, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_DOTS, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_THINLINE, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_FATLINE, ATTR_CHECKED, 1);
 	}
 }
 
@@ -604,8 +604,8 @@ void changeBg (int color)
 		status = SetCtrlAttribute (panelHandle, PANEL_TIMESTAMP, ATTR_TEXT_COLOR , MakeColor (76, 157, 47));
 		
 		// Update checkmarks
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_DARK, ATTR_CHECKED, 1);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_LIGHT, ATTR_CHECKED, 0);	
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_DARK, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_LIGHT, ATTR_CHECKED, 0);	
 	}
 	
 	// Set alternate light background
@@ -624,8 +624,8 @@ void changeBg (int color)
 		status = SetCtrlAttribute (panelHandle, PANEL_TIMESTAMP, ATTR_TEXT_COLOR , VAL_BLACK);
 		
 		// Update checkmarks
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_DARK, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_PLOT_LIGHT, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_DARK, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_LIGHT, ATTR_CHECKED, 1);
 	}
 }
 
@@ -906,7 +906,7 @@ void printWaveform (void)
 	
 	// Force light color scheme to save toner
 	int color;
-	status = GetMenuBarAttribute (menuHandle,MENUBAR_PLOT_DARK, ATTR_CHECKED, &color);
+	status = GetMenuBarAttribute (menuHandle,MENUBAR_DISPLAY_DARK, ATTR_CHECKED, &color);
 	
 	if (color == 1)
 	{

@@ -1,6 +1,5 @@
 /**************************************************************************/
 /* LabWindows/CVI User Interface Resource (UIR) Include File              */
-/* Copyright (c) National Instruments 2014. All Rights Reserved.          */
 /*                                                                        */
 /* WARNING: Do not add to, delete from, or otherwise modify the contents  */
 /*          of this include file.                                         */
@@ -66,13 +65,13 @@
 #define  MENUBAR_DATA_STORE               13      /* callback function: onStore */
 #define  MENUBAR_DATA_RECALL              14      /* callback function: onRecall */
 #define  MENUBAR_DATA_CLEAR               15      /* callback function: onClearMenu */
-#define  MENUBAR_PLOT                     16
-#define  MENUBAR_PLOT_DOTS                17      /* callback function: onChangePlot1 */
-#define  MENUBAR_PLOT_THINLINE            18      /* callback function: onChangePlot2 */
-#define  MENUBAR_PLOT_FATLINE             19      /* callback function: onChangePlot3 */
-#define  MENUBAR_PLOT_SEPARATOR_4         20
-#define  MENUBAR_PLOT_DARK                21      /* callback function: onChangeBg1 */
-#define  MENUBAR_PLOT_LIGHT               22      /* callback function: onChangeBg2 */
+#define  MENUBAR_DISPLAY                  16
+#define  MENUBAR_DISPLAY_DOTS             17      /* callback function: onChangePlot1 */
+#define  MENUBAR_DISPLAY_THINLINE         18      /* callback function: onChangePlot2 */
+#define  MENUBAR_DISPLAY_FATLINE          19      /* callback function: onChangePlot3 */
+#define  MENUBAR_DISPLAY_SEPARATOR_4      20
+#define  MENUBAR_DISPLAY_DARK             21      /* callback function: onChangeBg1 */
+#define  MENUBAR_DISPLAY_LIGHT            22      /* callback function: onChangeBg2 */
 #define  MENUBAR_XUNITS                   23
 #define  MENUBAR_XUNITS_XUNITS1           24      /* callback function: onChangeX1 */
 #define  MENUBAR_XUNITS_XUNITS2           25      /* callback function: onChangeX2 */
