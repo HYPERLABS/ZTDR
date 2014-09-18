@@ -96,7 +96,7 @@ int 	dev_opened = 0;
 __stdcall int initDevice (void)
 {   
 	// Initial values for maximum length of array
-	for (int i=0; i < NPOINTS_MAX; i++)
+	for (int i = 0; i < NPOINTS_MAX; i++)
 	{
 		wfm[i] = 0;
 		wfmFilter[i] = 0.0;
@@ -225,7 +225,7 @@ __stdcall int acquireWaveform (int numAvg)
 		reconstructData (offset);
 	
 		// Store data, perform rho conversion
-		for (i = 0; i < recLen; i++)
+		for (int i = 0; i < recLen; i++)
 		{   
 			// Convert first to Rho (baseline unit for conversions)
 			wfmData[i] = (double) (wfmFilter[i]) / (double) vampl - 1.0;
@@ -315,7 +315,7 @@ __stdcall int acquireWaveform (int numAvg)
 		}
 		
 		// Average waveforms
-		for (i = 0; i < recLen; i++)
+		for (int i = 0; i < recLen; i++)
 		{
 			wfmAvg[i] = (j * wfmAvg[i] + wfmData[i]) / (j + 1);
 		}
@@ -513,7 +513,7 @@ __stdcall int calTimebase (void)
 	calSetParams ();
 	
 	// Acquire data for each of 5 data segments
-	for (int i=0; i<5; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		stepcount = stepcountArray[(UINT16) i];
 		
@@ -645,16 +645,14 @@ __stdcall void calAcquireWaveform (int calStepIndex)
 
 // Reconstruct data segment for calibration
 __stdcall void calReconstructData (void)
-{
-	int i, j;
-	
+{   
 	UINT32 incr;
 	incr = (end_tm.time - start_tm.time) / recLen;
 	
 	timeinf curt;
 	curt.time = start_tm.time;
 	
-	for (i = 0; i < recLen; i++)
+	for (int i = 0; i < recLen; i++)
 	{						 		
 		wfmFilter[i] = (double) wfm[i];
 		wfmTime[i] = ((double) curt.time) / ((double) 0xFFFF) * 50.0;
@@ -662,13 +660,13 @@ __stdcall void calReconstructData (void)
 	}
 	
 	// Smooth data for better resolution
-	for (i = FILTER_WIDTH / 2; i < recLen - FILTER_WIDTH / 2; i++)
+	for (int i = FILTER_WIDTH / 2; i < recLen - FILTER_WIDTH / 2; i++)
 	{
 		double val;
 		
 		val = 0.00;
 		
-		for (j = i - FILTER_WIDTH / 2; j < i + FILTER_WIDTH / 2; j++)
+		for (int j = i - FILTER_WIDTH / 2; j < i + FILTER_WIDTH / 2; j++)
 		{
 			val = val + wfmFilter[j];
 		}
@@ -684,7 +682,7 @@ __stdcall void calFindMean (int calStepIndex)
 
 	val = 0.00;
 	
-	for (int i=0; i < recLen; i++)
+	for (int i = 0; i < recLen; i++)
 	{
 		val = val + wfmFilter[i];
 	}
@@ -740,7 +738,7 @@ __stdcall int calFindStepcount (void)
 	int idxOpt;
 	idxOpt = 0;
 	
-	for (i = 4; i > 0; i--)
+	for (int i = 4; i > 0; i--)
 	{
 		if (calLevels[i] < val)
 		{
@@ -978,7 +976,7 @@ __stdcall void vertCal (void)
 	// Read blocks of data from block numbers 0-63 (16384 pts)
 	blocksok = 1;
 	nblocks = recLen / 256;
-	for (i = 0; i < nblocks; i++)
+	for (int i = 0; i < nblocks; i++)
 	{
 		// Verify data integrity of block 
 		int ntries = 3;
@@ -999,7 +997,7 @@ __stdcall void vertCal (void)
 	reconstructData (0);
 	
 	// Find the 50% crossing from vstart to approx. vstart + 1200 (step size)
-	i=0;
+	int i = 0;
 
 	while (wfmFilter[i] < (vstart + 400.0) && (i <= 1022))
 	{

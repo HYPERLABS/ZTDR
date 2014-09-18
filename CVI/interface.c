@@ -358,8 +358,7 @@ int CVICALLBACK onWaveform (int panel, int control, int event,
 		}
 
 		case EVENT_VAL_CHANGED: 
-		{
-
+		{   
 			break;
 		}
 		

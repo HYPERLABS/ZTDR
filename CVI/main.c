@@ -365,7 +365,7 @@ void acquire (void)
 			ymin = 1.00;
 			ymax =  -1.00;
 			
-			for (int i=0; i < recLen; i++)
+			for (int i = 0; i < recLen; i++)
 			{  
 				if (wfmAvg[i] > ymax)
 				{
@@ -1199,7 +1199,7 @@ void clearWaveform (void)
 void updateSize (void)
 {
 	int status;
-	int i, count;
+	int count;
 	
 	// Disable timers during action
 	status = SuspendTimerCallbacks ();
@@ -1241,7 +1241,7 @@ void updateSize (void)
 	// Move right-hand control panel
 	status = GetNumCtrlArrayItems (rightHandle, &count);
    		  
-	for (i = 0; i < count; i++)
+	for (int i = 0; i < count; i++)
 	{   
 		status = GetCtrlAttribute (panelHandle, GetCtrlArrayItem (rightHandle, i), ATTR_LEFT, &ctrlLeft);
 		status = SetCtrlAttribute (panelHandle, GetCtrlArrayItem (rightHandle, i), ATTR_LEFT, ctrlLeft + xOffset);
@@ -1250,7 +1250,7 @@ void updateSize (void)
 	// Move bottom control pane
 	status = GetNumCtrlArrayItems (bottomHandle, &count);
    		  
-	for (i = 0; i < count; i++)
+	for (int i = 0; i < count; i++)
 	{
 		status = GetCtrlAttribute (panelHandle, GetCtrlArrayItem (bottomHandle, i), ATTR_TOP, &ctrlTop);
 		status = SetCtrlAttribute (panelHandle, GetCtrlArrayItem (bottomHandle, i), ATTR_TOP, ctrlTop + yOffset);
