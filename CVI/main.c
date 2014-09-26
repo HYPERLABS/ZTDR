@@ -143,6 +143,13 @@ double maxRange[] =
 	2000.0
 };
 
+double minWidth[] =
+{
+	1.0,
+	3.0,
+	5.0
+};
+
 char *monthName[] =
 {
 	"JAN",
@@ -964,8 +971,8 @@ void resizeWindow (void)
 	status = GetCtrlVal (panelHandle, PANEL_START, &x1);
 	status = GetCtrlVal (panelHandle, PANEL_END, &x2);
 
-	// Start is less than end
-	if (x1 < x2) 
+	// Start is less than end and window is wide enough
+	if ((x1 + minWidth[xUnits]) < x2) 
 	{
 		xStart = x1;
 		xEnd = x2;
@@ -977,15 +984,15 @@ void resizeWindow (void)
 		
 		if (xUnits == UNIT_M)
 		{
-			adjust = 2;
+			adjust = 1;
 		}
 		else if (xUnits == UNIT_FT)
 		{
-			adjust = 5;
+			adjust = 3;
 		}
 		else if (xUnits == UNIT_NS)
 		{
-			adjust = 10;
+			adjust = 5;
 		}
 		
 		status = SetCtrlVal (panelHandle, PANEL_START, x1);
