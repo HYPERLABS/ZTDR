@@ -695,9 +695,8 @@ __stdcall int calFindStepcount (void)
 	idxMax = 0;
 	
 	// Set so any good data sets new max/min
-	double min, max;
-	max = 0.00;
-	min = 4095.0;
+	double max = 0.00;
+	double min = 4095.0;
 
 	// Define here to avoid redefine errors
 	int i;
