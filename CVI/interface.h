@@ -39,8 +39,8 @@
 #define  PANEL_CALTIMER                   24      /* control type: timer, callback function: onTimerCal */
 #define  PANEL_VERSION                    25      /* control type: textMsg, callback function: (none) */
 #define  PANEL_TIMER                      26      /* control type: timer, callback function: onTimer */
-#define  PANEL_DEBUG                      27      /* control type: command, callback function: onDebug */
-#define  PANEL_TIMESTAMP                  28      /* control type: textMsg, callback function: (none) */
+#define  PANEL_TIMESTAMP                  27      /* control type: textMsg, callback function: (none) */
+#define  PANEL_DEBUG                      28      /* control type: command, callback function: onDebug */
 
 
      /* Control Arrays: */

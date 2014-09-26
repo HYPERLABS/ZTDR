@@ -64,6 +64,7 @@ double 	wfmX[NPOINTS_MAX]; // converted to selected units
 
 UINT16 	wfm[NPOINTS_MAX]; // raw data from device
 double 	wfmFilter[NPOINTS_MAX];	// filtered data from device
+double  wfmDataRaw[NPOINTS_MAX]; // raw unconverted data for debug
 double  wfmData[NPOINTS_MAX]; // converted to selected units
 double  wfmAvg[NPOINTS_MAX]; // waveform after averaging
 
@@ -230,6 +231,9 @@ __stdcall int acquireWaveform (int numAvg)
 		// Store data, perform rho conversion
 		for (i = 0; i < recLen; i++)
 		{   
+			// Store raw data seperately
+			wfmDataRaw[i] = (double) wfmFilter[i];
+			
 			// Convert first to Rho (baseline unit for conversions)
 			wfmData[i] = (double) (wfmFilter[i]) / (double) vampl - 1.0;
 		}
