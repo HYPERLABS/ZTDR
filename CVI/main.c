@@ -139,7 +139,7 @@ double defaultEnd[]  =
 double maxRange[] =
 {
 	400.0,
-	1332,
+	1332.0,
 	2000.0
 };
 
@@ -693,13 +693,27 @@ void changeDiel (void)
 {
 	int status;
 	
-	status = GetCtrlVal (panelHandle, PANEL_DIEL, &dielK);  
+	status = GetCtrlVal (panelHandle, PANEL_DIEL, &dielK);
+	
+	double vc = 1 / sqrt (dielK);
+	
+	status = SetCtrlVal (panelHandle, PANEL_VC, vc);
 }
 
 // Change horizontal units
 void changeUnitX (int unit)
 {
-	int status;																			   
+	int status;
+	
+	// Store previous unit and limits to perform conversion of current window values
+	int prevUnit;
+	double prevStart, prevEnd;
+	
+	prevUnit = xUnits;
+	status = GetCtrlVal (panelHandle, PANEL_START, &prevStart);
+	status = GetCtrlVal (panelHandle, PANEL_END, &prevEnd);
+	
+	xUnits = unit; 
 	
 	// Change unit selection and update menu
 	if (unit == 0)
@@ -727,6 +741,76 @@ void changeUnitX (int unit)
 		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS3, ATTR_CHECKED, 1);
 	}
 	
+	// Calculate V/C
+	double vc = 1.0 / sqrt (dielK);
+	
+	// Keep same window and apply to new units
+	if (xUnits == UNIT_M)
+	{
+		if (prevUnit == UNIT_M)
+		{
+			// Keep m as m
+			xStart = prevStart;
+			xEnd = prevEnd;
+		}
+		else if (prevUnit == UNIT_FT)
+		{
+			// Convert ft to m
+			xStart = prevStart * FT_TO_M;
+			xEnd = prevEnd * FT_TO_M;	
+		}
+		else if (prevUnit == UNIT_NS)
+		{
+			// Convert ns to m
+			xStart = prevStart * (vc * 3e8 * 1e-9);
+			xEnd = prevEnd * (vc * 3e8 * 1e-9);
+		}
+	}
+	else if (xUnits == UNIT_FT)
+	{
+		if (prevUnit == UNIT_M)
+		{
+			// Convert m to ft
+			xStart = prevStart / FT_TO_M;
+			xEnd   = prevEnd / FT_TO_M;
+		}
+		else if (prevUnit == UNIT_FT)
+		{
+			// Keep ft as ft
+			xStart = prevStart;
+			xEnd = prevEnd;
+		}
+		else if (prevUnit == UNIT_NS)
+		{
+			// Convert ns to ft
+			xStart = (prevStart * vc * 3E8 * 1e-9) / FT_TO_M;
+			xEnd = (prevEnd * vc * 3E8 * 1e-9) / FT_TO_M;
+		}
+	}
+	else if (xUnits == UNIT_NS)
+	{
+		if (prevUnit == UNIT_M)
+		{
+			// Convert m to ns
+			xStart = prevStart / (vc * 3e8 * 1e-9);
+			xEnd = prevEnd / (vc * 3e8 * 1e-9);
+			
+			// endTime = xEnd / (acqDiel * 3e8);
+		}
+		else if (prevUnit == UNIT_FT)
+		{
+			// Convert ft to ns
+			xStart = (prevStart * FT_TO_M) / (vc * 3E8 * 1E-9);
+			xEnd = (prevEnd * FT_TO_M) / (vc * 3E8 * 1E-9);
+		}
+		else if (prevUnit == UNIT_NS)
+		{
+			// Keep ns as ns
+			xStart = prevStart;
+			xEnd = prevEnd;
+		}
+	}
+	
 	// Update X labels and limits
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, labelX[xUnits]);
 	
@@ -736,8 +820,8 @@ void changeUnitX (int unit)
 	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MAX_VALUE, maxRange[xUnits]);
 	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_MAX_VALUE, maxRange[xUnits]);
 	
-	status = SetCtrlVal (panelHandle, PANEL_START, defaultStart[xUnits]);
-	status = SetCtrlVal (panelHandle, PANEL_END, defaultEnd[xUnits]);
+	status = SetCtrlVal (panelHandle, PANEL_START, xStart);
+	status = SetCtrlVal (panelHandle, PANEL_END, xEnd);
 }
 
 // Change vertical units

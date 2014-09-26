@@ -26,21 +26,22 @@
 #define  PANEL_MESSAGES                   11      /* control type: textBox, callback function: (none) */
 #define  PANEL_START                      12      /* control type: scale, callback function: onChangeStart */
 #define  PANEL_END                        13      /* control type: scale, callback function: onChangeEnd */
-#define  PANEL_DIEL                       14      /* control type: numeric, callback function: onChangeK */
-#define  PANEL_ZOOM                       15      /* control type: command, callback function: onZoom */
-#define  PANEL_RESET                      16      /* control type: command, callback function: onReset */
-#define  PANEL_CLEAR                      17      /* control type: command, callback function: onClear */
-#define  PANEL_WAVEFORM                   18      /* control type: graph, callback function: onWaveform */
-#define  PANEL_PANELCURSOR                19      /* control type: deco, callback function: (none) */
-#define  PANEL_C1                         20      /* control type: textMsg, callback function: (none) */
-#define  PANEL_C2                         21      /* control type: textMsg, callback function: (none) */
-#define  PANEL_D2                         22      /* control type: textMsg, callback function: (none) */
-#define  PANEL_PANELBOTTOM                23      /* control type: deco, callback function: (none) */
-#define  PANEL_CALTIMER                   24      /* control type: timer, callback function: onTimerCal */
-#define  PANEL_VERSION                    25      /* control type: textMsg, callback function: (none) */
-#define  PANEL_TIMER                      26      /* control type: timer, callback function: onTimer */
-#define  PANEL_TIMESTAMP                  27      /* control type: textMsg, callback function: (none) */
-#define  PANEL_DEBUG                      28      /* control type: command, callback function: onDebug */
+#define  PANEL_VC                         14      /* control type: numeric, callback function: (none) */
+#define  PANEL_DIEL                       15      /* control type: numeric, callback function: onChangeK */
+#define  PANEL_ZOOM                       16      /* control type: command, callback function: onZoom */
+#define  PANEL_RESET                      17      /* control type: command, callback function: onReset */
+#define  PANEL_CLEAR                      18      /* control type: command, callback function: onClear */
+#define  PANEL_WAVEFORM                   19      /* control type: graph, callback function: onWaveform */
+#define  PANEL_PANELCURSOR                20      /* control type: deco, callback function: (none) */
+#define  PANEL_C1                         21      /* control type: textMsg, callback function: (none) */
+#define  PANEL_C2                         22      /* control type: textMsg, callback function: (none) */
+#define  PANEL_D2                         23      /* control type: textMsg, callback function: (none) */
+#define  PANEL_PANELBOTTOM                24      /* control type: deco, callback function: (none) */
+#define  PANEL_CALTIMER                   25      /* control type: timer, callback function: onTimerCal */
+#define  PANEL_VERSION                    26      /* control type: textMsg, callback function: (none) */
+#define  PANEL_TIMER                      27      /* control type: timer, callback function: onTimer */
+#define  PANEL_TIMESTAMP                  28      /* control type: textMsg, callback function: (none) */
+#define  PANEL_DEBUG                      29      /* control type: command, callback function: onDebug */
 
 
      /* Control Arrays: */
