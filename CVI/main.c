@@ -657,8 +657,9 @@ void changeAutoCal (void)
 void changeAutoScale (void)
 {
 	int status;
+	
+	// Get control value
 	int val;
-			
 	status = GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &val);
 	
 	if (val == 1)
@@ -1063,9 +1064,7 @@ void recallWaveform (void)
 	}
 	
 	// Open file for reading
-	int fd;
-	
-	fd = OpenFile (save_file, VAL_READ_WRITE, VAL_OPEN_AS_IS, VAL_ASCII);
+	int fd = OpenFile (save_file, VAL_READ_WRITE, VAL_OPEN_AS_IS, VAL_ASCII);
 	
 	// Set up data buffer
 	char buf[128];

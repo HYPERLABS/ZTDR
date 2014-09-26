@@ -149,12 +149,9 @@ __stdcall int acquireWaveform (int numAvg)
 		return -3;
 	}
 	
-	int blocksok;
-	int nblocks;
-	
 	// Read blocks of data from block numbers 0-63 (max 64 blocks if 16384 pts)
-	blocksok = 1;
-	nblocks = recLen / 256;
+	int blocksok = 1;
+	int nblocks = recLen / 256;
 	
 	for (int i=0; i < nblocks; i++)
 	{
@@ -177,8 +174,7 @@ __stdcall int acquireWaveform (int numAvg)
 	
 	// Reconstruct data and find offset for acquisition
 	reconstructData (0);
-	double offset;
-	offset = meanArray();
+	double offset = meanArray();
 	
 	// Timescale and parameters for main acquisition
 	setupTimescale ();
@@ -427,10 +423,8 @@ __stdcall int dumpFile (char *filename)
 __stdcall void openDevice (void)
 {
 	char buf[32];
-	int hostbps;
-	int devbps;
 
-	hostbps = usbfifo_gethostbps ();
+	int hostbps = usbfifo_gethostbps ();
 
 	usb_opened = usbfifo_open ();
 	
@@ -438,7 +432,7 @@ __stdcall void openDevice (void)
 	{
 		usbfifo_getid (buf, 32);
 		usbfifo_getcomspd (buf, 32);
-		devbps = atoi (buf);
+		int devbps = atoi (buf);
 	}
 }
 
@@ -477,9 +471,7 @@ __stdcall void setupTimescale (void)
 // Reconstruct data into useable form
 __stdcall void reconstructData (double offset)
 {
-	double vel;
-	
-	vel = (double) 3E8 / sqrt (dielK);
+	double vel = (double) 3E8 / sqrt (dielK);
 
 	UINT32 incr;
 	timeinf curt;
@@ -503,8 +495,7 @@ __stdcall void reconstructData (double offset)
 // Calculate offset from average 0
 __stdcall double meanArray (void)
 {
-	long val;
-	val = 0;
+	long val = 0;
 	
 	for (int i = 24; i < 1024; i++)
 	{
@@ -527,8 +518,7 @@ __stdcall int calTimebase (void)
 		calAcquireWaveform (i);
 	}
 
-	int calStatus;
-	calStatus = calFindStepcount ();
+	int calStatus = calFindStepcount ();
 
 	calDAC ();
 	
@@ -567,10 +557,8 @@ __stdcall void calSetParams (void)
 		//return;
 	}
 	
-	double val;
-	
 	// Set start and end time
-	val = 0;
+	double val = 0;
 	start_tm.time = (UINT32) (val / 50.0*0xFFFF);
 	
 	val = 0;
@@ -608,12 +596,9 @@ __stdcall void calAcquireWaveform (int calStepIndex)
 	}
 	*/
 	
-	int blocksok;
-	int nblocks;
-	
 	// Read blocks of data from block numbers (max 64, with 16384 pts)
-	blocksok = 1;
-	nblocks = recLen / 256;
+	int blocksok = 1;
+	int nblocks = recLen / 256;
 	
 	for (int i = 0; i < nblocks; i++)
 	{
@@ -938,10 +923,8 @@ __stdcall void vertCal (void)
 	}
 
 	// Read blocks of data from block numbers
-	int blocksok;
-	int nblocks;
-	blocksok = 1;
-	nblocks = recLen / 256;
+	int blocksok = 1;
+	int nblocks = recLen / 256;
 	
 	// Define here to avoid redefine errors
 	int i;
@@ -1021,13 +1004,11 @@ __stdcall void vertCal (void)
 		i = i + 1;
 	}
 	 
-	int i50;
-	i50 = i;
+	int i50 = i;
 	
 	// Compute a calibrated vstart as average of points from 0 to (i50 - CAL_GUARD) at calIncrement
 	// Normalize calIncrement to waveform index
-	int calInterval;
-	calInterval = (int) (CAL_GUARD * 0.5 / (CAL_WINDOW / 1024));
+	int calInterval = (int) (CAL_GUARD * 0.5 / (CAL_WINDOW / 1024));
 	
 	int tempID;
 	tempID = i50 - calInterval;
@@ -1078,20 +1059,17 @@ __stdcall void vertCal (void)
 // Set timescale for vertCal at 0 ns
 __stdcall void vertCalZero (double windowStart)
 {
-	double val;
+	double val = 0;
 	
 	start_tm.time = (UINT32) (windowStart / 50.0*0xFFFF);
 
-	val = 0;
 	end_tm.time = start_tm.time + (UINT32) val;
 }
 
 // Set timescale for vert cal
 __stdcall void vertCalTimescale (void)
 {
-	double val;
-
-	val = 0;
+	double val = 0;
 	start_tm.time = (UINT32) (val / 50.0*0xFFFF);
 	
 	val = 50;
