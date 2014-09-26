@@ -1068,18 +1068,22 @@ void savePNG (void)
 	char save_file[260];
 	status = sprintf (filename, ".png");
 	
-	// Chose save folder
+	// Choose save folder
+	char dir[16];
+	
 	if (defaultSavePNG == 1)
 	{
-		// Save to program default folder
-		status = FileSelectPopup ("images", filename, "PNG (*.png)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+		// Use default folder if first save attempt
+		status = sprintf (dir, "images");
 		defaultSavePNG = 0;
 	}
 	else
 	{
-		// Save to last directory user was in
-		status = FileSelectPopup ("", filename, "PNG (*.png)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+		status = sprintf (dir, "");
 	}
+	
+	status = FileSelectPopup (dir, filename, "PNG (*.png)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+	
 
 	// Don't attempt to save if user cancels
 	if (status == VAL_NO_FILE_SELECTED)
@@ -1111,40 +1115,47 @@ void storeWaveform (int format)
 	char save_file[512];
 	char filename[64];
 	
+	
 	// Save dialog
 	if (format == 1)
 	{
 		status = sprintf (filename, ".ztdr");
 		
-		// Chose save folder
+		// Choose save folder
+		char dir[16];
+	
 		if (defaultSaveZTDR == 1)
 		{
-			// Save in default location
-			status = FileSelectPopup ("waveforms", filename, "ZTDR Waveform (*.ztdr)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+			// Use default folder if first save attempt
+			status = sprintf (dir, "waveforms");
 			defaultSaveZTDR = 0;
 		}
 		else
 		{
-			// Save in last user directory
-			status = FileSelectPopup ("", filename, "ZTDR Waveform (*.ztdr)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+			status = sprintf (dir, "");
 		}
+
+		status = FileSelectPopup (dir, filename, "ZTDR Waveform (*.ztdr)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
 	}
 	else
 	{
 		status = sprintf (filename, ".csv");
 		
-		// Chose save folder
+		// Choose save folder
+		char dir[16];
+	
 		if (defaultSaveCSV == 1)
 		{
-			// Save in default location
-			status = FileSelectPopup ("datalogs", filename, "CSV (*.csv)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+			// Use default folder if first save attempt
+			status = sprintf (dir, "datalogs");
 			defaultSaveCSV = 0;
 		}
 		else
 		{
-			// Save in last user directory
-			status = FileSelectPopup ("", filename, "CSV (*.csv)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+			status = sprintf (dir, "");
 		}
+		
+		status = FileSelectPopup (dir, filename, "CSV (*.csv)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
 	}
 
 	// Don't attempt to save if user cancels
@@ -1212,18 +1223,23 @@ void recallWaveform (void)
 	// Select file
 	char save_file[260];
 	
-	// Chose load folder
+	// Choose save folder
+	char dir[16];
+
 	if (defaultSaveZTDR == 1)
 	{
-		// Load from default location
-		status = FileSelectPopup ("waveforms", "*.ztdr", "ZTDR Waveform (*.ztdr)", "Select File to Retrieve", VAL_SELECT_BUTTON, 0, 0, 1, 1, save_file);
+		// Use default folder if first save attempt
+		status = sprintf (dir, "waveforms");
+		defaultSaveZTDR = 0;
 	}
 	else
 	{
-		// Load from last user directory
-		status = FileSelectPopup ("", "*.ztdr", "ZTDR Waveform (*.ztdr)", "Select File to Retrieve", VAL_SELECT_BUTTON, 0, 0, 1, 1, save_file);
+		status = sprintf (dir, "");
 	}
-
+	
+	// Load from last user directory
+	status = FileSelectPopup (dir, "*.ztdr", "ZTDR Waveform (*.ztdr)", "Select File to Retrieve", VAL_SELECT_BUTTON, 0, 0, 1, 1, save_file);
+	
 	// Don't crash if user cancels
 	if (status == VAL_NO_FILE_SELECTED)
 	{
