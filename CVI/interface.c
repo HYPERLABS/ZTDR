@@ -552,6 +552,13 @@ void CVICALLBACK onCSV (int menuBar, int menuItem, void *callbackData,
 	storeWaveform (0);
 }
 
+// Save CSV and PNG with comments
+void CVICALLBACK onMultiSave (int menuBar, int menuItem, void *callbackData,
+							  int panel)
+{
+	
+}
+
 // Exit program
 void CVICALLBACK onExit (int menuBar, int menuItem, void *callbackData,
 						 int panel)
