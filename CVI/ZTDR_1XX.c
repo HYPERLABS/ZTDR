@@ -118,6 +118,173 @@ __stdcall int initDevice (void)
 	return calStatus;
 }
 
+// Calibrate vertical axis
+__stdcall int vertCal (void)
+{
+	int status;
+
+	if (!usb_opened)
+	{
+		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure.");
+		return;
+	}
+
+	// Calculate offset of waveform by averaging samples at 0 ns 
+	vertCalZero (CAL_WINDOW_ZERO);
+
+	// Write the acquisition parameters 
+	if (vertCalWriteParams () <= 0)
+	{
+		// Param error
+		return -1;
+	}
+
+	// Acquire data 
+	UINT8 acq_result;
+	status = usbfifo_acquire (&acq_result, 0);
+ 
+	if (status < 0)
+	{
+		// Acquire failure
+		return -2;
+	}
+
+	// Read blocks of data from block numbers
+	int blocksok = 1;
+	int nblocks = recLen / 256;
+	
+	// Define here to avoid redefine errors
+	int i;
+	
+	for (i = 0; i < nblocks; i++)
+	{
+		// Verify data integrity of block
+		int ntries = 3;
+		while ((status = usbfifo_readblock ((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
+
+		if (status < 0)
+		{
+			blocksok = 0;
+		}
+	}
+
+	if (blocksok == 0)
+	{
+		// Read failure
+		return -3;
+	}
+	
+	reconstructData (0);
+	
+	// Find offset for acquisition
+	double vstart;
+	vstart = meanArray ();
+
+	// Timescale and parameters for main acquisition
+	vertCalTimescale ();
+
+	// Write the acquisition parameters    
+	if (vertCalWriteParams () <= 0)
+	{
+		// Param error
+		return -4;
+	}
+
+	// Acquire data 
+	status = usbfifo_acquire(&acq_result, 0);
+	
+	if (status < 0)
+	{
+		// Acquire failure
+		return - 5;
+	}
+
+	// Read blocks of data from block numbers 0-63 (16384 pts)
+	blocksok = 1;
+	nblocks = recLen / 256;
+	
+	for (i = 0; i < nblocks; i++)
+	{
+		// Verify data integrity of block 
+		int ntries = 3;
+		while ((status = usbfifo_readblock ((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
+
+		if (status < 0)
+		{
+			blocksok = 0;
+		}
+	}
+
+	if (blocksok == 0)
+	{
+		// Read failure
+		return -6;
+	}
+	
+	reconstructData (0);
+	
+	// Find the 50% crossing from vstart to approx. vstart + 1200 (step size)
+	i = 0;
+
+	while (wfmFilter[i] < (vstart + 400.0) && (i <= 1022))
+	{
+		i = i + 1;
+	}
+	 
+	int i50 = i;
+	
+	// Compute a calibrated vstart as average of points from 0 to (i50 - CAL_GUARD) at calIncrement
+	// Normalize calIncrement to waveform index
+	int calInterval = (int) (CAL_GUARD * 0.5 / (CAL_WINDOW / 1024));
+	
+	int tempID;
+	tempID = i50 - calInterval;
+	
+	double temp;
+
+	if (tempID > 1)
+	{
+		temp = 0;
+		
+		for (i=0; i<tempID; i++)
+		{
+			temp += wfmFilter[i];
+		}
+		vstart = temp / tempID;
+	}
+
+	int tempID2;
+	double vend;
+
+	// Compute calibrated vend as average over 1ns at i50 + 2 * CAL_GUARD at calIncrement
+	tempID = i50 + calInterval;
+	
+	if (tempID > 1023)
+	{
+		tempID = 1023;
+	}
+
+	tempID2 = i50 + 4 * calInterval;
+	
+	if (tempID2 > 1023)
+	{
+		tempID2 = 1023;
+	}
+
+	temp = 0;
+	
+	for (i = tempID; i < tempID2; i++)
+	{
+		temp += wfmFilter[i];
+	}
+	
+	vend = temp / (tempID2 - tempID);
+
+	vampl = vend - vstart;
+	
+	return 1;
+}
+
 // Acquisition (UIR agnostic)
 __stdcall int acquireWaveform (int numAvg)
 {
@@ -888,171 +1055,6 @@ __stdcall int writeParams (void)
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Params written.");
 		return 1;
 	}
-}
-
-// Calibrate vertical axis
-__stdcall void vertCal (void)
-{
-	int status;
-
-	if (!usb_opened)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure.");
-		return;
-	}
-
-	// Calculate offset of waveform by averaging samples at 0 ns 
-	vertCalZero (CAL_WINDOW_ZERO);
-
-	// Write the acquisition parameters 
-	if (vertCalWriteParams () <= 0)
-	{
-		// SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
-		// return;
-	}
-
-	// Acquire data 
-	UINT8 acq_result;
-	status = usbfifo_acquire (&acq_result, 0);
- 
-	if (status < 0)
-	{
-		// SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
-		// return;
-	}
-
-	// Read blocks of data from block numbers
-	int blocksok = 1;
-	int nblocks = recLen / 256;
-	
-	// Define here to avoid redefine errors
-	int i;
-	
-	for (i = 0; i < nblocks; i++)
-	{
-		// Verify data integrity of block
-		int ntries = 3;
-		while ((status = usbfifo_readblock ((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
-
-		if (status < 0)
-		{
-			blocksok = 0;
-		}
-	}
-
-	if (blocksok == 0)
-	{
-		//setCtrlVal(panelHandle, PANEL_TXT_LOG, "Read failure.");
-		return;
-	}
-	
-	reconstructData (0);
-	
-	// Find offset for acquisition
-	double vstart;
-	vstart = meanArray ();
-
-	// Timescale and parameters for main acquisition
-	vertCalTimescale ();
-
-	// Write the acquisition parameters    
-	if (vertCalWriteParams () <= 0)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Param error.");
-		//return;
-	}
-
-	// Acquire data 
-	status = usbfifo_acquire(&acq_result, 0);
-	
-	if (status < 0)
-	{
-		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Acquire failure.");
-		//return;
-	}
-
-	// Read blocks of data from block numbers 0-63 (16384 pts)
-	blocksok = 1;
-	nblocks = recLen / 256;
-	
-	for (i = 0; i < nblocks; i++)
-	{
-		// Verify data integrity of block 
-		int ntries = 3;
-		while ((status = usbfifo_readblock ((UINT8) i, (UINT16*) (wfm + 256 * i))) < 0 && ntries--);
-
-		if (status < 0)
-		{
-			blocksok = 0;
-		}
-	}
-
-	if (blocksok == 0)
-	{
-		//setCtrlVal(panelHandle, PANEL_TXT_LOG, "Read failure.");
-		//return;
-	}
-	
-	reconstructData (0);
-	
-	// Find the 50% crossing from vstart to approx. vstart + 1200 (step size)
-	i = 0;
-
-	while (wfmFilter[i] < (vstart + 400.0) && (i <= 1022))
-	{
-		i = i + 1;
-	}
-	 
-	int i50 = i;
-	
-	// Compute a calibrated vstart as average of points from 0 to (i50 - CAL_GUARD) at calIncrement
-	// Normalize calIncrement to waveform index
-	int calInterval = (int) (CAL_GUARD * 0.5 / (CAL_WINDOW / 1024));
-	
-	int tempID;
-	tempID = i50 - calInterval;
-	
-	double temp;
-
-	if (tempID > 1)
-	{
-		temp = 0;
-		
-		for (i=0; i<tempID; i++)
-		{
-			temp += wfmFilter[i];
-		}
-		vstart = temp / tempID;
-	}
-
-	int tempID2;
-	double vend;
-
-	// Compute calibrated vend as average over 1ns at i50 + 2 * CAL_GUARD at calIncrement
-	tempID = i50 + calInterval;
-	
-	if (tempID > 1023)
-	{
-		tempID = 1023;
-	}
-
-	tempID2 = i50 + 4 * calInterval;
-	
-	if (tempID2 > 1023)
-	{
-		tempID2 = 1023;
-	}
-
-	temp = 0;
-	
-	for (i = tempID; i < tempID2; i++)
-	{
-		temp += wfmFilter[i];
-	}
-	
-	vend = temp / (tempID2 - tempID);
-
-	vampl = vend - vstart;
 }
 
 // Set timescale for vertCal at 0 ns

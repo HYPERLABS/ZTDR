@@ -322,12 +322,15 @@ int CVICALLBACK onTimerCal (int panel, int control, int event,
 		case EVENT_TIMER_TICK:
 		{
 			int status;
+			
 			GetCtrlVal (panel, PANEL_AUTOACQUIRE, &status);
 
 			// Don't run if autoacquire disabled
 			if (status == 1)
 			{
-				vertCal ();
+				int calStatus = vertCal ();
+	
+				writeMsgVertCal (calStatus);
 
 				acquire ();
 			}
@@ -589,19 +592,31 @@ void CVICALLBACK onStore (int menuBar, int menuItem, void *callbackData,
 // Timebase calibration
 void CVICALLBACK onTimeCal (int menuBar, int menuItem, void *callbackData,
 							int panel)
-{
+{	
+	int status;
+
+	// Suspend callbacks
+	status = SuspendTimerCallbacks ();
+
+	// Write calibration message
 	writeMsgCal (0);
 
-	calTimebase ();
+	int calMsg = calTimebase ();
+	writeMsgCal (calMsg);
 
 	acquire ();
+	
+	// Reenable callbacks
+	status = ResumeTimerCallbacks ();
 }
 
 // Vertical calibration
 void CVICALLBACK onVertCal (int menuBar, int menuItem, void *callbackData,
 							int panel)
 {
-	vertCal ();
+	int calStatus = vertCal ();
+	
+	writeMsgVertCal (calStatus);
 
 	acquire ();
 }

@@ -213,11 +213,10 @@ void main (int argc, char *argv[])
 	showVersion ();
 	
 	// Show startup message
-	int calStatus = 0;
-	writeMsgCal (calStatus);
+	writeMsgCal (0);
 	
 	// Peform unified initialization and calibration
-	calStatus = initDevice ();
+	int calStatus = initDevice ();
 	
 	// Indicate cal status
 	writeMsgCal (calStatus);
@@ -529,7 +528,7 @@ void updateTimestamp (void)
 	status = SetCtrlVal (panelHandle, PANEL_TIMESTAMP, timestamp);
 }
 
-// Write message to status
+// Write calibration message to status
 void writeMsgCal (int msg)
 {
 	int status;
@@ -546,6 +545,21 @@ void writeMsgCal (int msg)
 	else
 	{
 		status = SetCtrlVal (panelHandle, PANEL_MESSAGES, " FAILED!\n");
+	}
+}
+
+// Write VertCal message to status
+void writeMsgVertCal (int msg)
+{
+	int status;
+	
+	if (msg == 1)
+	{
+		status = SetCtrlVal (panelHandle, PANEL_MESSAGES, "> VertCal ... DONE!\n");
+	}
+	else
+	{
+		status = SetCtrlVal (panelHandle, PANEL_MESSAGES, "> VertCal ... FAILED!\n");
 	}
 }
 

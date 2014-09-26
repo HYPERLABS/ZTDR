@@ -58,6 +58,7 @@ void	updateCursors (void);
 void	updateSize (void);
 void 	updateTimestamp (void);
 void 	writeMsgCal (int msg);
+void	writeMsgVertCal (int msg);
 void 	zoom (void);
 
 

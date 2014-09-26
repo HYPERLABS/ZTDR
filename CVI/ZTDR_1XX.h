@@ -128,6 +128,7 @@ typedef union _timeinf timeinf;
 
 // User-facing functions
 int		__stdcall 	initDevice (void);
+int 	__stdcall	vertCal (void);
 int 	__stdcall	setEnviron (int x, int y, double start, double end, double k, int rec);
 int 	__stdcall	acquireWaveform (int numAvg);
 int 	__stdcall	dumpFile (char *filename);
@@ -148,7 +149,6 @@ double 	__stdcall	meanArray (void);
 void 	__stdcall	openDevice (void);
 void 	__stdcall	reconstructData (double offset);
 void 	__stdcall	setupTimescale (void);
-void 	__stdcall	vertCal (void);
 void 	__stdcall	vertCalTimescale (void);
 void 	__stdcall	vertCalZero (double windowStart);
 int 	__stdcall	vertCalWriteParams (void);
