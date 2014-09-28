@@ -41,7 +41,8 @@
 #define  PANEL_VERSION                    26      /* control type: textMsg, callback function: (none) */
 #define  PANEL_TIMER                      27      /* control type: timer, callback function: onTimer */
 #define  PANEL_TIMESTAMP                  28      /* control type: textMsg, callback function: (none) */
-#define  PANEL_DEBUG                      29      /* control type: command, callback function: onDebug */
+#define  PANEL_DEBUG_2                    29      /* control type: command, callback function: onDebug2 */
+#define  PANEL_DEBUG                      30      /* control type: command, callback function: onDebug */
 
 #define  PANELSAVE                        2
 #define  PANELSAVE_SERIAL                 2       /* control type: string, callback function: (none) */
@@ -120,6 +121,7 @@ int  CVICALLBACK onClear(int panel, int control, int event, void *callbackData, 
 void CVICALLBACK onClearMenu(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onCSV(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onDebug(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onDebug2(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onExit(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onGeneric(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onMultiSave(int menubar, int menuItem, void *callbackData, int panel);

@@ -641,6 +641,7 @@ int CVICALLBACK onDebug (int panel, int control, int event,
 		{
 			int status;
 
+			/*
 			int numAvg = 4;
 			int length = 1024;
 
@@ -657,6 +658,31 @@ int CVICALLBACK onDebug (int panel, int control, int event,
 			}
 
 			dumpFile ("eggwool.csv");
+			*/
+			
+			setZero ();
+			
+			acquire ();
+		}
+
+		break;
+	}
+	return 0;
+}
+
+// Debug button
+int CVICALLBACK onDebug2 (int panel, int control, int event,
+						  void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+		{
+			int status;
+
+			resetZero ();
+			
+			acquire ();
 		}
 
 		break;

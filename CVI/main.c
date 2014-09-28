@@ -47,11 +47,12 @@ extern 	int 	calIncrement;
 extern	double	vampl;
 
 // Acquisition environment
-extern	double	dielK; // coax
-extern	int 	yUnits; // mV
-extern	int 	xUnits; // m
-extern	double	xStart; // m
-extern	double	xEnd; // m
+extern	double	dielK;
+extern	int 	yUnits;
+extern	int 	xUnits;
+extern	double	xStart;
+extern	double	xEnd;
+extern 	double	xZero;
 
 // Number of data points acquired
 extern	UINT16 	recLen;
@@ -148,6 +149,14 @@ double minWidth[] =
 	1.0,
 	3.0,
 	5.0
+};
+
+double step150[] =
+{
+	125.0,
+	1.5,
+	75.0,
+	0.5
 };
 
 char *monthName[] =
@@ -719,11 +728,12 @@ void changeUnitX (int unit)
 	
 	// Store previous unit and limits to perform conversion of current window values
 	int prevUnit;
-	double prevStart, prevEnd;
+	double prevStart, prevEnd, prevZero;
 	
 	prevUnit = xUnits;
 	status = GetCtrlVal (panelHandle, PANEL_START, &prevStart);
 	status = GetCtrlVal (panelHandle, PANEL_END, &prevEnd);
+	prevZero = xZero;
 	
 	xUnits = unit; 
 	
@@ -756,26 +766,29 @@ void changeUnitX (int unit)
 	// Calculate V/C
 	double vc = 1.0 / sqrt (dielK);
 	
-	// Keep same window and apply to new units
+	// Keep same window and zero, apply to new units
 	if (xUnits == UNIT_M)
 	{
 		if (prevUnit == UNIT_M)
 		{
 			// Keep m as m
-			xStart = prevStart;
-			xEnd = prevEnd;
+			xZero = prevZero;
+			xStart = prevStart + xZero;
+			xEnd = prevEnd + xZero;
 		}
 		else if (prevUnit == UNIT_FT)
 		{
 			// Convert ft to m
-			xStart = prevStart * FT_TO_M;
-			xEnd = prevEnd * FT_TO_M;	
+			xZero = prevZero * FT_TO_M;
+			xStart = (prevStart * FT_TO_M) + xZero;
+			xEnd = (prevEnd * FT_TO_M) + xZero;
 		}
 		else if (prevUnit == UNIT_NS)
 		{
 			// Convert ns to m
-			xStart = prevStart * (vc * 3e8 * 1e-9);
-			xEnd = prevEnd * (vc * 3e8 * 1e-9);
+			xZero = prevZero * (vc * 3e8 * 1e-9);
+			xStart = (prevStart * (vc * 3e8 * 1e-9)) + xZero;
+			xEnd = (prevEnd * (vc * 3e8 * 1e-9)) + xZero;
 		}
 	}
 	else if (xUnits == UNIT_FT)
@@ -783,20 +796,23 @@ void changeUnitX (int unit)
 		if (prevUnit == UNIT_M)
 		{
 			// Convert m to ft
-			xStart = prevStart / FT_TO_M;
-			xEnd   = prevEnd / FT_TO_M;
+			xZero = prevZero / FT_TO_M;
+			xStart = (prevStart / FT_TO_M) + xZero;
+			xEnd = (prevEnd / FT_TO_M) + xZero;
 		}
 		else if (prevUnit == UNIT_FT)
 		{
 			// Keep ft as ft
-			xStart = prevStart;
-			xEnd = prevEnd;
+			xZero = prevZero;
+			xStart = prevStart + xZero;
+			xEnd = prevEnd + xZero;
 		}
 		else if (prevUnit == UNIT_NS)
 		{
 			// Convert ns to ft
-			xStart = (prevStart * vc * 3E8 * 1e-9) / FT_TO_M;
-			xEnd = (prevEnd * vc * 3E8 * 1e-9) / FT_TO_M;
+			xZero = (prevZero * vc * 3E8 * 1e-9) / FT_TO_M;
+			xStart = ((prevStart * vc * 3E8 * 1e-9) / FT_TO_M) + xZero;
+			xEnd = ((prevEnd * vc * 3E8 * 1e-9) / FT_TO_M) + xZero;
 		}
 	}
 	else if (xUnits == UNIT_NS)
@@ -804,36 +820,40 @@ void changeUnitX (int unit)
 		if (prevUnit == UNIT_M)
 		{
 			// Convert m to ns
-			xStart = prevStart / (vc * 3e8 * 1e-9);
-			xEnd = prevEnd / (vc * 3e8 * 1e-9);
-			
-			// endTime = xEnd / (acqDiel * 3e8);
+			xZero = prevZero / (vc * 3e8 * 1e-9);
+			xStart = (prevStart / (vc * 3e8 * 1e-9)) + xZero;
+			xEnd = (prevEnd / (vc * 3e8 * 1e-9)) + xZero;
 		}
 		else if (prevUnit == UNIT_FT)
 		{
 			// Convert ft to ns
-			xStart = (prevStart * FT_TO_M) / (vc * 3E8 * 1E-9);
-			xEnd = (prevEnd * FT_TO_M) / (vc * 3E8 * 1E-9);
+			xZero = (prevZero * FT_TO_M) / (vc * 3E8 * 1e-9);
+			xStart = ((prevStart * FT_TO_M) / (vc * 3E8 * 1e-9)) + xZero;
+			xEnd = ((prevEnd * FT_TO_M) / (vc * 3E8 * 1e-9)) + xZero;
 		}
 		else if (prevUnit == UNIT_NS)
 		{
 			// Keep ns as ns
-			xStart = prevStart;
-			xEnd = prevEnd;
+			xZero = prevZero;
+			xStart = prevStart + xZero;
+			xEnd = prevEnd + xZero;
 		}
 	}
 	
-	// Update X labels and limits
+	// Update X labels, limits, and offset values
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, labelX[xUnits]);
 	
 	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_LABEL_TEXT, labelStartX[xUnits]);
 	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_LABEL_TEXT, labelEndX[xUnits]);
 	
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MIN_VALUE, 0.0 - xZero);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_MIN_VALUE, 0.0 - xZero);
+	
 	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MAX_VALUE, maxRange[xUnits]);
 	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_MAX_VALUE, maxRange[xUnits]);
 	
-	status = SetCtrlVal (panelHandle, PANEL_START, xStart);
-	status = SetCtrlVal (panelHandle, PANEL_END, xEnd);
+	status = SetCtrlVal (panelHandle, PANEL_START, xStart - xZero);
+	status = SetCtrlVal (panelHandle, PANEL_END, xEnd - xZero);
 }
 
 // Change vertical units
@@ -979,8 +999,8 @@ void resizeWindow (void)
 	// Start is less than end and window is wide enough
 	if ((x1 + minWidth[xUnits]) < x2) 
 	{
-		xStart = x1;
-		xEnd = x2;
+		xStart = x1 + xZero;
+		xEnd = x2 + xZero;
 	}
 	// Adjustment if end less than start
 	else
@@ -1003,10 +1023,90 @@ void resizeWindow (void)
 		status = SetCtrlVal (panelHandle, PANEL_START, x1);
 		status = SetCtrlVal (panelHandle, PANEL_END, x1 + adjust);
 		
-		xStart = x1;
-		xEnd = x1 + adjust;
+		// Keep acquisition start/end as absolute values
+		xStart = x1 + xZero;
+		xEnd = x1 + adjust + xZero;
 	}
 } 
+
+// Set zero on horizontal axis
+void setZero (void)
+{
+	int status;
+	
+	// Disable timers during action
+	status = SuspendTimerCallbacks ();
+	
+	// Acquire new waveform with no X offset
+	xZero = 0.0;
+	acquire ();
+	
+	double idx150 = step150[yUnits];
+	
+	int i = 0;
+	
+	while (wfmAvg[i] < idx150 && i < 1024)
+	{
+		i++;
+	}
+	
+	if (idx150 == 1024)
+	{
+		xZero = 0;
+	}
+	else
+	{
+		xZero = wfmX[i];
+	}
+	
+	// Adjust start/end controls
+	double prevStart, prevEnd;
+	status = GetCtrlVal (panelHandle, PANEL_START, &prevStart);
+	status = GetCtrlVal (panelHandle, PANEL_END, &prevEnd);
+	
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MIN_VALUE, 0.0 - xZero);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_MIN_VALUE, 0.0 - xZero);
+	
+	status = SetCtrlVal (panelHandle, PANEL_START, xStart - xZero);
+	status = SetCtrlVal (panelHandle, PANEL_END, xEnd - xZero);
+	
+	// Show color indicator that zero has been set
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_TEXT_BGCOLOR, VAL_YELLOW); 
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_TEXT_BGCOLOR, VAL_YELLOW); 
+	
+	// Restart timers
+	status = ResumeTimerCallbacks ();
+}
+
+// Reset zero to absolute value
+void resetZero (void)
+{
+	int status;
+	
+	// Disable timers during action
+	status = SuspendTimerCallbacks ();
+	
+	// Reset zero to absolute position
+	xZero = 0.0;
+	
+	// Adjust start/end controls
+	double prevStart, prevEnd;
+	status = GetCtrlVal (panelHandle, PANEL_START, &prevStart);
+	status = GetCtrlVal (panelHandle, PANEL_END, &prevEnd);
+	
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MIN_VALUE, 0.0 - xZero);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_MIN_VALUE, 0.0 - xZero);
+	
+	status = SetCtrlVal (panelHandle, PANEL_START, xStart - xZero);
+	status = SetCtrlVal (panelHandle, PANEL_END, xEnd - xZero);
+	
+	// Show color indicator that zero has been set
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_TEXT_BGCOLOR, VAL_WHITE); 
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_TEXT_BGCOLOR, VAL_WHITE);
+	
+	// Restart timers
+	status = ResumeTimerCallbacks ();
+}
 
 // Print current waveform and controles
 void printWaveform (void)

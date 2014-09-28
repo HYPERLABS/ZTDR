@@ -52,6 +52,7 @@ int 	yUnits = 0; // mV
 int 	xUnits = 0; // m
 double	xStart = 0.0; // m
 double	xEnd = 10.0; // m
+double	xZero = 0.0; //m
 
 // Number of data points acquired
 UINT16 	recLen	= 1024;
@@ -458,31 +459,6 @@ __stdcall int acquireWaveform (int numAvg)
 				break;
 			}
 		}
-	
-		// Horizontal units in time
-		if (xUnits == UNIT_NS)
-		{
-			for (i = 0; i < recLen; i++)
-			{
-				wfmX[i] = wfmTime[i];
-			}
-		}
-		// Horizontal units in meters
-		else if (xUnits == UNIT_M) 
-		{
-			for (i = 0; i < recLen; i++)
-			{
-				wfmX[i] = wfmDistM[i];
-			}
-		}
-		// Horizontal units in feet
-		else 
-		{
-			for (i = 0; i < recLen; i++)
-			{
-				wfmX[i] = wfmDistFt[i];
-			}
-		}
 		
 		// Average waveforms
 		for (i = 0; i < recLen; i++)
@@ -496,7 +472,7 @@ __stdcall int acquireWaveform (int numAvg)
 	{
 		for (int i = 0; i < recLen; i++)
 		{
-			wfmX[i] = wfmTime[i];
+			wfmX[i] = wfmTime[i] - xZero;
 		}
 	}
 	// Horizontal units in meters
@@ -504,7 +480,7 @@ __stdcall int acquireWaveform (int numAvg)
 	{
 		for (int i = 0; i < recLen; i++)
 		{
-			wfmX[i] = wfmDistM[i];
+			wfmX[i] = wfmDistM[i] - xZero;
 		}
 	}
 	// Horizontal units in feet
@@ -512,7 +488,7 @@ __stdcall int acquireWaveform (int numAvg)
 	{
 		for (int i = 0; i < recLen; i++)
 		{
-			wfmX[i] = wfmDistFt[i];
+			wfmX[i] = wfmDistFt[i] - xZero;
 		}
 	}
 	
