@@ -273,6 +273,9 @@ int CVICALLBACK onPanel (int panel, int event, void *callbackData,
 
 		case EVENT_CLOSE:
 		{
+			// Save program state on exit
+			saveSettings (1);
+			
 			usbfifo_close ();
 
 			QuitUserInterface (0);
@@ -556,7 +559,7 @@ void CVICALLBACK onCSV (int menuBar, int menuItem, void *callbackData,
 void CVICALLBACK onLoadSettings (int menuBar, int menuItem, void *callbackData,
 								 int panel)
 {
-	loadSettings ();
+	loadSettings (0);
 	
 	acquire ();
 }
@@ -572,6 +575,9 @@ void CVICALLBACK onMultiSave (int menuBar, int menuItem, void *callbackData,
 void CVICALLBACK onExit (int menuBar, int menuItem, void *callbackData,
 						 int panel)
 {
+	// Save program state on exit
+	saveSettings (1);
+	
 	usbfifo_close ();
 
 	QuitUserInterface (0);
@@ -611,7 +617,7 @@ void CVICALLBACK onResetSettings (int menuBar, int menuItem, void *callbackData,
 void CVICALLBACK onSaveSettings (int menuBar, int menuItem, void *callbackData,
 								 int panel)
 {
-	saveSettings ();
+	saveSettings (0);
 }
 
 // Reset to absolute zero

@@ -219,7 +219,7 @@ void main (int argc, char *argv[])
 	status = DisplayPanel (panelHandle);
 	status = GetPanelAttribute(panelHandle, ATTR_WIDTH, &windowWidth);
 	status = GetPanelAttribute(panelHandle, ATTR_HEIGHT, &windowHeight);
-																	 
+	
 	// Make sure relevant output directories exist
 	checkDirs ();
 	
@@ -236,7 +236,7 @@ void main (int argc, char *argv[])
 	writeMsgCal (calStatus);
 	
 	if (calStatus == 1)
-	{ 
+	{   
 		// Run first acquisition
 		acquire ();
 	
@@ -247,6 +247,9 @@ void main (int argc, char *argv[])
 		// Start event timers
 		status = SetCtrlAttribute (panelHandle, PANEL_TIMER, ATTR_ENABLED, 1);
 		status = SetCtrlAttribute (panelHandle, PANEL_CALTIMER, ATTR_ENABLED, 1);
+		
+		// Load user.ini, if any
+		loadSettings (1);
 	}
 	else if (calStatus == -1)
 	{
@@ -1319,7 +1322,7 @@ void recallWaveform (void)
 	// Select file
 	char save_file[260];
 	
-	// Choose save folder
+	// Choose load folder
 	char dir[16];
 
 	if (defaultSaveZTDR == 1)
@@ -1589,47 +1592,56 @@ void updateSize (void)
 }
 
 // Save program settings
-void saveSettings (void)
+void saveSettings (int isAuto)
 {
 	int status;	
 
 	// Disable timers during action
 	status = SuspendTimerCallbacks ();
 	
-	// File setup
-	char save_file[512];
-	char filename[64];
+	int fd;
 	
-	status = sprintf (filename, ".ini");
-	
-	// Choose save folder
-	char dir[16];
-
-	if (defaultSaveINI == 1)
-	{
-		// Use default folder if first save attempt
-		status = sprintf (dir, "settings");
-		defaultSaveINI = 0;
+	// Autosave on program exit
+	if (isAuto == 1)
+	{											 
+		fd = OpenFile("user.ini",VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
 	}
+	// User manually saves settings
 	else
-	{
-		status = sprintf (dir, "");
-	}
+	{   // File setup
+		char save_file[512];
+		char filename[64];
+		char dir[16];
 
-	status = FileSelectPopup (dir, filename, "Configuration File (*.ini)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file); 
+		status = sprintf (filename, ".ini");
 
-	// Don't attempt to save if user cancels
-	if (status == VAL_NO_FILE_SELECTED)
-	{
-		// Re-enable timers
-		status = ResumeTimerCallbacks ();
+		if (defaultSaveINI == 1)
+		{
+			// Use default folder if first save attempt
+			status = sprintf (dir, "settings");
+			defaultSaveINI = 0;
+		}
+		else
+		{
+			status = sprintf (dir, "");
+		}
+
+		status = FileSelectPopup (dir, filename, "Configuration File (*.ini)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file); 
+
+		// Don't attempt to save if user cancels
+		if (status == VAL_NO_FILE_SELECTED)
+		{
+			// Re-enable timers
+			status = ResumeTimerCallbacks ();
 		
-		return;
-	}	
+			return;
+		}	
+		
+		fd = OpenFile (save_file, VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
+	}
 	
 	// Open selected file for write
-	int fd, bufLen;
-	fd = OpenFile (save_file, VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
+	int bufLen;
 	
 	// Set up data buffer;
 	char buf[1024];
@@ -1689,43 +1701,57 @@ void saveSettings (void)
 }
 
 // Load program settings
-void loadSettings (void)
+void loadSettings (int isAuto)
 {
 	int status;
 	
 	// Disable timers during action
 	status = SuspendTimerCallbacks ();
 	
-	// File setup
-	char save_file[512];
-	
-	// Choose save folder
-	char dir[16];
+	int fd;		 
 
-	if (defaultSaveINI == 1)
+	// Auto load state at startup
+	if (isAuto == 1)
 	{
-		// Use default folder if first save attempt
-		status = sprintf (dir, "settings");
-		defaultSaveINI = 0;
+		fd = OpenFile("user.ini", VAL_READ_WRITE,VAL_OPEN_AS_IS, VAL_ASCII);
+		
+		if (fd < 1)
+		{
+			return;
+		}
 	}
+	// User manually loads settings
 	else
 	{
-		status = sprintf (dir, "");
-	}
+		// File setup
+		char save_file[512];
+		char dir[16];
+	
+		if (defaultSaveINI == 1)
+		{
+			// Use default folder if first save attempt
+			status = sprintf (dir, "settings");
+			defaultSaveINI = 0;
+		}
+		else
+		{
+			status = sprintf (dir, "");
+		}
 																																		 
-	status = FileSelectPopup (dir, "*.ini", "Configuration File (*.ini)", "Select File to Load", VAL_SELECT_BUTTON, 0, 0, 1, 1, save_file);
+		status = FileSelectPopup (dir, "*.ini", "Configuration File (*.ini)", "Select File to Load", VAL_SELECT_BUTTON, 0, 0, 1, 1, save_file);
 	
-	// Don't attempt to save if user cancels
-	if (status == VAL_NO_FILE_SELECTED)
-	{
-		// Re-enable timers
-		status = ResumeTimerCallbacks ();
+		// Don't attempt to save if user cancels
+		if (status == VAL_NO_FILE_SELECTED)
+		{
+			// Re-enable timers
+			status = ResumeTimerCallbacks ();
 		
-		return;
-	}
+			return;
+		}
 	
-	// Open file for reading
-	int fd = OpenFile(save_file, VAL_READ_WRITE,VAL_OPEN_AS_IS, VAL_ASCII);
+		// Open file for reading
+		fd = OpenFile(save_file, VAL_READ_WRITE,VAL_OPEN_AS_IS, VAL_ASCII);
+	}
 	
 	// Set up data buffer
 	char buf[128];
