@@ -295,6 +295,72 @@ __stdcall int vertCal (void)
 	return 1;
 }
 
+// Set acquisition environment
+__stdcall int setEnviron (int x, int y, double start, double end, double k, int rec)
+{
+	xUnits = x;
+	yUnits = y;
+	xStart = start;
+	xEnd = end;
+	dielK = k;
+	recLen = (UINT16) rec;
+	
+	return 1;
+}
+
+// Set horizontal reference point
+__stdcall int setRefX (double x)
+{
+	// Acquire reference point based on step to open
+	if (x == -1.0)
+	{
+		// Acquire new waveform with no X offset
+		xZero = 0.0;
+		acquireWaveform (1);
+	
+		double idx150 = step150[yUnits];
+	
+		int i = 0;
+	
+		while (wfmAvg[i] < idx150 && i < 1024)
+		{
+			i++;
+		}
+	
+		if (idx150 == 1024)
+		{
+			xZero = 0;
+			
+			return 0;
+		}
+		else
+		{
+			xZero = wfmX[i];
+		}
+		
+		return 1;
+	}
+	// Set reference to absolute zero
+	else if (x == 0.0)
+	{
+		xZero = 0.0;
+		
+		return 1;
+	}
+	// Set reference to specified value
+	else if (x > 0.0)
+	{
+		xZero = x;
+		
+		return 1;
+	}
+	// Invalid horizontal reference specified
+	else
+	{
+		return 0;
+	}
+}
+
 // Acquisition (UIR agnostic)
 __stdcall int acquireWaveform (int numAvg)
 {
@@ -504,19 +570,6 @@ __stdcall int acquireWaveform (int numAvg)
 	return 1;
 }
 
-// Set acquisition environment
-__stdcall int setEnviron (int x, int y, double start, double end, double k, int rec)
-{
-	xUnits = x;
-	yUnits = y;
-	xStart = start;
-	xEnd = end;
-	dielK = k;
-	recLen = (UINT16) rec;
-	
-	return 1;
-}
-
 // Acquire horizontal data
 __stdcall double fetchDataX (int idx)
 {
@@ -565,57 +618,6 @@ __stdcall int dumpFile (char *filename)
 	status = fclose(fd);
 	
 	return 1;
-}
-
-// Set horizontal reference point
-__stdcall int setRefX (double x)
-{
-	// Acquire reference point based on step to open
-	if (x == -1.0)
-	{
-		// Acquire new waveform with no X offset
-		xZero = 0.0;
-		acquireWaveform (1);
-	
-		double idx150 = step150[yUnits];
-	
-		int i = 0;
-	
-		while (wfmAvg[i] < idx150 && i < 1024)
-		{
-			i++;
-		}
-	
-		if (idx150 == 1024)
-		{
-			xZero = 0;
-		}
-		else
-		{
-			xZero = wfmX[i];
-		}
-		
-		return 1;
-	}
-	// Set reference to absolute zero
-	else if (x == 0.0)
-	{
-		xZero = 0.0;
-		
-		return 1;
-	}
-	// Set reference to specified value
-	else if (x > 0.0)
-	{
-		xZero = x;
-		
-		return 1;
-	}
-	// Invalid horizontal reference specified
-	else
-	{
-		return 0;
-	}
 }
 
 

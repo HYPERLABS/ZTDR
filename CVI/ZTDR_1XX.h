@@ -130,11 +130,11 @@ typedef union _timeinf timeinf;
 int		__stdcall 	initDevice (void);
 int 	__stdcall	vertCal (void);
 int 	__stdcall	setEnviron (int x, int y, double start, double end, double k, int rec);
+int 	__stdcall	setRefX (double x);
 int 	__stdcall	acquireWaveform (int numAvg);
 int 	__stdcall	dumpFile (char *filename);
 double	__stdcall	fetchDataX (int idx);
 double	__stdcall	fetchDataY (int idx);
-int 	__stdcall	setRefX (double x);
 
 // Other driver functions
 void 	__stdcall	calAcquireWaveform (int calStepIndex);
