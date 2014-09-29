@@ -134,6 +134,7 @@ int 	__stdcall	acquireWaveform (int numAvg);
 int 	__stdcall	dumpFile (char *filename);
 double	__stdcall	fetchDataX (int idx);
 double	__stdcall	fetchDataY (int idx);
+int 	__stdcall	setRefX (double x);
 
 // Other driver functions
 void 	__stdcall	calAcquireWaveform (int calStepIndex);

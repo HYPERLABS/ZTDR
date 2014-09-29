@@ -72,6 +72,15 @@ double  wfmAvg[NPOINTS_MAX]; // waveform after averaging
 // Start/end time for device
 timeinf start_tm, end_tm;
 
+// Expected 150% value of incident step
+double step150[] =
+{
+	125.0,
+	1.5,
+	75.0,
+	0.5
+};
+
 
 // USBFIFO functionality
 FT_HANDLE 	dev_fifo_handle;
@@ -127,7 +136,7 @@ __stdcall int vertCal (void)
 	if (!usb_opened)
 	{
 		//SetCtrlVal(panelHandle, PANEL_TXT_LOG, "Comm failure.");
-		return;
+		return 0;
 	}
 
 	// Calculate offset of waveform by averaging samples at 0 ns 
@@ -556,6 +565,57 @@ __stdcall int dumpFile (char *filename)
 	status = fclose(fd);
 	
 	return 1;
+}
+
+// Set horizontal reference point
+__stdcall int setRefX (double x)
+{
+	// Acquire reference point based on step to open
+	if (x == -1.0)
+	{
+		// Acquire new waveform with no X offset
+		xZero = 0.0;
+		acquireWaveform (1);
+	
+		double idx150 = step150[yUnits];
+	
+		int i = 0;
+	
+		while (wfmAvg[i] < idx150 && i < 1024)
+		{
+			i++;
+		}
+	
+		if (idx150 == 1024)
+		{
+			xZero = 0;
+		}
+		else
+		{
+			xZero = wfmX[i];
+		}
+		
+		return 1;
+	}
+	// Set reference to absolute zero
+	else if (x == 0.0)
+	{
+		xZero = 0.0;
+		
+		return 1;
+	}
+	// Set reference to specified value
+	else if (x > 0.0)
+	{
+		xZero = x;
+		
+		return 1;
+	}
+	// Invalid horizontal reference specified
+	else
+	{
+		return 0;
+	}
 }
 
 

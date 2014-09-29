@@ -41,8 +41,7 @@
 #define  PANEL_VERSION                    26      /* control type: textMsg, callback function: (none) */
 #define  PANEL_TIMER                      27      /* control type: timer, callback function: onTimer */
 #define  PANEL_TIMESTAMP                  28      /* control type: textMsg, callback function: (none) */
-#define  PANEL_DEBUG_2                    29      /* control type: command, callback function: onDebug2 */
-#define  PANEL_DEBUG                      30      /* control type: command, callback function: onDebug */
+#define  PANEL_DEBUG                      29      /* control type: command, callback function: onDebug */
 
 #define  PANELSAVE                        2
 #define  PANELSAVE_SERIAL                 2       /* control type: string, callback function: (none) */
@@ -90,10 +89,13 @@
 #define  MENUBAR_YUNITS_YUNITS3           32      /* callback function: onChangeY3 */
 #define  MENUBAR_YUNITS_YUNITS4           33      /* callback function: onChangeY4 */
 #define  MENUBAR_CALIBRATION              34
-#define  MENUBAR_CALIBRATION_VERTCAL      35      /* callback function: onVertCal */
-#define  MENUBAR_CALIBRATION_FULLCAL      36      /* callback function: onTimeCal */
-#define  MENUBAR_CALIBRATION_SEPARATOR_5  37
-#define  MENUBAR_CALIBRATION_AUTOCAL      38      /* callback function: onAutoCal */
+#define  MENUBAR_CALIBRATION_SETZERO      35      /* callback function: onSetZero */
+#define  MENUBAR_CALIBRATION_RESETZERO    36      /* callback function: onResetZero */
+#define  MENUBAR_CALIBRATION_SEPARATOR_7  37
+#define  MENUBAR_CALIBRATION_VERTCAL      38      /* callback function: onVertCal */
+#define  MENUBAR_CALIBRATION_FULLCAL      39      /* callback function: onTimeCal */
+#define  MENUBAR_CALIBRATION_SEPARATOR_5  40
+#define  MENUBAR_CALIBRATION_AUTOCAL      41      /* callback function: onAutoCal */
 
 
      /* Callback Prototypes: */
@@ -121,7 +123,6 @@ int  CVICALLBACK onClear(int panel, int control, int event, void *callbackData, 
 void CVICALLBACK onClearMenu(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onCSV(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onDebug(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK onDebug2(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onExit(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onGeneric(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onMultiSave(int menubar, int menuItem, void *callbackData, int panel);
@@ -130,6 +131,8 @@ void CVICALLBACK onPNG(int menubar, int menuItem, void *callbackData, int panel)
 void CVICALLBACK onPrint(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onRecall(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onReset(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+void CVICALLBACK onResetZero(int menubar, int menuItem, void *callbackData, int panel);
+void CVICALLBACK onSetZero(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onStore(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onTimeCal(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onTimer(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);

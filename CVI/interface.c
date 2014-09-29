@@ -589,6 +589,24 @@ void CVICALLBACK onRecall (int menuBar, int menuItem, void *callbackData,
 	recallWaveform ();
 }
 
+// Reset to absolute zero
+void CVICALLBACK onResetZero (int menuBar, int menuItem, void *callbackData,
+							  int panel)
+{
+	resetZero ();
+			
+	acquire ();
+}
+
+// Set x-axis zero to open
+void CVICALLBACK onSetZero (int menuBar, int menuItem, void *callbackData,
+							int panel)
+{
+	setZero ();
+			
+	acquire ();
+}
+
 // Store waveform
 void CVICALLBACK onStore (int menuBar, int menuItem, void *callbackData,
 						  int panel)
@@ -628,6 +646,7 @@ void CVICALLBACK onVertCal (int menuBar, int menuItem, void *callbackData,
 	acquire ();
 }
 
+
 //==============================================================================
 // Debug callback
 
@@ -639,9 +658,10 @@ int CVICALLBACK onDebug (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 		{
+			/*
 			int status;
 
-			/*
+			
 			int numAvg = 4;
 			int length = 1024;
 
@@ -659,30 +679,6 @@ int CVICALLBACK onDebug (int panel, int control, int event,
 
 			dumpFile ("eggwool.csv");
 			*/
-			
-			setZero ();
-			
-			acquire ();
-		}
-
-		break;
-	}
-	return 0;
-}
-
-// Debug button
-int CVICALLBACK onDebug2 (int panel, int control, int event,
-						  void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-		{
-			int status;
-
-			resetZero ();
-			
-			acquire ();
 		}
 
 		break;

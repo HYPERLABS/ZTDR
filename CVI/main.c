@@ -151,14 +151,6 @@ double minWidth[] =
 	5.0
 };
 
-double step150[] =
-{
-	125.0,
-	1.5,
-	75.0,
-	0.5
-};
-
 char *monthName[] =
 {
 	"JAN",
@@ -248,8 +240,8 @@ void main (int argc, char *argv[])
 		acquire ();
 	
 		// Set initial cursor positions
-		SetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, 2.25, -250);
-		SetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, 3.25, 0);
+		status = SetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, 2.25, -250);
+		status = SetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, 3.25, 0);
 	
 		// Start event timers
 		status = SetCtrlAttribute (panelHandle, PANEL_TIMER, ATTR_ENABLED, 1);
@@ -982,8 +974,8 @@ void zoom (void)
 // Reset to default window
 void resetZoom (void)
 {
-	SetCtrlVal (panelHandle, PANEL_START, defaultStart[xUnits]);
-	SetCtrlVal (panelHandle, PANEL_END, defaultEnd[xUnits]);	
+	SetCtrlVal (panelHandle, PANEL_START, defaultStart[xUnits] - xZero);
+	SetCtrlVal (panelHandle, PANEL_END, defaultEnd[xUnits] - xZero);
 }
 
 // Resize acquisition window
@@ -1037,27 +1029,20 @@ void setZero (void)
 	// Disable timers during action
 	status = SuspendTimerCallbacks ();
 	
-	// Acquire new waveform with no X offset
-	xZero = 0.0;
-	acquire ();
+	// Confirm that user wants to set zero
+	status = ConfirmPopup ("Set New Horizontal Zero/Reference Point", "Please ensure the TDR is in open before setting a new horizontal reference point.\n\nDo you want to continue?");
 	
-	double idx150 = step150[yUnits];
-	
-	int i = 0;
-	
-	while (wfmAvg[i] < idx150 && i < 1024)
+	// If user cancels, break
+	if (status == 0)
 	{
-		i++;
+		// Restart timers
+		status = ResumeTimerCallbacks ();
+		
+		return;
 	}
 	
-	if (idx150 == 1024)
-	{
-		xZero = 0;
-	}
-	else
-	{
-		xZero = wfmX[i];
-	}
+	// Find new reference point based on open
+	status = setRefX(-1.0);
 	
 	// Adjust start/end controls
 	double prevStart, prevEnd;
@@ -1071,8 +1056,8 @@ void setZero (void)
 	status = SetCtrlVal (panelHandle, PANEL_END, xEnd - xZero);
 	
 	// Show color indicator that zero has been set
-	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_TEXT_BGCOLOR, VAL_YELLOW); 
-	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_TEXT_BGCOLOR, VAL_YELLOW); 
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_TEXT_BGCOLOR, MakeColor (233, 233, 113)); 
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_TEXT_BGCOLOR, MakeColor (233, 233, 113));
 	
 	// Restart timers
 	status = ResumeTimerCallbacks ();
@@ -1087,7 +1072,7 @@ void resetZero (void)
 	status = SuspendTimerCallbacks ();
 	
 	// Reset zero to absolute position
-	xZero = 0.0;
+	status = setRefX (0.0);
 	
 	// Adjust start/end controls
 	double prevStart, prevEnd;
