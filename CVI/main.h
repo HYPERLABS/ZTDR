@@ -55,7 +55,7 @@ void	resetZoom (void);
 void 	resizeWindow (void);
 void 	savePNG (void);
 void 	saveSettings (void);
-void	setZero (void);
+void	setZero (double x);
 void 	storeWaveform (int format);
 void	showVersion (void);
 void	updateCursors (void);

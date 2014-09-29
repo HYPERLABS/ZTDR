@@ -1023,27 +1023,36 @@ void resizeWindow (void)
 } 
 
 // Set zero on horizontal axis
-void setZero (void)
+void setZero (double x)
 {
 	int status;
 	
 	// Disable timers during action
 	status = SuspendTimerCallbacks ();
 	
-	// Confirm that user wants to set zero
-	status = ConfirmPopup ("Set New Horizontal Zero/Reference Point", "Please ensure the TDR is in open before setting a new horizontal reference point.\n\nDo you want to continue?");
-	
-	// If user cancels, break
-	if (status == 0)
+	// Derive horizontal reference from open
+	if (x == -1.0)
 	{
-		// Restart timers
-		status = ResumeTimerCallbacks ();
-		
-		return;
-	}
+		// Confirm that user wants to set zero
+		status = ConfirmPopup ("Set New Horizontal Zero/Reference Point", "Please ensure the TDR is in open before setting a new horizontal reference point.\n\nDo you want to continue?");
 	
-	// Find new reference point based on open
-	status = setRefX(-1.0);
+		// If user cancels, break
+		if (status == 0)
+		{
+			// Restart timers
+			status = ResumeTimerCallbacks ();
+		
+			return;
+		}
+	
+		// Find new reference point based on open
+		status = setRefX(-1.0);
+	}
+	// Set reference to specified value
+	else
+	{
+		status = setRefX (x);
+	}
 	
 	// Adjust start/end controls
 	double prevStart, prevEnd;
@@ -1056,9 +1065,18 @@ void setZero (void)
 	status = SetCtrlVal (panelHandle, PANEL_START, xStart - xZero);
 	status = SetCtrlVal (panelHandle, PANEL_END, xEnd - xZero);
 	
-	// Show color indicator that zero has been set
-	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_TEXT_BGCOLOR, MakeColor (233, 233, 113)); 
-	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_TEXT_BGCOLOR, MakeColor (233, 233, 113));
+	if (xZero > 0)
+	{
+		// Show color indicator that zero has been set
+		status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_TEXT_BGCOLOR, MakeColor (233, 233, 113)); 
+		status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_TEXT_BGCOLOR, MakeColor (233, 233, 113));
+	}
+	else
+	{
+		// If no x offset, colors revert to default
+		status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_TEXT_BGCOLOR, VAL_WHITE); 
+		status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_TEXT_BGCOLOR, VAL_WHITE);
+	}
 	
 	// Restart timers
 	status = ResumeTimerCallbacks ();
@@ -1271,7 +1289,7 @@ void storeWaveform (int format)
 	if (format == 1)
 	{
 		// Header for .ZTDR
-		status = sprintf (buf + strlen(buf), "%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.3f\n", yUnits, xUnits, xStart, xEnd, ymin, ymax, dielK);
+		status = sprintf (buf + strlen(buf), "%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.5f, %3.10f\n", yUnits, xUnits, xStart, xEnd, ymin, ymax, dielK, xZero);
 	}
 	else
 	{
@@ -1346,14 +1364,14 @@ void recallWaveform (void)
 	
 	// Read header row for environmental variables
 	int xStored, yStored;
-	float startStored, endStored;
+	float startStored, endStored, zeroStored;
 	float ymin, ymax;
 	float dielStored;
 	double vc;
 	
 	// Read header line
 	status = ReadLine (fd, buf, buf_len - 1);
-	sscanf (buf, "%d, %d, %f, %f, %f, %f, %f", &yStored, &xStored, &startStored, &endStored, &ymin, &ymax, &dielStored);
+	sscanf (buf, "%d, %d, %f, %f, %f, %f, %f, %f", &yStored, &xStored, &startStored, &endStored, &ymin, &ymax, &dielStored, &zeroStored);
 	vc = (double) 3E8 / sqrt (dielStored);
 							   
 	// Read X, Y values
@@ -1387,6 +1405,7 @@ void recallWaveform (void)
 	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, labelX[xUnits]);
 	
 	// Change window and K
+	setZero (zeroStored);
 	resizeWindow ();
 	setupTimescale ();
 	changeDiel ();
@@ -1425,6 +1444,8 @@ void recallWaveform (void)
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_STORE, ATTR_DIMMED, 1);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS, ATTR_DIMMED, 1);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS, ATTR_DIMMED, 1);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_CALIBRATION_SETZERO, ATTR_DIMMED, 1);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_CALIBRATION_RESETZERO, ATTR_DIMMED, 1);
 
 	// Show clear button and menu item
 	status = SetCtrlAttribute (panelHandle, PANEL_CLEAR, ATTR_VISIBLE, 1);
@@ -1461,6 +1482,8 @@ void clearWaveform (void)
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_STORE, ATTR_DIMMED, 0);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS, ATTR_DIMMED, 0);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS, ATTR_DIMMED, 0);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_CALIBRATION_SETZERO, ATTR_DIMMED, 0);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_CALIBRATION_RESETZERO, ATTR_DIMMED, 0);
 	
 	// Hide clear button and dim menu
 	status = SetCtrlAttribute (panelHandle, PANEL_CLEAR, ATTR_VISIBLE, 0);
