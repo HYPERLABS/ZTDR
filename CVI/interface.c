@@ -552,6 +552,13 @@ void CVICALLBACK onCSV (int menuBar, int menuItem, void *callbackData,
 	storeWaveform (0);
 }
 
+// Save settings
+void CVICALLBACK onLoadSettings (int menuBar, int menuItem, void *callbackData,
+								 int panel)
+{
+	loadSettings ();
+}
+
 // Save CSV and PNG with comments
 void CVICALLBACK onMultiSave (int menuBar, int menuItem, void *callbackData,
 							  int panel)
@@ -587,6 +594,13 @@ void CVICALLBACK onRecall (int menuBar, int menuItem, void *callbackData,
 						   int panel)
 {
 	recallWaveform ();
+}
+
+// Save settings
+void CVICALLBACK onSaveSettings (int menuBar, int menuItem, void *callbackData,
+								 int panel)
+{
+	saveSettings ();
 }
 
 // Reset to absolute zero

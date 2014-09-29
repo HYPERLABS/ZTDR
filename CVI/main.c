@@ -189,6 +189,7 @@ int	windowWidth, windowHeight;
 
 // Save to default directories
 int defaultSaveCSV = 1;
+int defaultSaveINI = 1;
 int defaultSavePNG = 1;
 int defaultSaveZTDR = 1;
 
@@ -1569,5 +1570,108 @@ void updateSize (void)
 	windowHeight = newHeight;
 	
 	// Re-enable timers
+	status = ResumeTimerCallbacks ();
+}
+
+// Save program settings
+void saveSettings (void)
+{
+	int status;	
+
+	// Disable timers during action
+	status = SuspendTimerCallbacks ();
+	
+	// File setup
+	char save_file[512];
+	char filename[64];
+	
+	status = sprintf (filename, ".ini");
+	
+	// Choose save folder
+	char dir[16];
+
+	if (defaultSaveINI == 1)
+	{
+		// Use default folder if first save attempt
+		status = sprintf (dir, "settings");
+		defaultSaveINI = 0;
+	}
+	else
+	{
+		status = sprintf (dir, "");
+	}
+
+	status = FileSelectPopup (dir, filename, "Configuration File (*.ini)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+
+	// Don't attempt to save if user cancels
+	if (status == VAL_NO_FILE_SELECTED)
+	{
+		// Re-enable timers
+		status = ResumeTimerCallbacks ();
+		
+		return;
+	}	
+	
+	// Open selected file for write
+	int fd, bufLen;
+	fd = OpenFile (save_file, VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
+	
+	// Set up data buffer;
+	char buf[1024];
+	buf[0] = 0;
+	
+	// Store dielectric constant 
+	sprintf(buf,"USER_DIELK\t\t\t%3.10f;\n", (float) dielK);
+	
+	// Store vertical units
+	sprintf(buf,"%sUSER_YUNITS\t\t\t%d;\n", buf, yUnits);
+	
+	// Store horizontal units
+	sprintf(buf,"%sUSER_XUNITS\t\t\t%d;\n", buf, xUnits);
+	
+	// Store window start
+	sprintf(buf,"%sUSER_XSTART\t\t\t%3.10f;\n", buf, (float) xStart);
+	
+	// Store window end
+	sprintf(buf,"%sUSER_XEND\t\t\t%3.10f;\n", buf, (float) xEnd);
+	
+	// Store horizontal reference
+	sprintf(buf,"%sUSER_XZERO\t\t\t%3.10f;\n", buf, (float) xZero);
+	
+	// Store window start
+	int autoAcquire;
+	status = GetCtrlVal (panelHandle, PANEL_AUTOACQUIRE, &autoAcquire);
+	
+	sprintf(buf,"%sUSER_AUTO\t\t\t%d;\n", buf, autoAcquire);
+	
+	// Write file
+	bufLen = strlen (buf);
+	status = WriteFile(fd, buf, bufLen);
+	
+	// Close file
+	status = CloseFile(fd);
+	
+	// Re-enable timers 
+	status = ResumeTimerCallbacks ();	
+}
+
+// Load program settings
+void loadSettings (void)
+{
+	int status;
+	
+	// Disable timers during action
+	status = SuspendTimerCallbacks ();
+	
+	int fd = OpenFile("settings/egg.ini",VAL_READ_WRITE,VAL_OPEN_AS_IS,VAL_ASCII);
+	
+	float flammy = 0.0;
+	status = ScanFile (fd, "%s %f", "USER_DIELK", &flammy);
+	
+
+	// Close file
+	status = CloseFile(fd);
+	
+	// Re-enable timers 
 	status = ResumeTimerCallbacks ();
 }
