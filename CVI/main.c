@@ -1055,10 +1055,6 @@ void setZero (double x)
 	}
 	
 	// Adjust start/end controls
-	double prevStart, prevEnd;
-	status = GetCtrlVal (panelHandle, PANEL_START, &prevStart);
-	status = GetCtrlVal (panelHandle, PANEL_END, &prevEnd);
-	
 	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MIN_VALUE, 0.0 - xZero);
 	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_MIN_VALUE, 0.0 - xZero);
 	
@@ -1094,10 +1090,6 @@ void resetZero (void)
 	status = setRefX (0.0);
 	
 	// Adjust start/end controls
-	double prevStart, prevEnd;
-	status = GetCtrlVal (panelHandle, PANEL_START, &prevStart);
-	status = GetCtrlVal (panelHandle, PANEL_END, &prevEnd);
-	
 	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MIN_VALUE, 0.0 - xZero);
 	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_MIN_VALUE, 0.0 - xZero);
 	
@@ -1781,7 +1773,7 @@ void loadSettings (void)
 	// Close file
 	status = CloseFile(fd);
 	
-	// Set control values from stored waveform
+	// Set control values from stored settings
 	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, autoScale);
 	SetCtrlVal (panelHandle, PANEL_AUTOACQUIRE, autoAcq);
 	
@@ -1799,6 +1791,42 @@ void loadSettings (void)
 	
 	// Change window and K
 	setZero (zeroStored);
+	resizeWindow ();
+	setupTimescale ();
+	changeDiel ();
+	
+	// Re-enable timers 
+	status = ResumeTimerCallbacks ();
+}
+
+// Revert to default program settings
+void resetSettings (void)
+{
+	int status;
+	
+	// Disable timers during action
+	status = SuspendTimerCallbacks ();
+	
+	// Set control values to default
+	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 1);
+	SetCtrlVal (panelHandle, PANEL_AUTOACQUIRE, 1);
+	
+	// Store globals
+	changeUnitX (0);
+	changeUnitY (0);
+	
+	// Remove horizontal offset
+	resetZero ();
+
+	// Update controls
+	SetCtrlVal (panelHandle, PANEL_START, 0.0);
+	SetCtrlVal (panelHandle, PANEL_END, 10.0);
+	SetCtrlVal (panelHandle, PANEL_DIEL, 2.25);
+	SetCtrlVal (panelHandle, PANEL_YMAX, 250.0);
+	SetCtrlVal (panelHandle, PANEL_YMIN, -250.0);
+	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, labelX[xUnits]);
+	
+	// Change window and K
 	resizeWindow ();
 	setupTimescale ();
 	changeDiel ();

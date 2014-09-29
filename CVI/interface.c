@@ -557,6 +557,8 @@ void CVICALLBACK onLoadSettings (int menuBar, int menuItem, void *callbackData,
 								 int panel)
 {
 	loadSettings ();
+	
+	acquire ();
 }
 
 // Save CSV and PNG with comments
@@ -594,6 +596,15 @@ void CVICALLBACK onRecall (int menuBar, int menuItem, void *callbackData,
 						   int panel)
 {
 	recallWaveform ();
+}
+
+// Restore default settings
+void CVICALLBACK onResetSettings (int menuBar, int menuItem, void *callbackData,
+								  int panel)
+{
+	resetSettings ();
+	
+	acquire ();
 }
 
 // Save settings

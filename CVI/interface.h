@@ -59,7 +59,7 @@
 #define  MENUBAR_FILE                     2
 #define  MENUBAR_FILE_SAVESETTINGS        3       /* callback function: onSaveSettings */
 #define  MENUBAR_FILE_LOADSETTINGS        4       /* callback function: onLoadSettings */
-#define  MENUBAR_FILE_DEFAULTSETTINGS     5
+#define  MENUBAR_FILE_DEFAULTSETTINGS     5       /* callback function: onResetSettings */
 #define  MENUBAR_FILE_SEPARATOR_2         6
 #define  MENUBAR_FILE_EXIT                7       /* callback function: onExit */
 #define  MENUBAR_DATA                     8
@@ -133,6 +133,7 @@ void CVICALLBACK onPNG(int menubar, int menuItem, void *callbackData, int panel)
 void CVICALLBACK onPrint(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onRecall(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onReset(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+void CVICALLBACK onResetSettings(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onResetZero(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onSaveSettings(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onSetZero(int menubar, int menuItem, void *callbackData, int panel);
