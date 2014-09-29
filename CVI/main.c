@@ -1342,7 +1342,7 @@ void recallWaveform (void)
 	}
 	
 	// Load from last user directory
-	status = FileSelectPopup (dir, "*.ztdr", "ZTDR Waveform (*.ztdr)", "Select File to Retrieve", VAL_SELECT_BUTTON, 0, 0, 1, 1, save_file);
+	status = FileSelectPopup (dir, "*.ztdr", "ZTDR Waveform (*.ztdr)", "Select File to Load", VAL_SELECT_BUTTON, 0, 0, 1, 1, save_file);
 	
 	// Don't crash if user cancels
 	if (status == VAL_NO_FILE_SELECTED)
@@ -1362,7 +1362,7 @@ void recallWaveform (void)
 	buf[0] = 0;
 												
 	
-	// Read header row for environmental variables
+	// Storage for environmental variables
 	int xStored, yStored;
 	float startStored, endStored, zeroStored;
 	float ymin, ymax;
@@ -1624,7 +1624,7 @@ void saveSettings (void)
 		status = sprintf (dir, "");
 	}
 
-	status = FileSelectPopup (dir, filename, "Configuration File (*.ini)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+	status = FileSelectPopup (dir, filename, "Configuration File (*.ini)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file); 
 
 	// Don't attempt to save if user cancels
 	if (status == VAL_NO_FILE_SELECTED)
@@ -1653,19 +1653,37 @@ void saveSettings (void)
 	sprintf(buf,"%sUSER_XUNITS\t\t\t%d;\n", buf, xUnits);
 	
 	// Store window start
-	sprintf(buf,"%sUSER_XSTART\t\t\t%3.10f;\n", buf, (float) xStart);
+	sprintf(buf,"%sUSER_XSTART\t\t\t%3.10f;\n", buf, (float) xStart - xZero);
 	
 	// Store window end
-	sprintf(buf,"%sUSER_XEND\t\t\t%3.10f;\n", buf, (float) xEnd);
+	sprintf(buf,"%sUSER_XEND\t\t\t%3.10f;\n", buf, (float) xEnd - xZero);
 	
 	// Store horizontal reference
 	sprintf(buf,"%sUSER_XZERO\t\t\t%3.10f;\n", buf, (float) xZero);
 	
-	// Store window start
+	// Store vertical max
+	double ymax;
+	status = GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
+	
+	sprintf(buf,"%sUSER_YMAX\t\t\t%3.10f;\n", buf, (float) ymax);
+	
+	// Store vertical min
+	double ymin;
+	status = GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
+	
+	sprintf(buf,"%sUSER_YMIN\t\t\t%3.10f;\n", buf, (float) ymin);
+	
+	// Store autoscale state
+	int autoScale;
+	status = GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &autoScale);
+	
+	sprintf(buf,"%sUSER_AUTOSCALE\t\t\t%d;\n", buf, autoScale);
+	
+	// Store auto acquisition state
 	int autoAcquire;
 	status = GetCtrlVal (panelHandle, PANEL_AUTOACQUIRE, &autoAcquire);
 	
-	sprintf(buf,"%sUSER_AUTO\t\t\t%d;\n", buf, autoAcquire);
+	sprintf(buf,"%sUSER_AUTOACQ\t\t\t%d;\n", buf, autoAcquire);
 	
 	// Write file
 	bufLen = strlen (buf);
@@ -1686,14 +1704,107 @@ void loadSettings (void)
 	// Disable timers during action
 	status = SuspendTimerCallbacks ();
 	
-	int fd = OpenFile("settings/egg.ini",VAL_READ_WRITE,VAL_OPEN_AS_IS,VAL_ASCII);
+	// File setup
+	char save_file[512];
 	
-	float flammy = 0.0;
-	status = ScanFile (fd, "%s %f", "USER_DIELK", &flammy);
-	
+	// Choose save folder
+	char dir[16];
 
+	if (defaultSaveINI == 1)
+	{
+		// Use default folder if first save attempt
+		status = sprintf (dir, "settings");
+		defaultSaveINI = 0;
+	}
+	else
+	{
+		status = sprintf (dir, "");
+	}
+																																		 
+	status = FileSelectPopup (dir, "*.ini", "Configuration File (*.ini)", "Select File to Load", VAL_SELECT_BUTTON, 0, 0, 1, 1, save_file);
+	
+	// Don't attempt to save if user cancels
+	if (status == VAL_NO_FILE_SELECTED)
+	{
+		// Re-enable timers
+		status = ResumeTimerCallbacks ();
+		
+		return;
+	}
+	
+	// Open file for reading
+	int fd = OpenFile(save_file, VAL_READ_WRITE,VAL_OPEN_AS_IS, VAL_ASCII);
+	
+	// Set up data buffer
+	char buf[128];
+	int buf_len = 128;
+	buf[0] = 0;
+												
+	// Read header row for environmental variables
+	int xStored, yStored;
+	float startStored, endStored, zeroStored;
+	float ymin, ymax;
+	float dielStored;
+	int autoScale, autoAcq;
+	
+	// Read individual settings
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %f", "USER_DIELK", &dielStored);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %d", "USER_YUNITS", &yStored);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %d", "USER_XUNITS", &xStored);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %f", "USER_XSTART", &startStored);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %f", "USER_XEND", &endStored);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %f", "USER_XZERO", &zeroStored);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %f", "USER_YMAX", &ymax);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %f", "USER_YMIN", &ymin);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %d", "USER_AUTOSCALE", &autoScale);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %d", "USER_AUTOACQ", &autoAcq);
+	
 	// Close file
 	status = CloseFile(fd);
+	
+	// Set control values from stored waveform
+	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, autoScale);
+	SetCtrlVal (panelHandle, PANEL_AUTOACQUIRE, autoAcq);
+	
+	// Store globals
+	changeUnitX (xStored);
+	changeUnitY (yStored);
+
+	// Update controls
+	SetCtrlVal (panelHandle, PANEL_START, (double) startStored);
+	SetCtrlVal (panelHandle, PANEL_END, (double) endStored);
+	SetCtrlVal (panelHandle, PANEL_DIEL, (double) dielStored);
+	SetCtrlVal (panelHandle, PANEL_YMAX, (double) ymax);
+	SetCtrlVal (panelHandle, PANEL_YMIN, (double) ymin);
+	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, labelX[xUnits]);
+	
+	// Change window and K
+	setZero (zeroStored);
+	resizeWindow ();
+	setupTimescale ();
+	changeDiel ();
+	
+	// Acquire new waveform with loaded settings
+	acquire ();
 	
 	// Re-enable timers 
 	status = ResumeTimerCallbacks ();
