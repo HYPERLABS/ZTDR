@@ -1439,6 +1439,9 @@ void recallWaveform (void)
 	status = SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 1);
 	
 	// Dim menus
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_FILE_SAVESETTINGS, ATTR_DIMMED, 1);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_FILE_LOADSETTINGS, ATTR_DIMMED, 1);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_FILE_DEFAULTSETTINGS, ATTR_DIMMED, 1);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_STORE, ATTR_DIMMED, 1);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS, ATTR_DIMMED, 1);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS, ATTR_DIMMED, 1);
@@ -1477,6 +1480,9 @@ void clearWaveform (void)
 	status = SetCtrlAttribute (panelHandle, PANEL_AUTOSCALE, ATTR_DIMMED, 0);
 	
 	// Un-dim menus
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_FILE_SAVESETTINGS, ATTR_DIMMED, 0);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_FILE_LOADSETTINGS, ATTR_DIMMED, 0);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_FILE_DEFAULTSETTINGS, ATTR_DIMMED, 0);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_STORE, ATTR_DIMMED, 0);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS, ATTR_DIMMED, 0);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS, ATTR_DIMMED, 0);
@@ -1821,12 +1827,12 @@ void loadSettings (int isAuto)
 		isValid = 0;
 	}
 	
-	if (startStored < 0.0)
+	if (startStored < (0.0 - zeroStored))
 	{
 		isValid = 0;
 	}
 	
-	if (endStored < 0.0)
+	if (endStored < (0.0 - zeroStored))
 	{
 		isValid = 0;
 	}
@@ -1857,6 +1863,10 @@ void loadSettings (int isAuto)
 		// Store globals
 		changeUnitX (xStored);
 		changeUnitY (yStored);
+		
+		// Adjust minimum values before out-of-range values potentially set
+		status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MIN_VALUE, 0.0 - zeroStored);
+		status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_MIN_VALUE, 0.0 - zeroStored);
 
 		// Update controls
 		SetCtrlVal (panelHandle, PANEL_START, (double) startStored);
