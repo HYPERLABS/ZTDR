@@ -616,7 +616,7 @@ __stdcall int dumpFile (char *filename)
 	};
 	
 	// Write header row
-	status = sprintf (buf + strlen(buf), "%s, %s, %3.10f, %3.10f, %3.10f, %3.3f\n", nameY[yUnits], nameX[xUnits], xStart, xEnd, xZero, dielK);
+	status = sprintf (buf + strlen(buf), "%s, %s, %3.10f, %3.10f, %3.3f, %3.10f\n", nameY[yUnits], nameX[xUnits], xStart, xEnd, dielK, xZero);
 	
 	status = fwrite (buf, 1, strlen (buf), fd);
 	
