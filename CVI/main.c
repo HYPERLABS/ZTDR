@@ -243,13 +243,16 @@ void main (int argc, char *argv[])
 		// Set initial cursor positions
 		status = SetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, 2.25, -250);
 		status = SetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, 3.25, 0);
-	
-		// Start event timers
-		status = SetCtrlAttribute (panelHandle, PANEL_TIMER, ATTR_ENABLED, 1);
-		status = SetCtrlAttribute (panelHandle, PANEL_CALTIMER, ATTR_ENABLED, 1);
 		
 		// Load user.ini, if any
 		loadSettings (1);
+		
+		// Acquire with loaded settings
+		acquire ();
+		
+		// Start event timers
+		status = SetCtrlAttribute (panelHandle, PANEL_TIMER, ATTR_ENABLED, 1);
+		status = SetCtrlAttribute (panelHandle, PANEL_CALTIMER, ATTR_ENABLED, 1);
 	}
 	else if (calStatus == -1)
 	{
@@ -1708,6 +1711,9 @@ void loadSettings (int isAuto)
 	// Disable timers during action
 	status = SuspendTimerCallbacks ();
 	
+	// Store state of settings file validation
+	int isValid = 1;
+	
 	int fd;		 
 
 	// Auto load state at startup
@@ -1717,7 +1723,7 @@ void loadSettings (int isAuto)
 		
 		if (fd < 1)
 		{
-			return;
+			isValid = -1;
 		}
 	}
 	// User manually loads settings
@@ -1798,31 +1804,98 @@ void loadSettings (int isAuto)
 	
 	// Close file
 	status = CloseFile(fd);
-	
-	// Set control values from stored settings
-	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, autoScale);
-	SetCtrlVal (panelHandle, PANEL_AUTOACQUIRE, autoAcq);
-	
-	// Store globals
-	changeUnitX (xStored);
-	changeUnitY (yStored);
 
-	// Update controls
-	SetCtrlVal (panelHandle, PANEL_START, (double) startStored);
-	SetCtrlVal (panelHandle, PANEL_END, (double) endStored);
-	SetCtrlVal (panelHandle, PANEL_DIEL, (double) dielStored);
-	SetCtrlVal (panelHandle, PANEL_YMAX, (double) ymax);
-	SetCtrlVal (panelHandle, PANEL_YMIN, (double) ymin);
-	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, labelX[xUnits]);
+	// If any variable is out of range, don't load settings
+	if (dielStored <= 0)
+	{
+		isValid = 0;
+	}
 	
-	// Change window and K
-	setZero (zeroStored);
-	resizeWindow ();
-	setupTimescale ();
-	changeDiel ();
+	if (yStored < 0 || yStored > 3)
+	{
+		isValid = 0;
+	}
+	
+	if (xStored < 0 || xStored > 2)
+	{
+		isValid = 0;
+	}
+	
+	if (startStored < 0.0)
+	{
+		isValid = 0;
+	}
+	
+	if (endStored < 0.0)
+	{
+		isValid = 0;
+	}
+	
+	if (zeroStored < 0.0)
+	{
+		isValid = 0;
+	}
+	
+	if (ymax < ymin)
+	{
+		isValid = 0;
+	}
+	
+	if (autoScale != 0 && autoScale !=1)
+	{
+		isValid = 0;
+	}
+	
+	if (autoAcq != 0 && autoAcq != 1)
+	{
+		isValid = 0;
+	}
+	
+	// If all settings valid, load them
+	if (isValid == 1)
+	{
+		// Store globals
+		changeUnitX (xStored);
+		changeUnitY (yStored);
+
+		// Update controls
+		SetCtrlVal (panelHandle, PANEL_START, (double) startStored);
+		SetCtrlVal (panelHandle, PANEL_END, (double) endStored);
+		SetCtrlVal (panelHandle, PANEL_DIEL, (double) dielStored);
+		SetCtrlVal (panelHandle, PANEL_YMAX, (double) ymax);
+		SetCtrlVal (panelHandle, PANEL_YMIN, (double) ymin);
+		SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, labelX[xUnits]);
+	
+		// Set control values from stored settings
+		SetCtrlVal (panelHandle, PANEL_AUTOSCALE, autoScale);
+		SetCtrlVal (panelHandle, PANEL_AUTOACQUIRE, autoAcq);
+	
+		// Change window and K
+		setZero (zeroStored);
+		resizeWindow ();
+		setupTimescale ();
+		changeDiel ();
+	}
+	// If manually loading bad settings file, alert user and revert to default
+	else if (isValid == 0 && isAuto == 0)
+	{
+		status = MessagePopup ("Invalid settings file", "Error reading settings file. Reverting to default settings.");
+		
+		resetSettings ();
+		
+	}
+	// If can't find a settings file, or user.ini is bad, leave defaults
+	else
+	{
+		// Likely triggered on first run, so don't alert user
+		
+		resetSettings ();
+	}
 	
 	// Re-enable timers 
 	status = ResumeTimerCallbacks ();
+	
+	return isValid;
 }
 
 // Revert to default program settings
