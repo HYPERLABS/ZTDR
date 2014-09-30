@@ -596,11 +596,27 @@ __stdcall int dumpFile (char *filename)
 	fd = fopen (filename, "w");
 	
 	// Set up data buffer;
-	char buf[128];
+	char buf[256];
 	buf[0] = 0;
 	
+	// List unit names to avoid confusion
+	char *nameY[] =
+	{
+		"mV",
+		"Norm",
+		"Ohm",
+		"Rho"
+	};
+
+	char *nameX[] =
+	{
+		"m",
+		"ft",
+		"ns"
+	};
+	
 	// Write header row
-	status = sprintf (buf + strlen(buf), "%d, %d, %3.10f, %3.10f, %3.3f\n", yUnits, xUnits, xStart, xEnd, dielK);
+	status = sprintf (buf + strlen(buf), "%s, %s, %3.10f, %3.10f, %3.10f, %3.3f\n", nameY[yUnits], nameX[xUnits], xStart, xEnd, xZero, dielK);
 	
 	status = fwrite (buf, 1, strlen (buf), fd);
 	
