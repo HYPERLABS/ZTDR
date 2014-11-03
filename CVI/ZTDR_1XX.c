@@ -260,6 +260,7 @@ __stdcall int vertCal (void)
 		{
 			temp += wfmFilter[i];
 		}
+		
 		vstart = temp / tempID;
 	}
 
@@ -966,13 +967,11 @@ __stdcall int calFindStepcount (void)
 	
 	if (idxOpt > 0)
 	{
-		idxOpt = idxOpt - 1;
+		// idxOpt = idxOpt - 1;	 // TODO; depricated due to Aki's changes
 	}
 	
 	stepcount = stepcountArray[idxOpt];
-
-	stepcount = 6;
-
+												   
 	calThreshold = val;
 	
 	return calStatus;
