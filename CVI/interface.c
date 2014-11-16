@@ -11,6 +11,7 @@
 //==============================================================================
 // Include files
 
+#include "constants.h"
 #include "ZTDR_1XX.h"
 #include "interface.h"
 #include "main.h"

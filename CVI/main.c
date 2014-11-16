@@ -15,6 +15,7 @@
 #include <formatio.h>
 #include <userint.h>
 
+#include "constants.h"
 #include "ZTDR_1XX.h"
 #include "interface.h"
 #include "main.h"
@@ -1710,7 +1711,7 @@ void saveSettings (int isAuto)
 }
 
 // Load program settings
-void loadSettings (int isAuto)
+int loadSettings (int isAuto)
 {
 	int status;
 	
@@ -1758,7 +1759,7 @@ void loadSettings (int isAuto)
 			// Re-enable timers
 			status = ResumeTimerCallbacks ();
 		
-			return;
+			return 0;
 		}
 	
 		// Open file for reading

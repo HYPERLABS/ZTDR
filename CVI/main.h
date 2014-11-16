@@ -46,7 +46,7 @@ void 	changeUnitX (int unit);
 void 	changeUnitY (int unit);
 void 	checkDirs (void);
 void	clearWaveform (void);
-void 	loadSettings (int isAuto);
+int 	loadSettings (int isAuto);
 void	main (int argc, char *argv[]);
 void	printWaveform (void);
 void 	recallWaveform (void);
