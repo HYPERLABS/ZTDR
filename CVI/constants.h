@@ -4,7 +4,7 @@
 // Purpose:		All definitions for ZTDR.
 //
 // Created on:	11/15/2014 at 8:22:41 PM.
-// Copyright:	HYPERLABS. All Rights Reserved.
+// Copyright:	(c) 2014, HYPERLABS INC. All Rights Reserved.
 //
 //==============================================================================
 

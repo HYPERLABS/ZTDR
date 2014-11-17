@@ -41,7 +41,7 @@ void 	changeAutoCal (void);
 void 	changeAutoScale (void);
 void 	changeBg (int color);
 void 	changeDiel (void);
-void 	changePlot (int unit);
+void 	changePlot (int plot);
 void 	changeUnitX (int unit);
 void 	changeUnitY (int unit);
 void 	checkDirs (void);

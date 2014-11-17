@@ -419,6 +419,7 @@ void acquire (void)
 	// YMAX/YMIN behavior
 	if (autoScale == 1)
 	{
+		// Match min/max fields to autoscale values
 		status = SetCtrlVal (panelHandle, PANEL_YMAX, ymax);
 		status = SetCtrlVal (panelHandle, PANEL_YMIN, ymin);
 		
@@ -459,6 +460,7 @@ void acquire (void)
 		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmActive, VAL_DELAYED_DRAW);
 	}
 	
+	// Plot main acquisition
 	WfmActive = PlotXY (panelHandle, PANEL_WAVEFORM, wfmX, wfmAvg, recLen, VAL_DOUBLE, VAL_DOUBLE,
 						plotType, VAL_SMALL_SOLID_SQUARE, VAL_SOLID, 1, MakeColor (113, 233, 70));
 	
@@ -585,12 +587,12 @@ void writeMsgVertCal (int msg)
 }
 
 // Change between dots and line
-void changePlot (int unit)
+void changePlot (int plot)
 {
 	int status;																			   
 	
 	// Change unit selection and update menu
-	if (unit == 0)
+	if (plot == 0)
 	{   
 		// Dots
 		plotType = 2L;
@@ -599,7 +601,7 @@ void changePlot (int unit)
 		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_THINLINE, ATTR_CHECKED, 0);
 		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_FATLINE, ATTR_CHECKED, 0);
 	}
-	else if (unit == 1)
+	else if (plot == 1)
 	{
 		// Thin line
 		plotType = 0L;
@@ -608,7 +610,7 @@ void changePlot (int unit)
 		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_THINLINE, ATTR_CHECKED, 1);
 		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_FATLINE, ATTR_CHECKED, 0);
 	}
-	else if (unit == 2)
+	else if (plot == 2)
 	{
 		// Thick line
 		plotType = 5L;
@@ -986,7 +988,7 @@ void resetZoom (void)
 	SetCtrlVal (panelHandle, PANEL_END, defaultEnd[xUnits] - xZero);
 }
 
-// Resize acquisition window
+// Verify size and zero of acquisition window
 void resizeWindow (void)
 {
 	int status;
