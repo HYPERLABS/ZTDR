@@ -8,8 +8,8 @@
 //
 //==============================================================================
 
-#ifndef __ZTDR_H__
-#define __ZTDR_H__
+#ifndef __main_H__
+#define __main_H__
 
 #ifdef __cplusplus
 extern "C" {

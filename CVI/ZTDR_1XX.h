@@ -8,8 +8,8 @@
 //
 //==============================================================================
 
-#ifndef __driver_H__
-#define __driver_H__
+#ifndef __ZTDR_1XX_H__
+#define __ZTDR_1XX_H__
 
 #ifdef __cplusplus
 extern "C" {

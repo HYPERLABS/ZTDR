@@ -1,9 +1,9 @@
 //==============================================================================
 //
 // Title:		constants.h
-// Purpose:		A short description of the interface.
+// Purpose:		All definitions for ZTDR.
 //
-// Created on:	11/15/2014 at 8:22:41 PM by Brian Doxey.
+// Created on:	11/15/2014 at 8:22:41 PM.
 // Copyright:	HYPERLABS. All Rights Reserved.
 //
 //==============================================================================
