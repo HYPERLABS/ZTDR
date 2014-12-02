@@ -40,8 +40,8 @@
 #define  PANEL_CALTIMER                   25      /* control type: timer, callback function: onTimerCal */
 #define  PANEL_VERSION                    26      /* control type: textMsg, callback function: (none) */
 #define  PANEL_TIMER                      27      /* control type: timer, callback function: onTimer */
-#define  PANEL_TIMESTAMP                  28      /* control type: textMsg, callback function: (none) */
-#define  PANEL_DEBUG                      29      /* control type: command, callback function: onDebug */
+#define  PANEL_DEBUG                      28      /* control type: command, callback function: onDebug */
+#define  PANEL_TIMESTAMP                  29      /* control type: textMsg, callback function: (none) */
 
 #define  PANELSAVE                        2
 #define  PANELSAVE_SERIAL                 2       /* control type: string, callback function: (none) */
