@@ -1,18 +1,18 @@
 ## LabWindowsCVI
+build/
 cvibuild/
 cvirte/
-install/
 dll/
-build/
-*.exe
+install/
 *.cds
 *.cws
+*.exe
 *.ini
 datalogs/
 images/
-waveforms/
-settings/
 logs/
+settings/
+waveforms/
 
 
 #################
@@ -230,4 +230,3 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
-*.exe
