@@ -65,7 +65,6 @@ extern	double 	wfmTime[]; // time (ns)
 extern	double 	wfmX[]; // converted to selected units
 
 extern	UINT16 	wfm[]; // raw data from device
-extern	double 	wfmFilter[];	// filtered data from device
 extern	double  wfmDataRaw[]; // raw unconverted data for debug
 extern	double  wfmData[]; // converted to selected units
 extern	double	wfmAvg[]; // waveform after averaging
@@ -1742,9 +1741,9 @@ int loadSettings (int isAuto)
 		char save_file[512];
 		char dir[16];
 	
+		// Use default folder if first save attempt
 		if (defaultSaveINI == 1)
 		{
-			// Use default folder if first save attempt
 			status = sprintf (dir, "settings");
 			defaultSaveINI = 0;
 		}

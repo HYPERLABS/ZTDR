@@ -508,10 +508,20 @@ __stdcall int acquireWaveform (int numAvg)
 			{
 				double impedance = 50;
 			
+				double tmp[1024];
+				
 				for (i = 0; i < recLen; i++)
 				{   
+					tmp[i] = wfmData[i];
+					
+					// Constrain reflected value to 1.0 of incident step
+					if (wfmData[i] >= 1.0)
+					{
+						wfmData[i] = 0.9999;
+					}
+					
 					// Convert to impedance from Rho
-					wfmData[i] = (double) impedance * ((double) (1.0) + (double) (wfmData[i])) / ((double) (1.0) - (double) (wfmData[i]));
+					wfmData[i] = impedance * ((1.0 + wfmData[i]) / (1.0 - wfmData[i]));
 	   		    
 					if(wfmData[i] >= 500)
 					{ 
