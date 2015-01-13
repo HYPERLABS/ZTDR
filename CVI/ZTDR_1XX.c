@@ -3,7 +3,7 @@
 // Title:		ZTDR_1XX.c
 // Purpose:		ZTDR driver module and DLL functionality (v1.x.x)
 //
-// Copyright:	(c) 2014, HYPERLABS INC. All rights reserved.
+// Copyright:	(c) 2015, HYPERLABS INC. All rights reserved.
 //
 //==============================================================================
 

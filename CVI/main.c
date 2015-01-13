@@ -3,7 +3,7 @@
 // Title:		main.c
 // Purpose:		Main ZTDR functionality for LabWindows/CVI
 //
-// Copyright:	(c) 2014, HYPERLABS INC. All rights reserved.
+// Copyright:	(c) 2015, HYPERLABS INC. All rights reserved.
 //
 //==============================================================================
 
@@ -1010,15 +1010,15 @@ void resizeWindow (void)
 		
 		if (xUnits == UNIT_M)
 		{
-			adjust = 1;
+			adjust = 1.0;
 		}
 		else if (xUnits == UNIT_FT)
 		{
-			adjust = 3;
+			adjust = 3.0;
 		}
 		else if (xUnits == UNIT_NS)
 		{
-			adjust = 5;
+			adjust = 5.0;
 		}
 		
 		status = SetCtrlVal (panelHandle, PANEL_START, x1);
@@ -1882,6 +1882,10 @@ int loadSettings (int isAuto)
 		SetCtrlVal (panelHandle, PANEL_AUTOSCALE, autoScale);
 		SetCtrlVal (panelHandle, PANEL_AUTOACQUIRE, autoAcq);
 	
+		// Set stored value to start/end globals
+		xStart = startStored;
+		xEnd = endStored;
+		
 		// Change window and K
 		setZero (zeroStored);
 		resizeWindow ();
