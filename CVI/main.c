@@ -193,6 +193,10 @@ int defaultSaveINI = 1;
 int defaultSavePNG = 1;
 int defaultSaveZTDR = 1;
 
+// Event timers
+clock_t timerStart, timerEnd;
+float timeSpent;
+
 
 //==============================================================================
 // Global functions (roughly grouped by functionality, order of call)
@@ -272,6 +276,9 @@ void acquire (void)
 {
 	int status;
 
+	// Acquisition timer	
+	startTimer("INIT: ", 0);
+	
 	// Number of waveforms to average
 	int numAvg;
 	GetCtrlVal (panelHandle, PANEL_AVERAGE, &numAvg);
@@ -471,6 +478,9 @@ void acquire (void)
 	
 	// Position cursors and update control reading
 	updateCursors ();
+	
+	// Stop acquisition timer
+	stopTimer ("ACQ DATA: ", 1);
 }
 
 // Verify necessary folders
@@ -550,6 +560,7 @@ void updateTimestamp (void)
 	status = SetCtrlVal (panelHandle, PANEL_TIMESTAMP, timestamp);
 }
 
+// TODO: combine with other write message functions?
 // Write calibration message to status
 void writeMsgCal (int msg)
 {
@@ -1951,4 +1962,29 @@ void resetSettings (void)
 	
 	// Re-enable timers 
 	status = ResumeTimerCallbacks ();
+}
+
+// Start event timer
+void startTimer (char label[16], int log)
+{
+	// Label and log used for in-code reference only
+	timerStart = clock ();
+}
+
+// End event timer
+void stopTimer (char label[16], int log)
+{
+	int status;
+	
+	timerEnd = clock ();
+	timeSpent = (float) (timerEnd - timerStart) / CLOCKS_PER_SEC;
+
+	// Log to message window if requested
+	if (log == 1)
+	{
+		char msg[64];
+		status = sprintf (msg, "%s: %3.3f\n", label, timeSpent);
+		
+		status = SetCtrlVal (panelHandle, PANEL_MESSAGES, msg);
+	}
 }
