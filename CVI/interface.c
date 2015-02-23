@@ -299,7 +299,7 @@ int CVICALLBACK onTimer (int panel, int control, int event,
 			int status;
 			GetCtrlVal (panel, PANEL_AUTOACQUIRE, &status);
 
-			// Don't run if autoacquire disabled
+			// Run if autoacquire enabled  
 			if (status == 1)
 			{
 				acquire ();
@@ -329,7 +329,7 @@ int CVICALLBACK onTimerCal (int panel, int control, int event,
 			
 			GetCtrlVal (panel, PANEL_AUTOACQUIRE, &status);
 
-			// Don't run if autoacquire disabled
+			// Run if autoacquire enabled
 			if (status == 1)
 			{
 				int calStatus = vertCal ();
