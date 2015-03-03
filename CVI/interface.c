@@ -625,7 +625,7 @@ void CVICALLBACK onSaveSettings (int menuBar, int menuItem, void *callbackData,
 void CVICALLBACK onResetZero (int menuBar, int menuItem, void *callbackData,
 							  int panel)
 {
-	resetZero ();
+	setZero (0.0);
 			
 	acquire ();
 }

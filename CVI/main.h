@@ -50,7 +50,6 @@ void	main (int argc, char *argv[]);
 void	printWaveform (void);
 void 	recallWaveform (void);
 void 	resetSettings (void);
-void	resetZero (void);
 void	resetZoom (void);
 void 	resizeWindow (void);
 void 	savePNG (void);

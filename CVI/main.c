@@ -1223,32 +1223,6 @@ void setZero (double x)
 	status = ResumeTimerCallbacks ();
 }
 
-// Reset zero to absolute value
-void resetZero (void)
-{
-	int status;
-	
-	// Disable timers during action
-	status = SuspendTimerCallbacks ();
-	
-	// Reset zero to absolute position
-	status = setRefX (0.0);
-	
-	// Adjust start/end controls
-	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MIN_VALUE, 0.0 - xZero);
-	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_MIN_VALUE, 0.0 - xZero);
-	
-	status = SetCtrlVal (panelHandle, PANEL_START, xStart - xZero);
-	status = SetCtrlVal (panelHandle, PANEL_END, xEnd - xZero);
-	
-	// Show color indicator that zero has been set
-	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_TEXT_BGCOLOR, VAL_WHITE); 
-	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_TEXT_BGCOLOR, VAL_WHITE);
-	
-	// Restart timers
-	status = ResumeTimerCallbacks ();
-}
-
 // Print current waveform and controles
 void printWaveform (void)
 {
@@ -2063,12 +2037,12 @@ void resetSettings (void)
 	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 1);
 	SetCtrlVal (panelHandle, PANEL_AUTOACQUIRE, 1);
 	
-	// Store globals
+	// Reset X/Y axes
 	changeUnitX (0);
 	changeUnitY (0);
 	
 	// Remove horizontal offset
-	resetZero ();
+	setZero (0.0);
 
 	// Update controls
 	SetCtrlVal (panelHandle, PANEL_START, 0.0);
