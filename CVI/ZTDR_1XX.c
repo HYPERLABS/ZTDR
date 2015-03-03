@@ -73,15 +73,6 @@ double  wfmAvg[NPOINTS_MAX]; // waveform after averaging
 // Start/end time for device
 timeinf start_tm, end_tm;
 
-// Expected 150% value of incident step
-double step150[] =
-{
-	125.0,
-	1.5,
-	75.0,
-	0.5
-};
-
 
 // USBFIFO functionality
 FT_HANDLE 	dev_fifo_handle;
@@ -316,11 +307,14 @@ __stdcall int setRefX (double x)
 	// Acquire reference point based on step to open
 	if (x == -1.0)
 	{
+		// Switch to Rho to find 150% point
+		int yUnitsPrev = yUnits;
+		yUnits = 3;
+		double idx150 = 0.5;
+		
 		// Acquire new waveform with no X offset
 		xZero = 0.0;
 		acquireWaveform (1);
-	
-		double idx150 = step150[yUnits];
 	
 		int i = 0;
 	
@@ -339,6 +333,9 @@ __stdcall int setRefX (double x)
 		{
 			xZero = wfmX[i];
 		}
+		
+		// Set to previous Y unit
+		yUnits = yUnitsPrev;
 		
 		return 1;
 	}
