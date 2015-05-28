@@ -4,7 +4,6 @@ cvibuild/
 cvirte/
 dll/
 install/
-*.cds
 *.cws
 *.exe
 *.ini

@@ -485,7 +485,7 @@ void acquire (void)
 	updateCursors ();
 	
 	// Stop acquisition timer
-	stopTimer ("ACQ DATA: ", 1);
+	stopTimer ("ACQ DATA: ", 0);
 }
 
 // Apply waveform filter
