@@ -38,7 +38,7 @@
 
 
 //==============================================================================
-// External global variables (roughly grouped by function)
+// External global variables (grouped by function)
 
 // Initialization
 extern	int 	usb_opened;
@@ -74,7 +74,7 @@ extern	timeinf start_tm, end_tm;
 
 
 //==============================================================================
-// Global variables (roughly grouped by function)
+// Global variables (grouped by function)
 
 // TODO: better names for these
 
@@ -203,7 +203,7 @@ float timeSpent;
 
 
 //==============================================================================
-// Global functions (roughly grouped by functionality, order of call)
+// Global functions (grouped by functionality, order of call)
 
 // Main startup function
 void main (int argc, char *argv[])
