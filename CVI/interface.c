@@ -11,6 +11,7 @@
 //==============================================================================
 // Include files
 
+#include "asynctmr.h"
 #include "constants.h"
 #include "interface.h"
 #include "main.h"
@@ -160,6 +161,47 @@ int CVICALLBACK onGeneric (int panel, int control, int event,
 	return 0;
 }
 
+// Basic panel behavior
+int CVICALLBACK onPanel (int panel, int event, void *callbackData,
+						 int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_PANEL_SIZE:
+		{
+			int status;
+			
+			status = updateWindowSize ();
+		}
+
+		case EVENT_CLOSE:
+		{
+			int status;
+			
+			// Stop timers before exit
+			status = SuspendAsyncTimerCallbacks ();
+			
+			// Don't interrupt calibration/acquisition
+			while (getLED () == 1 || timerLock == 1)
+			{
+				// do nothing	
+			}
+			
+			// Save program state on exit
+			status = saveSettings (1);
+			
+			usbfifo_close ();
+			
+			status = QuitUserInterface (0);
+
+			break;
+		}
+	}
+
+	return 0;
+}
+
+
 
 
 
@@ -187,42 +229,7 @@ int CVICALLBACK onReset (int panel, int control, int event,
 
 
 
-// Basic panel behavior
-int CVICALLBACK onPanel (int panel, int event, void *callbackData,
-						 int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_PANEL_SIZE:
-		{
-			updateSize ();
-		}
 
-		case EVENT_GOT_FOCUS:
-		{
-			break;
-		}
-
-		case EVENT_LOST_FOCUS:
-		{
-			break;
-		}
-
-		case EVENT_CLOSE:
-		{
-			// Save program state on exit
-			saveSettings (1);
-			
-			usbfifo_close ();
-
-			QuitUserInterface (0);
-
-			break;
-		}
-	}
-
-	return 0;
-}
 
 // Update cursors on waveform acquisition
 int CVICALLBACK onWaveform (int panel, int control, int event,
@@ -283,6 +290,29 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 
 //==============================================================================
 // Callback functions from menu commands (sorted alphabetically)
+
+// Exit program
+void CVICALLBACK onExit (int menuBar, int menuItem, void *callbackData,
+						 int panel)
+{
+	int status;
+	
+	// Stop timers before exit
+	status = SuspendAsyncTimerCallbacks ();
+	
+	// Don't interrupt calibration/acquisition
+	while (getLED () == 1 || timerLock == 1)
+	{
+		// do nothing	
+	}
+	
+	// Save program state on exit
+	status = saveSettings (1);
+	
+	usbfifo_close ();
+
+	QuitUserInterface (0);
+}
 
 // Display changed to DOTS
 void CVICALLBACK onSetPlotDots (int menuBar, int menuItem, void *callbackData,
@@ -471,18 +501,6 @@ void CVICALLBACK onMultiSave (int menuBar, int menuItem, void *callbackData,
 							  int panel)
 {
 	
-}
-
-// Exit program
-void CVICALLBACK onExit (int menuBar, int menuItem, void *callbackData,
-						 int panel)
-{
-	// Save program state on exit
-	saveSettings (1);
-	
-	usbfifo_close ();
-
-	QuitUserInterface (0);
 }
 
 // Save waveform as PNG

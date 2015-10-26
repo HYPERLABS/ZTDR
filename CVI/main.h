@@ -31,6 +31,7 @@ extern "C" {
 	int		showVersion (void);
 	int		updateCursors (void);
 	int 	updateTimestamp (void);
+	int		updateWindowSize (void);
 	
 	int 	CVICALLBACK onAsyncTimer (int reserved, int timerId, int event, void *callbackData, int eventData1, int eventData2);
 
@@ -48,10 +49,9 @@ extern "C" {
 	void 	resetSettings (void);
 	void	resetZoom (void);
 	void 	savePNG (void);
-	void 	saveSettings (int isAuto);
+	int	 	saveSettings (int isAuto);
 	void	setZero (double x);
 	void 	storeWaveform (int format);
-	void	updateSize (void);
 	void 	zoom (void);
 
 

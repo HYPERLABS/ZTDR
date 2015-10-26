@@ -553,7 +553,7 @@ int acquire (int doDraw)
 	}
 	
 	// Stop acquisition timer
-	status = stopTimer ("ACQUIRE", 0);
+	status = stopTimer ("ACQUIRE", 1);
 
 	// Turn off activity light
 	status = setLED (0);
@@ -708,6 +708,111 @@ int updateCursors (void)
 	return 1;
 }
 
+// Update position of controls on resize
+int updateWindowSize (void)
+{
+	int status;
+	int count;
+	
+	int newWidth, newHeight;
+								
+	status = GetPanelAttribute (panelHandle, ATTR_WIDTH, &newWidth);
+	status = GetPanelAttribute (panelHandle, ATTR_HEIGHT, &newHeight);
+
+	// Prevent sizing too small
+	if (newWidth < 1024)
+	{
+		newWidth = 1024;
+		status = SetPanelAttribute (panelHandle, ATTR_WIDTH, newWidth);
+	}
+	if (newHeight < 576)
+	{
+		newHeight = 576;
+		status = SetPanelAttribute (panelHandle, ATTR_HEIGHT, newHeight);
+	}
+	
+	int xOffset, yOffset;
+	
+	// Calculate size change
+	xOffset = newWidth - windowWidth;
+	yOffset = newHeight - windowHeight;
+
+	// Control position and size
+	int ctrlWidth, ctrlHeight;
+	int ctrlLeft, ctrlTop;
+	
+	// Resize panel window
+	status = GetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_WIDTH, &ctrlWidth);
+	status = GetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_HEIGHT, &ctrlHeight);
+	
+	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_WIDTH, ctrlWidth + xOffset);
+	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_HEIGHT, ctrlHeight + yOffset);
+	
+	// Move right-hand control panel
+	status = GetNumCtrlArrayItems (rightHandle, &count);
+   	
+	// Define here to avoid redefine errors
+	int i;
+	
+	for (i = 0; i < count; i++)
+	{   
+		status = GetCtrlAttribute (panelHandle, GetCtrlArrayItem (rightHandle, i), ATTR_LEFT, &ctrlLeft);
+		status = SetCtrlAttribute (panelHandle, GetCtrlArrayItem (rightHandle, i), ATTR_LEFT, ctrlLeft + xOffset);
+	}
+	
+	// Move bottom control pane
+	status = GetNumCtrlArrayItems (bottomHandle, &count);
+   		  
+	for (i = 0; i < count; i++)
+	{
+		status = GetCtrlAttribute (panelHandle, GetCtrlArrayItem (bottomHandle, i), ATTR_TOP, &ctrlTop);
+		status = SetCtrlAttribute (panelHandle, GetCtrlArrayItem (bottomHandle, i), ATTR_TOP, ctrlTop + yOffset);
+	}
+	
+	// Resize bottom control pane									   ;
+	status = GetCtrlAttribute (panelHandle, PANEL_PANELBOTTOM, ATTR_WIDTH, &ctrlWidth);
+	status = SetCtrlAttribute (panelHandle, PANEL_PANELBOTTOM, ATTR_WIDTH, ctrlWidth + xOffset);
+	
+	// Resize window start control
+	status = GetCtrlAttribute (panelHandle, PANEL_START, ATTR_WIDTH, &ctrlWidth);
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_WIDTH, ctrlWidth + (xOffset / 3));
+	
+	// Reposition zoom controls
+	status = GetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_LEFT, ctrlLeft + xOffset / 2);
+	status = GetCtrlAttribute (panelHandle, PANEL_RESET, ATTR_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_RESET, ATTR_LEFT, ctrlLeft + xOffset / 2);
+	
+	// Resize window end control
+	status = GetCtrlAttribute (panelHandle, PANEL_END, ATTR_WIDTH, &ctrlWidth);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_WIDTH, ctrlWidth + (xOffset / 3));
+	
+	// Reposition window end control
+	status = GetCtrlAttribute (panelHandle, PANEL_END, ATTR_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_LEFT, ctrlLeft + (xOffset * 2/3));
+	
+	// Reposition window size label
+	status = GetCtrlAttribute (panelHandle, PANEL_END, ATTR_LABEL_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_LABEL_LEFT, ctrlLeft + (xOffset / 3));
+	
+	// Reposition window size display
+	status = GetCtrlAttribute (panelHandle, PANEL_END, ATTR_DIG_DISP_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_DIG_DISP_LEFT, ctrlLeft + (xOffset / 3));
+	
+	// Reposition K control
+	status = GetCtrlAttribute (panelHandle, PANEL_DIEL, ATTR_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_DIEL, ATTR_LEFT, ctrlLeft + xOffset);
+	
+	// Write new window size to globals
+	windowWidth = newWidth;
+	windowHeight = newHeight;
+	
+	// Re-enable timers
+	status = ResumeTimerCallbacks ();
+	
+	// TODO #106: useful return
+	return 1;
+}
 
 
 
@@ -1475,114 +1580,9 @@ void clearWaveform (void)
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_CLEAR, ATTR_DIMMED, 1);
 }
 
-// Update position of controls on resize
-void updateSize (void)
-{
-	int status;
-	int count;
-	
-	// Disable timers during action
-	status = SuspendTimerCallbacks ();
-	
-	int newWidth, newHeight;
-								
-	status = GetPanelAttribute (panelHandle, ATTR_WIDTH, &newWidth);
-	status = GetPanelAttribute (panelHandle, ATTR_HEIGHT, &newHeight);
-
-	// Prevent sizing too small
-	if (newWidth < 1024)
-	{
-		newWidth = 1024;
-		status = SetPanelAttribute (panelHandle, ATTR_WIDTH, newWidth);
-	}
-	if (newHeight < 576)
-	{
-		newHeight = 576;
-		status = SetPanelAttribute (panelHandle, ATTR_HEIGHT, newHeight);
-	}
-	
-	int xOffset, yOffset;
-	
-	// Calculate size change
-	xOffset = newWidth - windowWidth;
-	yOffset = newHeight - windowHeight;
-
-	// Control position and size
-	int ctrlWidth, ctrlHeight;
-	int ctrlLeft, ctrlTop;
-	
-	// Resize panel window
-	status = GetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_WIDTH, &ctrlWidth);
-	status = GetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_HEIGHT, &ctrlHeight);
-	
-	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_WIDTH, ctrlWidth + xOffset);
-	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_HEIGHT, ctrlHeight + yOffset);
-	
-	// Move right-hand control panel
-	status = GetNumCtrlArrayItems (rightHandle, &count);
-   	
-	// Define here to avoid redefine errors
-	int i;
-	
-	for (i = 0; i < count; i++)
-	{   
-		status = GetCtrlAttribute (panelHandle, GetCtrlArrayItem (rightHandle, i), ATTR_LEFT, &ctrlLeft);
-		status = SetCtrlAttribute (panelHandle, GetCtrlArrayItem (rightHandle, i), ATTR_LEFT, ctrlLeft + xOffset);
-	}
-	
-	// Move bottom control pane
-	status = GetNumCtrlArrayItems (bottomHandle, &count);
-   		  
-	for (i = 0; i < count; i++)
-	{
-		status = GetCtrlAttribute (panelHandle, GetCtrlArrayItem (bottomHandle, i), ATTR_TOP, &ctrlTop);
-		status = SetCtrlAttribute (panelHandle, GetCtrlArrayItem (bottomHandle, i), ATTR_TOP, ctrlTop + yOffset);
-	}
-	
-	// Resize bottom control pane									   ;
-	status = GetCtrlAttribute (panelHandle, PANEL_PANELBOTTOM, ATTR_WIDTH, &ctrlWidth);
-	status = SetCtrlAttribute (panelHandle, PANEL_PANELBOTTOM, ATTR_WIDTH, ctrlWidth + xOffset);
-	
-	// Resize window start control
-	status = GetCtrlAttribute (panelHandle, PANEL_START, ATTR_WIDTH, &ctrlWidth);
-	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_WIDTH, ctrlWidth + (xOffset / 3));
-	
-	// Reposition zoom controls
-	status = GetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_LEFT, &ctrlLeft);
-	status = SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_LEFT, ctrlLeft + xOffset / 2);
-	status = GetCtrlAttribute (panelHandle, PANEL_RESET, ATTR_LEFT, &ctrlLeft);
-	status = SetCtrlAttribute (panelHandle, PANEL_RESET, ATTR_LEFT, ctrlLeft + xOffset / 2);
-	
-	// Resize window end control
-	status = GetCtrlAttribute (panelHandle, PANEL_END, ATTR_WIDTH, &ctrlWidth);
-	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_WIDTH, ctrlWidth + (xOffset / 3));
-	
-	// Reposition window end control
-	status = GetCtrlAttribute (panelHandle, PANEL_END, ATTR_LEFT, &ctrlLeft);
-	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_LEFT, ctrlLeft + (xOffset * 2/3));
-	
-	// Reposition window size label
-	status = GetCtrlAttribute (panelHandle, PANEL_END, ATTR_LABEL_LEFT, &ctrlLeft);
-	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_LABEL_LEFT, ctrlLeft + (xOffset / 3));
-	
-	// Reposition window size display
-	status = GetCtrlAttribute (panelHandle, PANEL_END, ATTR_DIG_DISP_LEFT, &ctrlLeft);
-	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_DIG_DISP_LEFT, ctrlLeft + (xOffset / 3));
-	
-	// Reposition K control
-	status = GetCtrlAttribute (panelHandle, PANEL_DIEL, ATTR_LEFT, &ctrlLeft);
-	status = SetCtrlAttribute (panelHandle, PANEL_DIEL, ATTR_LEFT, ctrlLeft + xOffset);
-	
-	// Write new window size to globals
-	windowWidth = newWidth;
-	windowHeight = newHeight;
-	
-	// Re-enable timers
-	status = ResumeTimerCallbacks ();
-}
 
 // Save program settings
-void saveSettings (int isAuto)
+int saveSettings (int isAuto)
 {
 	int status;	
 
@@ -1687,7 +1687,10 @@ void saveSettings (int isAuto)
 	status = CloseFile(fd);
 	
 	// Re-enable timers 
-	status = ResumeTimerCallbacks ();	
+	status = ResumeTimerCallbacks ();
+	
+	// TODO #106: useful return
+	return 1;
 }
 
 // Load program settings
