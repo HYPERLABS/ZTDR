@@ -471,6 +471,10 @@ void CVICALLBACK onChangeX3 (int menuBar, int menuItem, void *callbackData,
 	acquire (1);
 }
 
+
+
+
+
 // Vertical units changed to mV
 void CVICALLBACK onChangeY1 (int menuBar, int menuItem, void *callbackData,
 							 int panel)
@@ -507,6 +511,16 @@ void CVICALLBACK onChangeY4 (int menuBar, int menuItem, void *callbackData,
 	acquire (1);
 }
 
+
+
+
+// Recall waveform
+void CVICALLBACK onRecall (int menuBar, int menuItem, void *callbackData,
+						   int panel)
+{
+	recallWaveform ();
+}
+
 // Clear stored waveform (from menu)
 void CVICALLBACK onClearMenu (int menuBar, int menuItem, void *callbackData,
 							  int panel)
@@ -518,20 +532,28 @@ void CVICALLBACK onClearMenu (int menuBar, int menuItem, void *callbackData,
 	acquire (1);
 }
 
+// Store waveform
+void CVICALLBACK onStore (int menuBar, int menuItem, void *callbackData,
+						  int panel)
+{
+	storeWaveform (1);
+}
+
+
+
+
+// Print waveform
+void CVICALLBACK onPrint (int menuBar, int menuItem, void *callbackData,
+						  int panel)
+{
+	printWaveform ();
+}
+
 // Save CSV file
 void CVICALLBACK onCSV (int menuBar, int menuItem, void *callbackData,
 						int panel)
 {
 	storeWaveform (0);
-}
-
-// Save settings
-void CVICALLBACK onLoadSettings (int menuBar, int menuItem, void *callbackData,
-								 int panel)
-{
-	loadSettings (0);
-	
-	acquire (1);
 }
 
 // Save CSV and PNG with comments
@@ -548,18 +570,16 @@ void CVICALLBACK onPNG (int menuBar, int menuItem, void *callbackData,
 	savePNG ();
 }
 
-// Print waveform
-void CVICALLBACK onPrint (int menuBar, int menuItem, void *callbackData,
-						  int panel)
-{
-	printWaveform ();
-}
 
-// Recall waveform
-void CVICALLBACK onRecall (int menuBar, int menuItem, void *callbackData,
-						   int panel)
+ 
+
+// Save settings
+void CVICALLBACK onLoadSettings (int menuBar, int menuItem, void *callbackData,
+								 int panel)
 {
-	recallWaveform ();
+	loadSettings (0);
+	
+	acquire (1);
 }
 
 // Restore default settings
@@ -577,6 +597,9 @@ void CVICALLBACK onSaveSettings (int menuBar, int menuItem, void *callbackData,
 {
 	saveSettings (0);
 }
+
+
+
 
 // Reset to absolute zero
 void CVICALLBACK onResetZero (int menuBar, int menuItem, void *callbackData,
@@ -596,12 +619,8 @@ void CVICALLBACK onSetZero (int menuBar, int menuItem, void *callbackData,
 	acquire (1);
 }
 
-// Store waveform
-void CVICALLBACK onStore (int menuBar, int menuItem, void *callbackData,
-						  int panel)
-{
-	storeWaveform (1);
-}
+
+
 
 // Timebase calibration
 void CVICALLBACK onTimeCal (int menuBar, int menuItem, void *callbackData,
