@@ -30,6 +30,7 @@ extern "C" {
 	int		resetZoom (void);
 	int 	setCalTime (void);
 	int 	setUnitX (int unit);
+	int 	setUnitY (int unit);
 	int		showVersion (void);
 	int		updateCursors (void);
 	int 	updateTimestamp (void);
@@ -41,7 +42,6 @@ extern "C" {
 
 
 
-	void 	changeUnitY (int unit);
 	void	clearWaveform (void);
 	int 	loadSettings (int isAuto);
 	void	main (int argc, char *argv[]);

@@ -515,50 +515,128 @@ void CVICALLBACK onSetXNs (int menuBar, int menuItem, void *callbackData,
 	status = ResumeAsyncTimerCallbacks ();
 }
 
-
-
-
-
-
-
-
-
-
 // Vertical units changed to mV
-void CVICALLBACK onChangeY1 (int menuBar, int menuItem, void *callbackData,
-							 int panel)
+void CVICALLBACK onSetYMV (int menuBar, int menuItem, void *callbackData,
+						   int panel)
 {
-	changeUnitY (0);
+	int status;
 
-	acquire (1);
+	// Stop timers before exit
+	status = SuspendAsyncTimerCallbacks ();
+	
+	// Don't interrupt calibration/acquisition
+	while (getLED () == 1 || timerLock == 1)
+	{
+		// do nothing	
+	}
+	
+	status = setUnitY (UNIT_MV);
+
+	if (getAutoAcq () != 1)
+	{
+		// Conditional calibrations
+		asyncCal = ASYNC_COND;
+		
+		// Add to acquisition queue
+		asyncAcqCount++;
+	}
+	
+	status = ResumeAsyncTimerCallbacks ();
 }
 
 // Vertical units changed to Norm
-void CVICALLBACK onChangeY2 (int menuBar, int menuItem, void *callbackData,
+void CVICALLBACK onSetYNorm (int menuBar, int menuItem, void *callbackData,
 							 int panel)
 {
-	changeUnitY (1);
+	int status;
 
-	acquire (1);
+	// Stop timers before exit
+	status = SuspendAsyncTimerCallbacks ();
+	
+	// Don't interrupt calibration/acquisition
+	while (getLED () == 1 || timerLock == 1)
+	{
+		// do nothing	
+	}
+	
+	status = setUnitY (UNIT_NORM);
+
+	if (getAutoAcq () != 1)
+	{
+		// Conditional calibrations
+		asyncCal = ASYNC_COND;
+		
+		// Add to acquisition queue
+		asyncAcqCount++;
+	}
+	
+	status = ResumeAsyncTimerCallbacks ();
 }
 
 // Vertical units changed to Ohm
-void CVICALLBACK onChangeY3 (int menuBar, int menuItem, void *callbackData,
-							 int panel)
+void CVICALLBACK onSetYOhm (int menuBar, int menuItem, void *callbackData,
+							int panel)
 {
-	changeUnitY (2);
+	int status;
 
-	acquire (1);
+	// Stop timers before exit
+	status = SuspendAsyncTimerCallbacks ();
+	
+	// Don't interrupt calibration/acquisition
+	while (getLED () == 1 || timerLock == 1)
+	{
+		// do nothing	
+	}
+	
+	status = setUnitY (UNIT_OHM);
+
+	if (getAutoAcq () != 1)
+	{
+		// Conditional calibrations
+		asyncCal = ASYNC_COND;
+		
+		// Add to acquisition queue
+		asyncAcqCount++;
+	}
+	
+	status = ResumeAsyncTimerCallbacks ();
 }
 
 // Vertical units changed to Rho
-void CVICALLBACK onChangeY4 (int menuBar, int menuItem, void *callbackData,
-							 int panel)
+void CVICALLBACK onSetYRho (int menuBar, int menuItem, void *callbackData,
+							int panel)
 {
-	changeUnitY (3);
+	int status;
 
-	acquire (1);
+	// Stop timers before exit
+	status = SuspendAsyncTimerCallbacks ();
+	
+	// Don't interrupt calibration/acquisition
+	while (getLED () == 1 || timerLock == 1)
+	{
+		// do nothing	
+	}
+	
+	status = setUnitY (UNIT_RHO);
+
+	if (getAutoAcq () != 1)
+	{
+		// Conditional calibrations
+		asyncCal = ASYNC_COND;
+		
+		// Add to acquisition queue
+		asyncAcqCount++;
+	}
+	
+	status = ResumeAsyncTimerCallbacks ();
 }
+
+
+
+
+
+
+
 
 
 

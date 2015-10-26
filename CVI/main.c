@@ -994,38 +994,8 @@ int setUnitX (int unit)
 	return 1;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Change vertical units
-void changeUnitY (int unit)
+int setUnitY (int unit)
 {
 	int status;
 	
@@ -1034,10 +1004,10 @@ void changeUnitY (int unit)
 	{
 		yUnits = UNIT_MV;
 		
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS1, ATTR_CHECKED, 1);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS2, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS3, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS4, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITSMV, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITSNORM, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITSOHM, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITSRHO, ATTR_CHECKED, 0);
 		
 		// Set manual scale defaults 
 		status = SetCtrlVal (panelHandle, PANEL_YMAX, 250.00);
@@ -1050,10 +1020,10 @@ void changeUnitY (int unit)
 	{
 		yUnits = UNIT_NORM;
 		
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS1, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS2, ATTR_CHECKED, 1);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS3, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS4, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITSMV, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITSNORM, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITSOHM, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITSRHO, ATTR_CHECKED, 0);
 		
 		// Set manual scale defaults 
 		status = SetCtrlVal (panelHandle, PANEL_YMAX, 2.00);
@@ -1066,10 +1036,10 @@ void changeUnitY (int unit)
 	{
 		yUnits = UNIT_OHM;
 		
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS1, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS2, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS3, ATTR_CHECKED, 1);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS4, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITSMV, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITSNORM, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITSOHM, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITSRHO, ATTR_CHECKED, 0);
 		
 		// Set manual scale defaults 
 		status = SetCtrlVal (panelHandle, PANEL_YMAX, 500.00);
@@ -1082,10 +1052,10 @@ void changeUnitY (int unit)
 	{
 		yUnits = UNIT_RHO;
 		
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS1, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS2, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS3, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITS4, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITSMV, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITSNORM, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITSOHM, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS_YUNITSRHO, ATTR_CHECKED, 1);
 		
 		// Set manual scale defaults
 		status = SetCtrlVal (panelHandle, PANEL_YMAX, 1.00);
@@ -1096,7 +1066,40 @@ void changeUnitY (int unit)
 	}
 	
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, labelY[yUnits]);
+	
+	// TODO #106: useful return
+	return 1;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Set zero on horizontal axis
 void setZero (double x)
@@ -1436,7 +1439,7 @@ void recallWaveform (void)
 	
 	// Store globals
 	status = setUnitX (xStored);
-	changeUnitY (yStored);
+	status = setUnitY (yStored);
 
 	// Update controls
 	SetCtrlVal (panelHandle, PANEL_START, (double) startStored);
@@ -1801,7 +1804,7 @@ int loadSettings (int isAuto)
 	{
 		// Store globals
 		status = setUnitX (xStored);
-		changeUnitY (yStored);
+		status = setUnitY (yStored);
 		
 		// Adjust minimum values before out-of-range values potentially set
 		status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MIN_VALUE, 0.0 - zeroStored);
@@ -1865,7 +1868,7 @@ void resetSettings (void)
 	
 	// Reset X/Y axes
 	status = setUnitX (0);
-	changeUnitY (0);
+	status = setUnitY (0);
 	
 	// Remove horizontal offset
 	setZero (0.0);

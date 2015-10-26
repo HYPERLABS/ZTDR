@@ -83,10 +83,10 @@
 #define  MENUBAR_XUNITS_XUNITSFT          28      /* callback function: onSetXFt */
 #define  MENUBAR_XUNITS_XUNITSNS          29      /* callback function: onSetXNs */
 #define  MENUBAR_YUNITS                   30
-#define  MENUBAR_YUNITS_YUNITS1           31      /* callback function: onChangeY1 */
-#define  MENUBAR_YUNITS_YUNITS2           32      /* callback function: onChangeY2 */
-#define  MENUBAR_YUNITS_YUNITS3           33      /* callback function: onChangeY3 */
-#define  MENUBAR_YUNITS_YUNITS4           34      /* callback function: onChangeY4 */
+#define  MENUBAR_YUNITS_YUNITSMV          31      /* callback function: onSetYMV */
+#define  MENUBAR_YUNITS_YUNITSNORM        32      /* callback function: onSetYNorm */
+#define  MENUBAR_YUNITS_YUNITSOHM         33      /* callback function: onSetYOhm */
+#define  MENUBAR_YUNITS_YUNITSRHO         34      /* callback function: onSetYRho */
 #define  MENUBAR_CALIBRATION              35
 #define  MENUBAR_CALIBRATION_SETZERO      36      /* callback function: onSetZero */
 #define  MENUBAR_CALIBRATION_RESETZERO    37      /* callback function: onResetZero */
@@ -100,10 +100,6 @@
 int  CVICALLBACK onAcquire(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeDiel(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeWindow(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-void CVICALLBACK onChangeY1(int menubar, int menuItem, void *callbackData, int panel);
-void CVICALLBACK onChangeY2(int menubar, int menuItem, void *callbackData, int panel);
-void CVICALLBACK onChangeY3(int menubar, int menuItem, void *callbackData, int panel);
-void CVICALLBACK onChangeY4(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onClearMenu(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onCSV(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onDebug(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
@@ -127,6 +123,10 @@ void CVICALLBACK onSetPlotThin(int menubar, int menuItem, void *callbackData, in
 void CVICALLBACK onSetXFt(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onSetXM(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onSetXNs(int menubar, int menuItem, void *callbackData, int panel);
+void CVICALLBACK onSetYMV(int menubar, int menuItem, void *callbackData, int panel);
+void CVICALLBACK onSetYNorm(int menubar, int menuItem, void *callbackData, int panel);
+void CVICALLBACK onSetYOhm(int menubar, int menuItem, void *callbackData, int panel);
+void CVICALLBACK onSetYRho(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onSetZero(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onStore(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onTimeCal(int menubar, int menuItem, void *callbackData, int panel);
