@@ -201,6 +201,26 @@ int CVICALLBACK onPanel (int panel, int event, void *callbackData,
 	return 0;
 }
 
+// Update cursors on waveform acquisition
+int CVICALLBACK onWaveform (int panel, int control, int event,
+							void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+		{
+			int status;
+
+			status = updateCursors ();
+
+			break;
+		}
+	}
+
+	return 0;
+}
+
+
 
 
 
@@ -224,37 +244,6 @@ int CVICALLBACK onReset (int panel, int control, int event,
 
 			break;
 	}
-	return 0;
-}
-
-
-
-
-
-// Update cursors on waveform acquisition
-int CVICALLBACK onWaveform (int panel, int control, int event,
-							void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-		{
-			updateCursors ();
-
-			break;
-		}
-
-		case EVENT_VAL_CHANGED:
-		{
-			break;
-		}
-
-		case EVENT_RIGHT_CLICK:
-		{
-			break;
-		}
-	}
-
 	return 0;
 }
 
