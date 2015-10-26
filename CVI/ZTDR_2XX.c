@@ -270,6 +270,7 @@ __stdcall int vertCal (void)
 
 	vampl = vend - vstart;
 	
+	// TODO #106: useful return
 	return 1;
 }
 

@@ -32,7 +32,6 @@ extern "C" {
 #define FILTER_WIDTH 4
 #define	CAL_RECLEN 1024 // data points for calibration
 
-
 // Max data points of USBFIFO
 #define NPOINTS_MAX 16384
 
@@ -51,9 +50,14 @@ extern "C" {
 #define M_TO_FT 3.2808
 #define FT_TO_M 0.3048
 	
-// User interface
+// Message output locations
 #define MSG_MAIN	0
 	
+// Asynchronus timer
+#define	ASYNC_NO	-1
+#define	ASYNC_YES	0
+#define	ASYNC_MSG	1
+#define	ASYNC_COND	2
 
 // FTDI functionality
 #define NPARAMS 26

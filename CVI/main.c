@@ -15,6 +15,8 @@
 #include <formatio.h>
 #include <userint.h>
 
+#include "asynctmr.h"
+
 #include "constants.h"
 #include "interface.h"
 #include "main.h"
@@ -61,7 +63,38 @@ extern	timeinf start_tm, end_tm;
 //==============================================================================
 // Global variables
 
-// TODO: better names for these
+// Asynchrounus timers
+int	asyncAcqCount = 0;
+int	asyncCal = 0;
+int	timerLock;
+
+// Recalled waveform data
+double wfmRecall[NPOINTS_MAX];
+double wfmRecallX[NPOINTS_MAX];
+
+// Temporary data storage for rise time filtering
+double wfmPreFilter[2048];
+double wfmPostFilter[2048];
+
+// Default plot type
+int	plotType = 2L; // dots
+
+// Waveform handles
+int WfmActive; 	// current acquisition
+int WfmStored;	// stored waveform
+
+// UIR elements
+int panelHandle, menuHandle;
+int	rightHandle, bottomHandle;
+
+// Panel size
+int	windowWidth, windowHeight;
+
+// Save to default directories
+int defaultSaveCSV = 1;
+int defaultSaveINI = 1;
+int defaultSavePNG = 1;
+int defaultSaveZTDR = 1;
 
 // Unit labels and ranges
 char *labelY[] =
@@ -152,33 +185,11 @@ char *monthName[] =
 	"DEC"
 };
 
-// Recalled waveform data
-double wfmRecall[NPOINTS_MAX];
-double wfmRecallX[NPOINTS_MAX];
+//==============================================================================
+// Static global functions
 
-// Temporary data storage for rise time filtering
-double wfmPreFilter[2048];
-double wfmPostFilter[2048];
-
-// Default plot type
-int	plotType = 2L; // dots
-
-// Waveform handles
-int WfmActive; 	// current acquisition
-int WfmStored;	// stored waveform
-
-// UIR elements
-int panelHandle, menuHandle;
-int	rightHandle, bottomHandle;
-
-// Panel size
-int	windowWidth, windowHeight;
-
-// Save to default directories
-int defaultSaveCSV = 1;
-int defaultSaveINI = 1;
-int defaultSavePNG = 1;
-int defaultSaveZTDR = 1;
+// Asynchronous timers
+static	clock_t lastCal;
 
 
 //==============================================================================
@@ -189,6 +200,9 @@ void main (int argc, char *argv[])
 {
 	int status;
 
+	// Enable thread profiling
+	status = CVIProfSetCurrentThreadProfiling (1);
+	
 	// Verify CVIRTE is running
 	status = InitCVIRTE (0, argv, 0);
 	
@@ -246,73 +260,112 @@ void main (int argc, char *argv[])
 		QuitUserInterface (0);
 	}
 	
+	// Asynchronous timer for calibration, acquisition
+	int asyncArg = 0;
+	status = NewAsyncTimer (1.0, -1, 1, onAsyncTimer, &asyncArg);
+	
 	RunUserInterface ();	
 	
 	DiscardPanel (panelHandle);
 }
 
-// Verify necessary folders
-int checkDirs (void)
+// Continuous asyncronous timer for acquisition, calibration
+int CVICALLBACK onAsyncTimer (int reserved, int timerId, int event, void *callbackData, int eventData1, int eventData2)
 {
 	int status;
 	
-	int existsDir;
-	
-	// Default .PNG output folder	
-	status = FileExists ("images", &existsDir);
-	
-	if (status == 0) 
-	{
-		MakeDir ("images");
-	}
-	
-	// Default .ZTDR output folder
-	status = FileExists ("waveforms", &existsDir);
-	
-	if (status == 0) 
-	{
-		MakeDir ("waveforms");
-	}
-	
-	// Default settings folder
-	status = FileExists ("settings", &existsDir);
-	
-	if (status == 0) 
-	{
-		MakeDir ("settings");
-	}
-	
-	// Default CSV output folder
-	status = FileExists ("datalogs", &existsDir);
-	
-	if (status == 0) 
-	{
-		MakeDir ("datalogs");
-	}
-	
-	// TODO #106: useful return
-	return 1;
-}
+	// Timer is active
+	timerLock = 1;
 
-// Format and show current version and instrument
-int showVersion (void)
-{
-	int status;
-	
-	// Get full version number
-	char version[64];
-	status = sprintf (version, "ZTDR v%s", _TARGET_PRODUCT_VERSION_);
-	
-	// Trim build number
-	int len = strlen (version) - 2;
-	version[len] = 0;
-	
-	// Append instrument model
-	status = sprintf (version, "%s / HL1101", version);
-	
-	status = SetCtrlVal (panelHandle, PANEL_VERSION, version);
-	
-	// TODO #106: useful return
+	// Enable thread profiling
+	status = CVIProfSetCurrentThreadProfiling (1);
+
+	// Calibration logic
+	if (asyncCal == ASYNC_YES || asyncCal == ASYNC_MSG)
+	{
+		// Force instrument recalibration and optionally show message
+		status = calibrate (asyncCal);
+
+		// Reset cal timer if successful
+		if (status == 1)
+		{
+			status = setCalTime ();
+			asyncCal = ASYNC_NO;
+		}
+		else
+		{
+			// Retry calibration next timer tick
+		}
+
+		// Ensure calibration settles before acquisition
+		Delay (0.5);
+	}
+	else if (asyncCal == ASYNC_COND || getAutoAcq () == 1)
+	{
+		double calElapsed = checkCalTime ();
+
+		// Recalibrate if last calibration was more than 30 seconds ago
+		if (calElapsed > 30)
+		{
+			status = calibrate (0);
+
+			// Reset cal timer if successful
+			if (status == 1)
+			{
+				status = setCalTime ();
+				asyncCal = ASYNC_NO;
+			}
+			else
+			{
+				// Retry calibration next timer tick
+			}
+
+			// Ensure calibration settles before acquisition
+			Delay (0.5);
+		}
+		else
+		{
+			// Recalibration not required
+			asyncCal = ASYNC_NO;
+		}
+	}
+	else
+	{
+		// Recalibration not required
+		asyncCal = ASYNC_NO;
+	}
+
+	// Auto-acquire enabled, ignore queue
+	if (getAutoAcq () == 1)
+	{
+		// Acquire new waveform
+		status = acquire (1);
+
+		// Reset queue count
+		asyncAcqCount = 0;
+	}
+	// Perform final acquisition in queue
+	else if (asyncAcqCount == 1)
+	{
+		status = acquire (1);
+
+		asyncAcqCount--;
+	}
+	// Skip all but last acquisition in queue
+	else if (asyncAcqCount > 1)
+	{
+		asyncAcqCount--;
+	}
+	// Acquisition not required
+	else
+	{
+		// Do nothing
+	}
+
+	// Timer has finished
+	timerLock = 0;
+
+	// TODO #352: useful return
 	return 1;
 }
 
@@ -505,6 +558,102 @@ int acquire (int doDraw)
 	
 	// Stop acquisition timer
 	status = stopTimer ("ACQ DATA: ", 0);
+	
+	// TODO #106: useful return
+	return 1;
+}
+
+// Organized calibration with output
+int calibrate (int showMsg)
+{
+	int status;
+	
+	status = vertCal ();
+	
+	// TODO #106: useful return
+	return 1;
+}
+
+// Get time since last calibration
+double checkCalTime (void)
+{
+	clock_t thisTime = clock ();
+
+	double timeElapsed = (double) (thisTime - lastCal) / CLOCKS_PER_SEC;
+
+	// Return time since last calibration
+	return timeElapsed;
+}
+
+// Start event timer
+int setCalTime (void)
+{
+	lastCal = clock ();
+
+	// TODO #352: useful return
+	return 1;
+}
+
+// Verify necessary folders
+int checkDirs (void)
+{
+	int status;
+	
+	int existsDir;
+	
+	// Default .PNG output folder	
+	status = FileExists ("images", &existsDir);
+	
+	if (status == 0) 
+	{
+		MakeDir ("images");
+	}
+	
+	// Default .ZTDR output folder
+	status = FileExists ("waveforms", &existsDir);
+	
+	if (status == 0) 
+	{
+		MakeDir ("waveforms");
+	}
+	
+	// Default settings folder
+	status = FileExists ("settings", &existsDir);
+	
+	if (status == 0) 
+	{
+		MakeDir ("settings");
+	}
+	
+	// Default CSV output folder
+	status = FileExists ("datalogs", &existsDir);
+	
+	if (status == 0) 
+	{
+		MakeDir ("datalogs");
+	}
+	
+	// TODO #106: useful return
+	return 1;
+}
+
+// Format and show current version and instrument
+int showVersion (void)
+{
+	int status;
+	
+	// Get full version number
+	char version[64];
+	status = sprintf (version, "ZTDR v%s", _TARGET_PRODUCT_VERSION_);
+	
+	// Trim build number
+	int len = strlen (version) - 2;
+	version[len] = 0;
+	
+	// Append instrument model
+	status = sprintf (version, "%s / HL1101", version);
+	
+	status = SetCtrlVal (panelHandle, PANEL_VERSION, version);
 	
 	// TODO #106: useful return
 	return 1;
@@ -869,7 +1018,6 @@ void changeUnitY (int unit)
 	
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, labelY[yUnits]);
 }
-
 
 // Cursor-based zoom
 void zoom (void)

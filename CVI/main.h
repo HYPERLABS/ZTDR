@@ -24,16 +24,19 @@ extern "C" {
 // Global functions
 
 	int 	acquire (int doDraw);
+	int 	calibrate (int showMsg);
+	double 	checkCalTime (void);
 	int 	checkDirs (void);
+	int 	setCalTime (void);
 	int		showVersion (void);
 	int		updateCursors (void);
 	int 	updateTimestamp (void);
+	
+	int 	CVICALLBACK onAsyncTimer (int reserved, int timerId, int event, void *callbackData, int eventData1, int eventData2);
 
 
 
 
-	void 	changeAutoCal (void);
-	void 	changeAutoScale (void);
 	void 	changeBg (int color);
 	void 	changeDiel (void);
 	void 	changeUnitX (int unit);

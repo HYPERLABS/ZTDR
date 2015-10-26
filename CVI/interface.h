@@ -16,7 +16,7 @@
 #define  PANEL                            1       /* callback function: onPanel */
 #define  PANEL_AUTOACQUIRE                2       /* control type: radioButton, callback function: (none) */
 #define  PANEL_ACQUIRE                    3       /* control type: command, callback function: onAcquire */
-#define  PANEL_AUTOSCALE                  4       /* control type: radioButton, callback function: onAutoScale */
+#define  PANEL_AUTOSCALE                  4       /* control type: radioButton, callback function: onGeneric */
 #define  PANEL_YMIN                       5       /* control type: numeric, callback function: onGeneric */
 #define  PANEL_YMAX                       6       /* control type: numeric, callback function: onGeneric */
 #define  PANEL_CURSOR1                    7       /* control type: textMsg, callback function: (none) */
@@ -98,7 +98,6 @@
      /* Callback Prototypes: */
 
 int  CVICALLBACK onAcquire(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK onAutoScale(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeAverage(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onChangeBg1(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangeBg2(int menubar, int menuItem, void *callbackData, int panel);

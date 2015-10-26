@@ -9,7 +9,7 @@ IVI Standard Root Dir = "/C/Program Files (x86)/IVI Foundation/IVI"
 VXIplug&play Framework Dir = "/C/Program Files (x86)/IVI Foundation/VISA/winnt"
 IVI Standard Root 64-bit Dir = "/C/Program Files/IVI Foundation/IVI"
 VXIplug&play Framework 64-bit Dir = "/C/Program Files/IVI Foundation/VISA/win64"
-Number of Files = 11
+Number of Files = 12
 Target Type = "Executable"
 Flags = 16
 Copied From Locked InstrDrv Directory = False
@@ -18,7 +18,6 @@ Locked InstrDrv Name = ""
 Don't Display Deploy InstrDrv Dialog = False
 
 [Folders]
-Instrument Files Folder Not Added Yet = True
 Folder 0 = "User Interface Files"
 FolderEx 0 = "User Interface Files"
 Folder 1 = "Include Files"
@@ -27,6 +26,8 @@ Folder 2 = "Source Files"
 FolderEx 2 = "Source Files"
 Folder 3 = "Library Files"
 FolderEx 3 = "Library Files"
+Folder 4 = "Instrument Files"
+FolderEx 4 = "Instrument Files"
 
 [File 0001]
 File Type = "User Interface Resource"
@@ -163,6 +164,19 @@ Exclude = False
 Project Flags = 0
 Folder = "Library Files"
 Folder Id = 3
+
+[File 0012]
+File Type = "Function Panel"
+Res Id = 12
+Path Is Rel = True
+Path Rel To = "CVI"
+Path Rel To Override = "CVI"
+Path Rel Path = "toolslib/toolbox/asynctmr.fp"
+Path = "/c/Program Files (x86)/National Instruments/CVI2013/toolslib/toolbox/asynctmr.fp"
+Exclude = False
+Project Flags = 0
+Folder = "Instrument Files"
+Folder Id = 4
 
 [Custom Build Configs]
 Num Custom Build Configs = 0

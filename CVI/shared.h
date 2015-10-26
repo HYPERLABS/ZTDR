@@ -23,8 +23,10 @@ extern "C" {
 //==============================================================================
 // Global functions
 
+	int		getAutoAcq (void);
 	int 	getAutoscale (void);
 	int		getNumAvg (void);
+	int		setAutoAcq (int checked);
 	int 	setAutoscale (int checked);
 	int		setNumAvg (int num);
 	int 	setPlot (int plot);				// no corresponding get

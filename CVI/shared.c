@@ -37,7 +37,28 @@ float timeSpent;
 //==============================================================================
 // Global functions
 
-// Get whether vertical autoscaling active
+// Get auto acquisition mode
+int getAutoAcq (void)
+{
+	int status, checked;
+	
+	status = GetCtrlVal (panelHandle, PANEL_AUTOACQUIRE, &checked);
+	
+	return checked;
+}
+
+// Set auto acquisition mode
+int setAutoAcq (int checked)
+{
+	int status;
+	
+	status = SetCtrlVal (panelHandle, PANEL_AUTOACQUIRE, &checked);
+	
+	// TODO #106: useful return
+	return 1;
+}
+
+// Get autoscale setting
 int getAutoscale (void)
 {
 	int status, checked;

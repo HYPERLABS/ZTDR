@@ -58,30 +58,7 @@ int CVICALLBACK onAcquire (int panel, int control, int event,
 	return 0;
 }
 
-// Switch between autoscale and manual
-int CVICALLBACK onAutoScale (int panel, int control, int event,
-							 void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-		{
-			changeAutoScale ();
 
-			acquire (1);
-
-			break;
-
-		}
-
-		case EVENT_RIGHT_CLICK:
-		{
-			break;
-		}
-	}
-
-	return 0;
-}
 
 // Waveform averaging changed
 int CVICALLBACK onChangeAverage (int panel, int control, int event,
@@ -358,7 +335,14 @@ void CVICALLBACK onSetPlotDots (int menuBar, int menuItem, void *callbackData,
 
 	status = setPlot (0);
 
-	acquire (1);
+	if (getAutoAcq () != 1)
+	{
+		// Conditional calibrations
+		asyncCal = ASYNC_COND;
+				
+		// Add to acquisition queue
+		asyncAcqCount++;
+	}
 }
 
 // Display changed to THIN_LINE
@@ -369,7 +353,14 @@ void CVICALLBACK onSetPlotThin (int menuBar, int menuItem, void *callbackData,
 
 	status = setPlot (1);
 
-	acquire (1);
+	if (getAutoAcq () != 1)
+	{
+		// Conditional calibrations
+		asyncCal = ASYNC_COND;
+				
+		// Add to acquisition queue
+		asyncAcqCount++;
+	}
 }
 
 // Display changed to FAT_LINE
@@ -380,7 +371,14 @@ void CVICALLBACK onSetPlotThick (int menuBar, int menuItem, void *callbackData,
 
 	status = setPlot (2);
 
-	acquire (1);
+	if (getAutoAcq () != 1)
+	{
+		// Conditional calibrations
+		asyncCal = ASYNC_COND;
+				
+		// Add to acquisition queue
+		asyncAcqCount++;
+	}
 }
 
 
