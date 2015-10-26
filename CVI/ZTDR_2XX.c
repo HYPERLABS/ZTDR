@@ -1,7 +1,7 @@
 //==============================================================================
 //
-// Title:		ZTDR_1XX.c
-// Purpose:		ZTDR driver module and DLL functionality (v1.x.x)
+// Title:		ZTDR_2XX.c
+// Purpose:		ZTDR driver module and DLL functionality (v2.x.x)
 //
 // Copyright:	(c) 2015, HYPERLABS INC. All rights reserved.
 //
@@ -16,7 +16,7 @@
 #include "FTD2XX.h"
 
 #include "constants.h"
-#include "ZTDR_1XX.h"
+#include "ZTDR_2XX.h"
 
 //==============================================================================
 // Constants
