@@ -32,6 +32,7 @@ extern "C" {
 	double 	getXStart (void);
 	int		setAutoAcq (int checked);
 	int 	setAutoscale (int checked);
+	int 	setBg (int color);
 	int 	setDiel (double k);
 	int 	setLED (int light);
 	int		setNumAvg (int num);

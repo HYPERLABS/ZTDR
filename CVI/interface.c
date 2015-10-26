@@ -350,6 +350,24 @@ void CVICALLBACK onExit (int menuBar, int menuItem, void *callbackData,
 	QuitUserInterface (0);
 }
 
+// Change to dark background
+void CVICALLBACK onChangeBgDark (int menuBar, int menuItem, void *callbackData,
+							  int panel)
+{
+	int status;
+	
+	status = setBg (COLOR_DARK);
+}
+
+// Change to light background
+void CVICALLBACK onChangeBgLight (int menuBar, int menuItem, void *callbackData,
+							  int panel)
+{
+	int status;
+	
+	status = setBg (COLOR_LIGHT);
+}
+
 // Display changed to DOTS
 void CVICALLBACK onSetPlotDots (int menuBar, int menuItem, void *callbackData,
 								int panel)
@@ -412,23 +430,7 @@ void CVICALLBACK onSetPlotThick (int menuBar, int menuItem, void *callbackData,
 
 
 
-// Change to dark background
-void CVICALLBACK onChangeBg1 (int menuBar, int menuItem, void *callbackData,
-							  int panel)
-{
-	changeBg (0);
 
-	acquire (1);
-}
-
-// Change to light background
-void CVICALLBACK onChangeBg2 (int menuBar, int menuItem, void *callbackData,
-							  int panel)
-{
-	changeBg (1);
-
-	acquire (1);
-}
 
 // Horizontal units changed to M
 void CVICALLBACK onChangeX1 (int menuBar, int menuItem, void *callbackData,

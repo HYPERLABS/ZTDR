@@ -415,6 +415,8 @@ __stdcall int acquireWaveform (int numAvg)
 	
 	for (int j = 0; j < numAvg; j++)
 	{
+		// TODO #175: need dummy strobe
+		
 		// Acquisition with averaging
 		status = usbfifo_acquire (&acq_result, 0);
 		

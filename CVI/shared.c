@@ -92,6 +92,66 @@ int setAutoscale (int checked)
 	return 1;
 }
 
+// Get color scheme
+int getBg (void)
+{
+	int status;
+	
+	int color;
+	status = GetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_DARK, ATTR_CHECKED, &color);
+	
+	return color;
+}
+
+// Change color scheme
+int setBg (int color)
+{
+	int status;
+	
+	// Set default dark background
+	if (color == COLOR_DARK)
+	{ 
+		// Set background and grid color
+		status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_PLOT_BGCOLOR, MakeColor (32, 32, 32));
+		status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_GRID_COLOR, MakeColor (80, 80, 80));
+		status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_GRAPH_BGCOLOR, VAL_WHITE);
+
+		// More visible cursors
+		status = SetCursorAttribute (panelHandle, PANEL_WAVEFORM, 1, ATTR_CURSOR_COLOR, MakeColor (83, 200, 233));
+		status = SetCursorAttribute (panelHandle, PANEL_WAVEFORM, 2, ATTR_CURSOR_COLOR, MakeColor (233, 83, 83));
+		
+		// Timestamp
+		status = SetCtrlAttribute (panelHandle, PANEL_TIMESTAMP, ATTR_TEXT_COLOR , MakeColor (76, 157, 47));
+		
+		// Update checkmarks
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_DARK, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_LIGHT, ATTR_CHECKED, 0);	
+	}
+	
+	// Set alternate light background
+	else if (color == COLOR_LIGHT)
+	{ 
+		// Set background and grid color
+		status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_PLOT_BGCOLOR, VAL_WHITE);
+		status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_GRID_COLOR, VAL_DK_GRAY);
+		status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_GRAPH_BGCOLOR, VAL_LT_GRAY);
+
+		// More visible cursors
+		status = SetCursorAttribute (panelHandle, PANEL_WAVEFORM, 1, ATTR_CURSOR_COLOR, VAL_BLUE);
+		status = SetCursorAttribute (panelHandle, PANEL_WAVEFORM, 2, ATTR_CURSOR_COLOR, VAL_RED);
+		
+		// Timestamp
+		status = SetCtrlAttribute (panelHandle, PANEL_TIMESTAMP, ATTR_TEXT_COLOR , VAL_BLACK);
+		
+		// Update checkmarks
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_DARK, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_LIGHT, ATTR_CHECKED, 1);
+	}
+	
+	// TODO #106: useful return
+	return 1;
+}
+
 // Get value of dielectric
 double getDiel (void)
 {

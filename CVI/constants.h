@@ -58,6 +58,10 @@ extern "C" {
 #define	ASYNC_YES	0
 #define	ASYNC_MSG	1
 #define	ASYNC_COND	2
+	
+// Interface background
+#define COLOR_DARK	0
+#define	COLOR_LIGHT	1
 
 // FTDI functionality
 #define NPARAMS 26
