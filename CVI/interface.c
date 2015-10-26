@@ -14,6 +14,7 @@
 #include "constants.h"
 #include "interface.h"
 #include "main.h"
+#include "shared.h"
 #include "ZTDR_2XX.h"
 
 //==============================================================================
@@ -26,6 +27,14 @@
 
 //==============================================================================
 // Callback functions from controls (sorted alphabetically)
+
+
+
+
+
+
+
+
 
 // Acquire waveform manually
 int CVICALLBACK onAcquire (int panel, int control, int event,
@@ -404,6 +413,49 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 //==============================================================================
 // Callback functions from menu commands (sorted alphabetically)
 
+// Display changed to DOTS
+void CVICALLBACK onSetPlotDots (int menuBar, int menuItem, void *callbackData,
+								int panel)
+{
+	int status;
+
+	status = setPlot (0);
+
+	acquire (1);
+}
+
+// Display changed to THIN_LINE
+void CVICALLBACK onSetPlotThin (int menuBar, int menuItem, void *callbackData,
+								int panel)
+{
+	int status;
+
+	status = setPlot (1);
+
+	acquire (1);
+}
+
+// Display changed to FAT_LINE
+void CVICALLBACK onSetPlotThick (int menuBar, int menuItem, void *callbackData,
+								 int panel)
+{
+	int status;
+
+	status = setPlot (2);
+
+	acquire (1);
+}
+
+
+
+
+
+
+
+
+
+
+
 // Auto-calibration
 void CVICALLBACK onAutoCal (int menuBar, int menuItem, void *callbackData,
 							int panel)
@@ -425,33 +477,6 @@ void CVICALLBACK onChangeBg2 (int menuBar, int menuItem, void *callbackData,
 							  int panel)
 {
 	changeBg (1);
-
-	acquire (1);
-}
-
-// Display changed to DOTS
-void CVICALLBACK onChangePlot1 (int menuBar, int menuItem, void *callbackData,
-								int panel)
-{
-	changePlot (0);
-
-	acquire (1);
-}
-
-// Display changed to THIN_LINE
-void CVICALLBACK onChangePlot2 (int menuBar, int menuItem, void *callbackData,
-								int panel)
-{
-	changePlot (1);
-
-	acquire (1);
-}
-
-// Display changed to FAT_LINE
-void CVICALLBACK onChangePlot3 (int menuBar, int menuItem, void *callbackData,
-								int panel)
-{
-	changePlot (2);
 
 	acquire (1);
 }

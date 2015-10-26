@@ -584,40 +584,7 @@ int updateCursors (void)
 
 
 
-// Change between dots and line
-void changePlot (int plot)
-{
-	int status;																			   
-	
-	// Change unit selection and update menu
-	if (plot == 0)
-	{   
-		// Dots
-		plotType = 2L;
-		
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_DOTS, ATTR_CHECKED, 1);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_THINLINE, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_FATLINE, ATTR_CHECKED, 0);
-	}
-	else if (plot == 1)
-	{
-		// Thin line
-		plotType = 0L;
-		
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_DOTS, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_THINLINE, ATTR_CHECKED, 1);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_FATLINE, ATTR_CHECKED, 0);
-	}
-	else if (plot == 2)
-	{
-		// Thick line
-		plotType = 5L;
-		
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_DOTS, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_THINLINE, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_FATLINE, ATTR_CHECKED, 1);
-	}
-}
+
 
 // Change graph background
 void changeBg (int color)
@@ -929,7 +896,6 @@ void changeUnitY (int unit)
 	
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, labelY[yUnits]);
 }
-
 
 
 // Cursor-based zoom

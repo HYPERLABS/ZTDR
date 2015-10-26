@@ -27,6 +27,7 @@ extern "C" {
 	int		getNumAvg (void);
 	int 	setAutoscale (int checked);
 	int		setNumAvg (int num);
+	int 	setPlot (int plot);				// no corresponding get
 	int 	startTimer (void);
 	int	 	stopTimer (char label[16], int log);
 	int 	writeMessage (int code, char message[256], int field);
