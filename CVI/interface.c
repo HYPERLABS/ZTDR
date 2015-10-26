@@ -107,6 +107,15 @@ int CVICALLBACK onChangeWindow (int panel, int control, int event,
 		{
 			int status;
 
+			// Stop timers before exit
+			status = SuspendAsyncTimerCallbacks ();
+			
+			// Don't interrupt calibration/acquisition
+			while (getLED () == 1 || timerLock == 1)
+			{
+				// do nothing	
+			}
+			
 			status = setWindow ();
 			
 			setupTimescale ();
@@ -119,6 +128,8 @@ int CVICALLBACK onChangeWindow (int panel, int control, int event,
 				// Add to acquisition queue
 				asyncAcqCount++;
 			}
+			
+			status = ResumeAsyncTimerCallbacks ();
 
 			break;
 		}
@@ -201,6 +212,52 @@ int CVICALLBACK onPanel (int panel, int event, void *callbackData,
 	return 0;
 }
 
+// Reset to default zoom
+int CVICALLBACK onResetZoom (int panel, int control, int event,
+							 void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+		{
+			int status;
+
+			// Stop timers before exit
+			status = SuspendAsyncTimerCallbacks ();
+			
+			// Don't interrupt calibration/acquisition
+			while (getLED () == 1 || timerLock == 1)
+			{
+				// do nothing	
+			}
+			
+			status = resetZoom ();
+
+			setupTimescale ();
+
+			if (getAutoAcq () != 1)
+			{
+				// Conditional calibrations
+				asyncCal = ASYNC_COND;
+				
+				// Add to acquisition queue
+				asyncAcqCount++;
+			}
+			
+			status = ResumeAsyncTimerCallbacks ();
+
+			break;
+		}
+
+		case EVENT_RIGHT_CLICK:
+		{
+			break;
+		}
+	}
+	
+	return 0;
+}
+
 // Update cursors on waveform acquisition
 int CVICALLBACK onWaveform (int panel, int control, int event,
 							void *callbackData, int eventData1, int eventData2)
@@ -220,33 +277,6 @@ int CVICALLBACK onWaveform (int panel, int control, int event,
 	return 0;
 }
 
-
-
-
-
-
-
-// Reset to default zoom
-int CVICALLBACK onReset (int panel, int control, int event,
-						 void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-
-			resetZoom ();
-
-			// resizeWindow ();
-
-			setupTimescale ();
-
-			acquire (1);
-
-			break;
-	}
-	return 0;
-}
-
 // Zoom on selection
 int CVICALLBACK onZoom (int panel, int control, int event,
 						void *callbackData, int eventData1, int eventData2)
@@ -255,16 +285,33 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 		{
-			zoom ();
+			int status;
 
-			// resizeWindow ();
+			// Stop timers before exit
+			status = SuspendAsyncTimerCallbacks ();
+			
+			// Don't interrupt calibration/acquisition
+			while (getLED () == 1 || timerLock == 1)
+			{
+				// do nothing	
+			}
+			
+			status = zoom ();
 
 			setupTimescale ();
 
-			acquire (1);
+			if (getAutoAcq () != 1)
+			{
+				// Conditional calibrations
+				asyncCal = ASYNC_COND;
+				
+				// Add to acquisition queue
+				asyncAcqCount++;
+			}
+			
+			status = ResumeAsyncTimerCallbacks ();
 
 			break;
-
 		}
 
 		case EVENT_RIGHT_CLICK:

@@ -29,7 +29,7 @@
 #define  PANEL_VC                         14      /* control type: numeric, callback function: (none) */
 #define  PANEL_DIEL                       15      /* control type: numeric, callback function: onChangeDiel */
 #define  PANEL_ZOOM                       16      /* control type: command, callback function: onZoom */
-#define  PANEL_RESET                      17      /* control type: command, callback function: onReset */
+#define  PANEL_RESETZOOM                  17      /* control type: command, callback function: onResetZoom */
 #define  PANEL_WAVEFORM                   18      /* control type: graph, callback function: onWaveform */
 #define  PANEL_PANELCURSOR                19      /* control type: deco, callback function: (none) */
 #define  PANEL_C1                         20      /* control type: textMsg, callback function: (none) */
@@ -120,9 +120,9 @@ int  CVICALLBACK onPanel(int panel, int event, void *callbackData, int eventData
 void CVICALLBACK onPNG(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onPrint(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onRecall(int menubar, int menuItem, void *callbackData, int panel);
-int  CVICALLBACK onReset(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onResetSettings(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onResetZero(int menubar, int menuItem, void *callbackData, int panel);
+int  CVICALLBACK onResetZoom(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onSaveSettings(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onSetPlotDots(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onSetPlotThick(int menubar, int menuItem, void *callbackData, int panel);

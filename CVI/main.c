@@ -780,8 +780,8 @@ int updateWindowSize (void)
 	// Reposition zoom controls
 	status = GetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_LEFT, &ctrlLeft);
 	status = SetCtrlAttribute (panelHandle, PANEL_ZOOM, ATTR_LEFT, ctrlLeft + xOffset / 2);
-	status = GetCtrlAttribute (panelHandle, PANEL_RESET, ATTR_LEFT, &ctrlLeft);
-	status = SetCtrlAttribute (panelHandle, PANEL_RESET, ATTR_LEFT, ctrlLeft + xOffset / 2);
+	status = GetCtrlAttribute (panelHandle, PANEL_RESETZOOM, ATTR_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_RESETZOOM, ATTR_LEFT, ctrlLeft + xOffset / 2);
 	
 	// Resize window end control
 	status = GetCtrlAttribute (panelHandle, PANEL_END, ATTR_WIDTH, &ctrlWidth);
@@ -814,6 +814,45 @@ int updateWindowSize (void)
 	return 1;
 }
 
+// Cursor-based zoom
+int zoom (void)
+{   
+	int status;
+	
+	double c1x, c1y, c2x, c2y;
+	
+	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
+	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
+
+	// Update start and end controls
+	if (c1x < c2x)
+	{
+		// Blue cursor on left
+		status = setXStart (c1x + xZero);
+		status = setXEnd (c2x + xZero);
+	}
+	else
+	{
+		// Red cursor on left
+		status = setXStart (c2x + xZero);
+		status = setXEnd (c1x + xZero);
+	}
+	
+	// TODO #106: useful return
+	return 1;
+}
+
+// Reset to default window
+int resetZoom (void)
+{
+	int status;
+	
+	status = setXStart (defaultStart[xUnits]);
+	status = setXEnd (defaultEnd[xUnits]);
+	
+	// TODO #106: useful return
+	return 1;
+}
 
 
 
@@ -1110,36 +1149,6 @@ void changeUnitY (int unit)
 	}
 	
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, labelY[yUnits]);
-}
-
-// Cursor-based zoom
-void zoom (void)
-{   
-	int status;
-	
-	double c1x, c1y, c2x, c2y;
-	
-	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
-	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
-
-	// Update start and end controls
-	if (c1x < c2x)
-	{
-		status = SetCtrlVal(panelHandle, PANEL_START, c1x);
-		status = SetCtrlVal(panelHandle, PANEL_END, c2x);
-	}
-	else
-	{
-		status = SetCtrlVal(panelHandle, PANEL_START, c2x);
-		status = SetCtrlVal(panelHandle, PANEL_END, c1x);
-	}
-}
-
-// Reset to default window
-void resetZoom (void)
-{
-	SetCtrlVal (panelHandle, PANEL_START, defaultStart[xUnits] - xZero);
-	SetCtrlVal (panelHandle, PANEL_END, defaultEnd[xUnits] - xZero);
 }
 
 // Set zero on horizontal axis
