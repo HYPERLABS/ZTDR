@@ -79,6 +79,28 @@ int setAutoscale (int checked)
 	return 1;
 }
 
+// Get LED status
+int getLED (void)
+{
+	int status;
+	
+	int light;
+	status = GetCtrlVal (panelHandle, PANEL_LED, &light);
+	
+	return light;
+}
+
+// Set LED illumination
+int setLED (int light)
+{
+	int status;
+	
+	status = SetCtrlVal (panelHandle, PANEL_LED, light);
+	
+	// TODO #352: useful return
+	return 1;
+}
+
 // Get number of acquisitions to average
 int getNumAvg (void)
 {

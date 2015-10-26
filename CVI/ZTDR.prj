@@ -18,32 +18,20 @@ Locked InstrDrv Name = ""
 Don't Display Deploy InstrDrv Dialog = False
 
 [Folders]
-Folder 0 = "User Interface Files"
-FolderEx 0 = "User Interface Files"
-Folder 1 = "Include Files"
-FolderEx 1 = "Include Files"
-Folder 2 = "Source Files"
-FolderEx 2 = "Source Files"
+Folder 0 = "Include Files"
+FolderEx 0 = "Include Files"
+Folder 1 = "Source Files"
+FolderEx 1 = "Source Files"
+Folder 2 = "User Interface Files"
+FolderEx 2 = "User Interface Files"
 Folder 3 = "Library Files"
 FolderEx 3 = "Library Files"
 Folder 4 = "Instrument Files"
 FolderEx 4 = "Instrument Files"
 
 [File 0001]
-File Type = "User Interface Resource"
-Res Id = 1
-Path Is Rel = True
-Path Rel To = "Project"
-Path Rel Path = "interface.uir"
-Path = "/d/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/interface.uir"
-Exclude = False
-Project Flags = 0
-Folder = "User Interface Files"
-Folder Id = 0
-
-[File 0002]
 File Type = "Include"
-Res Id = 2
+Res Id = 1
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "constants.h"
@@ -51,11 +39,11 @@ Path = "/d/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/constants.h"
 Exclude = False
 Project Flags = 0
 Folder = "Include Files"
-Folder Id = 1
+Folder Id = 0
 
-[File 0003]
+[File 0002]
 File Type = "Include"
-Res Id = 3
+Res Id = 2
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "interface.h"
@@ -63,11 +51,11 @@ Path = "/d/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/interface.h"
 Exclude = False
 Project Flags = 0
 Folder = "Include Files"
-Folder Id = 1
+Folder Id = 0
 
-[File 0004]
+[File 0003]
 File Type = "Include"
-Res Id = 4
+Res Id = 3
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "main.h"
@@ -75,11 +63,11 @@ Path = "/d/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/main.h"
 Exclude = False
 Project Flags = 0
 Folder = "Include Files"
-Folder Id = 1
+Folder Id = 0
 
-[File 0005]
+[File 0004]
 File Type = "Include"
-Res Id = 5
+Res Id = 4
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "shared.h"
@@ -87,11 +75,11 @@ Path = "/d/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/shared.h"
 Exclude = False
 Project Flags = 0
 Folder = "Include Files"
-Folder Id = 1
+Folder Id = 0
 
-[File 0006]
+[File 0005]
 File Type = "Include"
-Res Id = 6
+Res Id = 5
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "ZTDR_2XX.h"
@@ -99,11 +87,11 @@ Path = "/d/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/ZTDR_2XX.h"
 Exclude = False
 Project Flags = 0
 Folder = "Include Files"
-Folder Id = 1
+Folder Id = 0
 
-[File 0007]
+[File 0006]
 File Type = "CSource"
-Res Id = 7
+Res Id = 6
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "interface.c"
@@ -112,11 +100,11 @@ Exclude = False
 Compile Into Object File = False
 Project Flags = 0
 Folder = "Source Files"
-Folder Id = 2
+Folder Id = 1
 
-[File 0008]
+[File 0007]
 File Type = "CSource"
-Res Id = 8
+Res Id = 7
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "main.c"
@@ -125,11 +113,11 @@ Exclude = False
 Compile Into Object File = False
 Project Flags = 0
 Folder = "Source Files"
-Folder Id = 2
+Folder Id = 1
 
-[File 0009]
+[File 0008]
 File Type = "CSource"
-Res Id = 9
+Res Id = 8
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "shared.c"
@@ -138,11 +126,11 @@ Exclude = False
 Compile Into Object File = False
 Project Flags = 0
 Folder = "Source Files"
-Folder Id = 2
+Folder Id = 1
 
-[File 0010]
+[File 0009]
 File Type = "CSource"
-Res Id = 10
+Res Id = 9
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "ZTDR_2XX.c"
@@ -151,6 +139,18 @@ Exclude = False
 Compile Into Object File = False
 Project Flags = 0
 Folder = "Source Files"
+Folder Id = 1
+
+[File 0010]
+File Type = "User Interface Resource"
+Res Id = 10
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path = "interface.uir"
+Path = "/d/Dropbox/Documents/HYPERLABS/GitHub/ZTDR/CVI/interface.uir"
+Exclude = False
+Project Flags = 0
+Folder = "User Interface Files"
 Folder Id = 2
 
 [File 0011]
@@ -172,7 +172,7 @@ Path Is Rel = True
 Path Rel To = "CVI"
 Path Rel To Override = "CVI"
 Path Rel Path = "toolslib/toolbox/asynctmr.fp"
-Path = "/c/Program Files (x86)/National Instruments/CVI2013/toolslib/toolbox/asynctmr.fp"
+Path = "/c/program files (x86)/national instruments/cvi2013/toolslib/toolbox/asynctmr.fp"
 Exclude = False
 Project Flags = 0
 Folder = "Instrument Files"

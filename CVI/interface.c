@@ -20,6 +20,11 @@
 //==============================================================================
 // Externs
 
+// Asynchronous timers
+extern	int	asyncAcqCount;
+extern	int	asyncCal;
+extern	int	timerLock;
+
 
 //==============================================================================
 // Global variables

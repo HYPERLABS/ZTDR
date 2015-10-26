@@ -374,6 +374,9 @@ int acquire (int doDraw)
 {
 	int status;
 
+	// Turn on activity light
+	status = setLED (1);
+	
 	// Acquisition timer	
 	status = startTimer ();
 	
@@ -557,7 +560,10 @@ int acquire (int doDraw)
 	}
 	
 	// Stop acquisition timer
-	status = stopTimer ("ACQ DATA: ", 0);
+	status = stopTimer ("ACQUIRE", 0);
+
+	// Turn off activity light
+	status = setLED (0);
 	
 	// TODO #106: useful return
 	return 1;
