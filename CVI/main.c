@@ -188,6 +188,8 @@ static	clock_t lastCal;
 //==============================================================================
 // Global functions
 
+// TODO: organize these functions
+
 // Main startup function
 void main (int argc, char *argv[])
 {
@@ -854,52 +856,8 @@ int resetZoom (void)
 	return 1;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Toggle dimming of controls based on autoscale
-void changeAutoScale (void)
-{
-	int status;
-	
-	// Get control value
-	int val;
-	status = GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &val);
-	
-	if (val == 1)
-	{
-		status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 1);
-		status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 1);
-	}
-	else
-	{
-		status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
-		status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 0);
-	}
-}
-
-
-
 // Change horizontal units
-void changeUnitX (int unit)
+int setUnitX (int unit)
 {
 	int status;
 	
@@ -919,25 +877,25 @@ void changeUnitX (int unit)
 	{
 		xUnits = UNIT_M;
 		
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS1, ATTR_CHECKED, 1);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS2, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS3, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITSM, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITSFT, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITSNS, ATTR_CHECKED, 0);
 	}
 	else if (unit == 1)
 	{
 		xUnits = UNIT_FT;
 		
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS1, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS2, ATTR_CHECKED, 1);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS3, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITSM, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITSFT, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITSNS, ATTR_CHECKED, 0);
 	}
 	else if (unit == 2)
 	{
 		xUnits = UNIT_NS;
 		
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS1, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS2, ATTR_CHECKED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITS3, ATTR_CHECKED, 1);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITSM, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITSFT, ATTR_CHECKED, 0);
+		status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS_XUNITSNS, ATTR_CHECKED, 1);
 	}
 	
 	// Calculate V/C
@@ -1031,7 +989,40 @@ void changeUnitX (int unit)
 	
 	status = SetCtrlVal (panelHandle, PANEL_START, xStart - xZero);
 	status = SetCtrlVal (panelHandle, PANEL_END, xEnd - xZero);
+	
+	// TODO #106: useful return
+	return 1;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Change vertical units
 void changeUnitY (int unit)
@@ -1444,7 +1435,7 @@ void recallWaveform (void)
 	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 0);
 	
 	// Store globals
-	changeUnitX (xStored);
+	status = setUnitX (xStored);
 	changeUnitY (yStored);
 
 	// Update controls
@@ -1544,7 +1535,6 @@ void clearWaveform (void)
 	// Hide clear option in menu
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_CLEAR, ATTR_DIMMED, 1);
 }
-
 
 // Save program settings
 int saveSettings (int isAuto)
@@ -1810,7 +1800,7 @@ int loadSettings (int isAuto)
 	if (isValid == 1)
 	{
 		// Store globals
-		changeUnitX (xStored);
+		status = setUnitX (xStored);
 		changeUnitY (yStored);
 		
 		// Adjust minimum values before out-of-range values potentially set
@@ -1874,7 +1864,7 @@ void resetSettings (void)
 	SetCtrlVal (panelHandle, PANEL_AUTOACQUIRE, 1);
 	
 	// Reset X/Y axes
-	changeUnitX (0);
+	status = setUnitX (0);
 	changeUnitY (0);
 	
 	// Remove horizontal offset

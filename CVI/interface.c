@@ -332,39 +332,39 @@ void CVICALLBACK onExit (int menuBar, int menuItem, void *callbackData,
 						 int panel)
 {
 	int status;
-	
+
 	// Stop timers before exit
 	status = SuspendAsyncTimerCallbacks ();
-	
+
 	// Don't interrupt calibration/acquisition
 	while (getLED () == 1 || timerLock == 1)
 	{
-		// do nothing	
+		// do nothing
 	}
-	
+
 	// Save program state on exit
 	status = saveSettings (1);
-	
+
 	usbfifo_close ();
 
 	QuitUserInterface (0);
 }
 
 // Change to dark background
-void CVICALLBACK onChangeBgDark (int menuBar, int menuItem, void *callbackData,
+void CVICALLBACK onSetBgDark (int menuBar, int menuItem, void *callbackData,
 							  int panel)
 {
 	int status;
-	
+
 	status = setBg (COLOR_DARK);
 }
 
 // Change to light background
-void CVICALLBACK onChangeBgLight (int menuBar, int menuItem, void *callbackData,
-							  int panel)
+void CVICALLBACK onSetBgLight (int menuBar, int menuItem, void *callbackData,
+							   int panel)
 {
 	int status;
-	
+
 	status = setBg (COLOR_LIGHT);
 }
 
@@ -380,7 +380,7 @@ void CVICALLBACK onSetPlotDots (int menuBar, int menuItem, void *callbackData,
 	{
 		// Conditional calibrations
 		asyncCal = ASYNC_COND;
-				
+
 		// Add to acquisition queue
 		asyncAcqCount++;
 	}
@@ -398,7 +398,7 @@ void CVICALLBACK onSetPlotThin (int menuBar, int menuItem, void *callbackData,
 	{
 		// Conditional calibrations
 		asyncCal = ASYNC_COND;
-				
+
 		// Add to acquisition queue
 		asyncAcqCount++;
 	}
@@ -416,60 +416,109 @@ void CVICALLBACK onSetPlotThick (int menuBar, int menuItem, void *callbackData,
 	{
 		// Conditional calibrations
 		asyncCal = ASYNC_COND;
-				
+
 		// Add to acquisition queue
 		asyncAcqCount++;
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
 // Horizontal units changed to M
-void CVICALLBACK onChangeX1 (int menuBar, int menuItem, void *callbackData,
-							 int panel)
+void CVICALLBACK onSetXM (int menuBar, int menuItem, void *callbackData,
+						  int panel)
 {
-	changeUnitX (0);
+	int status;
 
-	// resizeWindow ();
+	// Stop timers before exit
+	status = SuspendAsyncTimerCallbacks ();
+	
+	// Don't interrupt calibration/acquisition
+	while (getLED () == 1 || timerLock == 1)
+	{
+		// do nothing	
+	}
+	
+	status = setUnitX (UNIT_M);
 
 	setupTimescale ();
 
-	acquire (1);
+	if (getAutoAcq () != 1)
+	{
+		// Conditional calibrations
+		asyncCal = ASYNC_COND;
+		
+		// Add to acquisition queue
+		asyncAcqCount++;
+	}
+	
+	status = ResumeAsyncTimerCallbacks ();
 }
 
 // Horizontal units changed to FT
-void CVICALLBACK onChangeX2 (int menuBar, int menuItem, void *callbackData,
-							 int panel)
+void CVICALLBACK onSetXFt (int menuBar, int menuItem, void *callbackData,
+						   int panel)
 {
-	changeUnitX (1);
+	int status;
 
-	// resizeWindow ();
+	// Stop timers before exit
+	status = SuspendAsyncTimerCallbacks ();
+	
+	// Don't interrupt calibration/acquisition
+	while (getLED () == 1 || timerLock == 1)
+	{
+		// do nothing	
+	}
+	
+	status = setUnitX (UNIT_FT);
 
 	setupTimescale ();
 
-	acquire (1);
+	if (getAutoAcq () != 1)
+	{
+		// Conditional calibrations
+		asyncCal = ASYNC_COND;
+		
+		// Add to acquisition queue
+		asyncAcqCount++;
+	}
+	
+	status = ResumeAsyncTimerCallbacks ();
 }
 
 // Horizontal units changed to NS
-void CVICALLBACK onChangeX3 (int menuBar, int menuItem, void *callbackData,
-							 int panel)
+void CVICALLBACK onSetXNs (int menuBar, int menuItem, void *callbackData,
+						   int panel)
 {
-	changeUnitX (2);
+	int status;
 
-	// resizeWindow ();
+	// Stop timers before exit
+	status = SuspendAsyncTimerCallbacks ();
+	
+	// Don't interrupt calibration/acquisition
+	while (getLED () == 1 || timerLock == 1)
+	{
+		// do nothing	
+	}
+	
+	status = setUnitX (UNIT_NS);
 
 	setupTimescale ();
 
-	acquire (1);
+	if (getAutoAcq () != 1)
+	{
+		// Conditional calibrations
+		asyncCal = ASYNC_COND;
+		
+		// Add to acquisition queue
+		asyncAcqCount++;
+	}
+	
+	status = ResumeAsyncTimerCallbacks ();
 }
+
+
+
+
+
 
 
 

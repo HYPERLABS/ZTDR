@@ -29,6 +29,7 @@ extern "C" {
 	int 	checkDirs (void);
 	int		resetZoom (void);
 	int 	setCalTime (void);
+	int 	setUnitX (int unit);
 	int		showVersion (void);
 	int		updateCursors (void);
 	int 	updateTimestamp (void);
@@ -40,7 +41,6 @@ extern "C" {
 
 
 
-	void 	changeUnitX (int unit);
 	void 	changeUnitY (int unit);
 	void	clearWaveform (void);
 	int 	loadSettings (int isAuto);

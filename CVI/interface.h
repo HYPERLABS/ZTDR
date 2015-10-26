@@ -76,12 +76,12 @@
 #define  MENUBAR_DISPLAY_THINLINE         21      /* callback function: onSetPlotThin */
 #define  MENUBAR_DISPLAY_FATLINE          22      /* callback function: onSetPlotThick */
 #define  MENUBAR_DISPLAY_SEPARATOR_4      23
-#define  MENUBAR_DISPLAY_DARK             24      /* callback function: onChangeBgDark */
-#define  MENUBAR_DISPLAY_LIGHT            25      /* callback function: onChangeBgLight */
+#define  MENUBAR_DISPLAY_DARK             24      /* callback function: onSetBgDark */
+#define  MENUBAR_DISPLAY_LIGHT            25      /* callback function: onSetBgLight */
 #define  MENUBAR_XUNITS                   26
-#define  MENUBAR_XUNITS_XUNITS1           27      /* callback function: onChangeX1 */
-#define  MENUBAR_XUNITS_XUNITS2           28      /* callback function: onChangeX2 */
-#define  MENUBAR_XUNITS_XUNITS3           29      /* callback function: onChangeX3 */
+#define  MENUBAR_XUNITS_XUNITSM           27      /* callback function: onSetXM */
+#define  MENUBAR_XUNITS_XUNITSFT          28      /* callback function: onSetXFt */
+#define  MENUBAR_XUNITS_XUNITSNS          29      /* callback function: onSetXNs */
 #define  MENUBAR_YUNITS                   30
 #define  MENUBAR_YUNITS_YUNITS1           31      /* callback function: onChangeY1 */
 #define  MENUBAR_YUNITS_YUNITS2           32      /* callback function: onChangeY2 */
@@ -98,13 +98,8 @@
      /* Callback Prototypes: */
 
 int  CVICALLBACK onAcquire(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-void CVICALLBACK onChangeBgDark(int menubar, int menuItem, void *callbackData, int panel);
-void CVICALLBACK onChangeBgLight(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onChangeDiel(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeWindow(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-void CVICALLBACK onChangeX1(int menubar, int menuItem, void *callbackData, int panel);
-void CVICALLBACK onChangeX2(int menubar, int menuItem, void *callbackData, int panel);
-void CVICALLBACK onChangeX3(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangeY1(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangeY2(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangeY3(int menubar, int menuItem, void *callbackData, int panel);
@@ -124,9 +119,14 @@ void CVICALLBACK onResetSettings(int menubar, int menuItem, void *callbackData, 
 void CVICALLBACK onResetZero(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onResetZoom(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onSaveSettings(int menubar, int menuItem, void *callbackData, int panel);
+void CVICALLBACK onSetBgDark(int menubar, int menuItem, void *callbackData, int panel);
+void CVICALLBACK onSetBgLight(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onSetPlotDots(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onSetPlotThick(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onSetPlotThin(int menubar, int menuItem, void *callbackData, int panel);
+void CVICALLBACK onSetXFt(int menubar, int menuItem, void *callbackData, int panel);
+void CVICALLBACK onSetXM(int menubar, int menuItem, void *callbackData, int panel);
+void CVICALLBACK onSetXNs(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onSetZero(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onStore(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onTimeCal(int menubar, int menuItem, void *callbackData, int panel);
