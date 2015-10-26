@@ -18,6 +18,7 @@
 #include "constants.h"
 #include "interface.h"
 #include "main.h"
+#include "shared.h"
 #include "ZTDR_2XX.h"
 
 
@@ -179,10 +180,6 @@ int defaultSaveINI = 1;
 int defaultSavePNG = 1;
 int defaultSaveZTDR = 1;
 
-// Event timers
-clock_t timerStart, timerEnd;
-float timeSpent;
-
 
 //==============================================================================
 // Global functions
@@ -216,15 +213,10 @@ void main (int argc, char *argv[])
 	// Show software version
 	status = showVersion ();
 	
-	// Show startup message
-	writeMsgCal (0);
-	
 	// Peform unified initialization and calibration
 	int calStatus = initDevice ();
 	
-	// Indicate cal status
-	writeMsgCal (calStatus);
-	
+	// Initial calibration complete
 	if (calStatus == 1)
 	{   
 		// Run first acquisition
@@ -244,7 +236,8 @@ void main (int argc, char *argv[])
 		status = SetCtrlAttribute (panelHandle, PANEL_TIMER, ATTR_ENABLED, 1);
 		status = SetCtrlAttribute (panelHandle, PANEL_CALTIMER, ATTR_ENABLED, 1);
 	}
-	else if (calStatus == -1)
+	// Initial calibratin failed
+	else
 	{
 		// Instrument not connected or initial calibration failed
 		status = MessagePopup ("Error", "Could not initialize the TDR device.");
@@ -573,41 +566,6 @@ void updateTimestamp (void)
 	status = SetCtrlVal (panelHandle, PANEL_TIMESTAMP, timestamp);
 }
 
-// TODO: combine with other write message functions?
-// Write calibration message to status
-void writeMsgCal (int msg)
-{
-	int status;
-	
-	if (msg == 0)
-	{   
-		// Start initial calibration message
-		status = SetCtrlVal (panelHandle, PANEL_MESSAGES, "> Calibration ...");
-	}
-	else if (msg == 1)
-	{
-		status = SetCtrlVal (panelHandle, PANEL_MESSAGES, " DONE!\n");
-	}
-	else
-	{
-		status = SetCtrlVal (panelHandle, PANEL_MESSAGES, " FAILED!\n");
-	}
-}
-
-// Write VertCal message to status
-void writeMsgVertCal (int msg)
-{
-	int status;
-	
-	if (msg == 1)
-	{
-		status = SetCtrlVal (panelHandle, PANEL_MESSAGES, "> VertCal ... DONE!\n");
-	}
-	else
-	{
-		status = SetCtrlVal (panelHandle, PANEL_MESSAGES, "> VertCal ... FAILED!\n");
-	}
-}
 
 // Change between dots and line
 void changePlot (int plot)
@@ -1949,31 +1907,6 @@ void resetSettings (void)
 	
 	// Re-enable timers 
 	status = ResumeTimerCallbacks ();
-}
-
-// Start event timer
-void startTimer (char label[16], int log)
-{
-	// Label and log used for in-code reference only
-	timerStart = clock ();
-}
-
-// End event timer
-void stopTimer (char label[16], int log)
-{
-	int status;
-	
-	timerEnd = clock ();
-	timeSpent = (float) (timerEnd - timerStart) / CLOCKS_PER_SEC;
-
-	// Log to message window if requested
-	if (log == 1)
-	{
-		char msg[64];
-		status = sprintf (msg, "%s: %3.3f\n", label, timeSpent);
-		
-		status = SetCtrlVal (panelHandle, PANEL_MESSAGES, msg);
-	}
 }
 
 // Apply waveform filter

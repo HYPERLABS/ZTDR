@@ -327,7 +327,7 @@ int CVICALLBACK onTimerCal (int panel, int control, int event,
 			{
 				int calStatus = vertCal ();
 	
-				writeMsgVertCal (calStatus);
+				// writeMsgVertCal (calStatus);
 
 				acquire ();
 			}
@@ -649,10 +649,10 @@ void CVICALLBACK onTimeCal (int menuBar, int menuItem, void *callbackData,
 	status = SuspendTimerCallbacks ();
 
 	// Write calibration message
-	writeMsgCal (0);
+	// writeMsgCal (0);
 
 	int calMsg = calTimebase ();
-	writeMsgCal (calMsg);
+	// writeMsgCal (calMsg);
 
 	acquire ();
 	
@@ -666,7 +666,7 @@ void CVICALLBACK onVertCal (int menuBar, int menuItem, void *callbackData,
 {
 	int calStatus = vertCal ();
 	
-	writeMsgVertCal (calStatus);
+	// writeMsgVertCal (calStatus);
 
 	acquire ();
 }

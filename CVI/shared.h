@@ -23,6 +23,9 @@ extern "C" {
 //==============================================================================
 // Global functions
 
+	int 	startTimer (char label[16], int log);
+	int	 	stopTimer (char label[16], int log);
+	int 	writeMessage (int code, char message[256], int field);
 
 #ifdef __cplusplus
 }

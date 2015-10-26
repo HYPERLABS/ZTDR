@@ -50,6 +50,10 @@ extern "C" {
 // Unit conversion
 #define M_TO_FT 3.2808
 #define FT_TO_M 0.3048
+	
+// User interface
+#define MSG_MAIN	0
+	
 
 // FTDI functionality
 #define NPARAMS 26

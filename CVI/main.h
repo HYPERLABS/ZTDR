@@ -48,13 +48,9 @@ extern "C" {
 	void 	saveSettings (int isAuto);
 	void	setZero (double x);
 	void 	storeWaveform (int format);
-	void 	startTimer (char label[16], int log);
-	void 	stopTimer (char label[16], int log);
 	void	updateCursors (void);
 	void	updateSize (void);
 	void 	updateTimestamp (void);
-	void 	writeMsgCal (int msg);
-	void	writeMsgVertCal (int msg);
 	void 	zoom (void);
 
 

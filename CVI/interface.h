@@ -23,7 +23,7 @@
 #define  PANEL_CURSOR2                    8       /* control type: textMsg, callback function: (none) */
 #define  PANEL_DELTA                      9       /* control type: textMsg, callback function: (none) */
 #define  PANEL_AVERAGE                    10      /* control type: numeric, callback function: onChangeAverage */
-#define  PANEL_MESSAGES                   11      /* control type: textBox, callback function: (none) */
+#define  PANEL_MESSAGE                    11      /* control type: textBox, callback function: (none) */
 #define  PANEL_START                      12      /* control type: scale, callback function: onChangeStart */
 #define  PANEL_END                        13      /* control type: scale, callback function: onChangeEnd */
 #define  PANEL_VC                         14      /* control type: numeric, callback function: (none) */
