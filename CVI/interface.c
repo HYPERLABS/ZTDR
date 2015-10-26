@@ -28,14 +28,6 @@
 //==============================================================================
 // Callback functions from controls (sorted alphabetically)
 
-
-
-
-
-
-
-
-
 // Acquire waveform manually
 int CVICALLBACK onAcquire (int panel, int control, int event,
 						   void *callbackData, int eventData1, int eventData2)
@@ -44,7 +36,14 @@ int CVICALLBACK onAcquire (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 		{
-			acquire (1);
+			if (getAutoAcq () != 1)
+			{
+				// Conditional calibration
+				asyncCal = ASYNC_COND;
+				
+				// Add to acquisition queue
+				asyncAcqCount++;
+			}
 
 			break;
 		}
@@ -57,6 +56,14 @@ int CVICALLBACK onAcquire (int panel, int control, int event,
 
 	return 0;
 }
+
+
+
+
+
+
+
+
 
 
 
