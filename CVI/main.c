@@ -22,23 +22,7 @@
 
 
 //==============================================================================
-// Constants
-
-
-//==============================================================================
-// Types
-
-
-//==============================================================================
-// Static global variables
-
-
-//==============================================================================
-// Static functions
-
-
-//==============================================================================
-// External global variables (grouped by function)
+// Externs
 
 // Initialization
 extern	int 	usb_opened;
@@ -74,7 +58,7 @@ extern	timeinf start_tm, end_tm;
 
 
 //==============================================================================
-// Global variables (grouped by function)
+// Global variables
 
 // TODO: better names for these
 
@@ -203,7 +187,7 @@ float timeSpent;
 
 
 //==============================================================================
-// Global functions (grouped by functionality, order of call)
+// Global functions
 
 // Main startup function
 void main (int argc, char *argv[])
@@ -276,7 +260,6 @@ void main (int argc, char *argv[])
 }
 
 // Main acquisition function
-
 void acquire (void)
 {
 	int status;
