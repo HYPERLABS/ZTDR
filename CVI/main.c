@@ -214,7 +214,7 @@ void main (int argc, char *argv[])
 	status = checkDirs ();
 	
 	// Show software version
-	showVersion ();
+	status = showVersion ();
 	
 	// Show startup message
 	writeMsgCal (0);
