@@ -211,7 +211,7 @@ void main (int argc, char *argv[])
 	status = GetPanelAttribute(panelHandle, ATTR_HEIGHT, &windowHeight);
 	
 	// Make sure relevant output directories exist
-	checkDirs ();
+	status = checkDirs ();
 	
 	// Show software version
 	showVersion ();
@@ -300,6 +300,27 @@ int checkDirs (void)
 	return 1;
 }
 
+// Format and show current version and instrument
+int showVersion (void)
+{
+	int status;
+	
+	// Get full version number
+	char version[64];
+	status = sprintf (version, "ZTDR v%s", _TARGET_PRODUCT_VERSION_);
+	
+	// Trim build number
+	int len = strlen (version) - 2;
+	version[len] = 0;
+	
+	// Append instrument model
+	status = sprintf (version, "%s / HL1101", version);
+	
+	status = SetCtrlVal (panelHandle, PANEL_VERSION, version);
+	
+	// TODO #106: useful return
+	return 1;
+}
 
 
 
@@ -532,24 +553,7 @@ void acquire (void)
 	stopTimer ("ACQ DATA: ", 0);
 }
 
-// Format and show current version and instrument
-void showVersion (void)
-{
-	int status;
-	
-	// Get full version number
-	char version[64];
-	status = sprintf (version, "ZTDR v%s", _TARGET_PRODUCT_VERSION_);
-	
-	// Trim build number
-	int len = strlen (version) - 2;
-	version[len] = 0;
-	
-	// Append instrument model
-	status = sprintf (version, "%s / HL1101", version);
-	
-	status = SetCtrlVal (panelHandle, PANEL_VERSION, version);
-}
+
 
 // Show timestamp of acquisition
 void updateTimestamp (void)
