@@ -47,7 +47,6 @@ extern "C" {
 	void 	recallWaveform (void);
 	void 	resetSettings (void);
 	void	resetZoom (void);
-	void 	resizeWindow (void);
 	void 	savePNG (void);
 	void 	saveSettings (int isAuto);
 	void	setZero (double x);

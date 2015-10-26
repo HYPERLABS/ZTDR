@@ -162,13 +162,6 @@ double maxRange[] =
 	2000.0
 };
 
-double minWidth[] =
-{
-	1.0,
-	3.0,
-	5.0
-};
-
 char *monthName[] =
 {
 	"JAN",
@@ -736,7 +729,6 @@ int updateCursors (void)
 
 
 
-
 // Change graph background
 void changeBg (int color)
 {
@@ -1044,49 +1036,6 @@ void resetZoom (void)
 	SetCtrlVal (panelHandle, PANEL_START, defaultStart[xUnits] - xZero);
 	SetCtrlVal (panelHandle, PANEL_END, defaultEnd[xUnits] - xZero);
 }
-
-// Verify size and zero of acquisition window
-void resizeWindow (void)
-{
-	int status;
-	
-	double x1, x2;
-	
-	status = GetCtrlVal (panelHandle, PANEL_START, &x1);
-	status = GetCtrlVal (panelHandle, PANEL_END, &x2);
-
-	// Start is less than end and window is wide enough
-	if ((x1 + minWidth[xUnits]) < x2) 
-	{
-		xStart = x1 + xZero;
-		xEnd = x2 + xZero;
-	}
-	// Adjustment if end less than start
-	else
-	{
-		double adjust = 0;
-		
-		if (xUnits == UNIT_M)
-		{
-			adjust = 1.0;
-		}
-		else if (xUnits == UNIT_FT)
-		{
-			adjust = 3.0;
-		}
-		else if (xUnits == UNIT_NS)
-		{
-			adjust = 5.0;
-		}
-		
-		status = SetCtrlVal (panelHandle, PANEL_START, x1);
-		status = SetCtrlVal (panelHandle, PANEL_END, x1 + adjust);
-		
-		// Keep acquisition start/end as absolute values
-		xStart = x1 + xZero;
-		xEnd = x1 + adjust + xZero;
-	}
-} 
 
 // Set zero on horizontal axis
 void setZero (double x)
@@ -1438,7 +1387,7 @@ void recallWaveform (void)
 	
 	// Change window and K
 	setZero (zeroStored);
-	resizeWindow ();
+	// resizeWindow ();
 	setupTimescale ();
 	// changeDiel ();
 	
@@ -1482,8 +1431,7 @@ void recallWaveform (void)
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_CALIBRATION_SETZERO, ATTR_DIMMED, 1);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_CALIBRATION_RESETZERO, ATTR_DIMMED, 1);
 
-	// Show clear button and menu item
-	status = SetCtrlAttribute (panelHandle, PANEL_CLEAR, ATTR_VISIBLE, 1);
+	// Show clear menu option
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_CLEAR, ATTR_DIMMED, 0);
 	
 	// Re-enable timers 
@@ -1523,8 +1471,7 @@ void clearWaveform (void)
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_CALIBRATION_SETZERO, ATTR_DIMMED, 0);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_CALIBRATION_RESETZERO, ATTR_DIMMED, 0);
 	
-	// Hide clear button and dim menu
-	status = SetCtrlAttribute (panelHandle, PANEL_CLEAR, ATTR_VISIBLE, 0);
+	// Hide clear option in menu
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_CLEAR, ATTR_DIMMED, 1);
 }
 
@@ -1920,7 +1867,7 @@ int loadSettings (int isAuto)
 		
 		// Change window and K
 		setZero (zeroStored);
-		resizeWindow ();
+		// resizeWindow ();
 		setupTimescale ();
 		// changeDiel ();
 	}
@@ -1974,7 +1921,7 @@ void resetSettings (void)
 	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, labelX[xUnits]);
 	
 	// Change window and K
-	resizeWindow ();
+	// resizeWindow ();
 	setupTimescale ();
 	// changeDiel ();
 	

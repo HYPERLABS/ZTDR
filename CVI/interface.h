@@ -24,23 +24,22 @@
 #define  PANEL_DELTA                      9       /* control type: textMsg, callback function: (none) */
 #define  PANEL_AVERAGE                    10      /* control type: numeric, callback function: onGeneric */
 #define  PANEL_MESSAGE                    11      /* control type: textBox, callback function: (none) */
-#define  PANEL_START                      12      /* control type: scale, callback function: onChangeStart */
-#define  PANEL_END                        13      /* control type: scale, callback function: onChangeEnd */
+#define  PANEL_START                      12      /* control type: scale, callback function: onChangeWindow */
+#define  PANEL_END                        13      /* control type: scale, callback function: onChangeWindow */
 #define  PANEL_VC                         14      /* control type: numeric, callback function: (none) */
 #define  PANEL_DIEL                       15      /* control type: numeric, callback function: onChangeDiel */
 #define  PANEL_ZOOM                       16      /* control type: command, callback function: onZoom */
 #define  PANEL_RESET                      17      /* control type: command, callback function: onReset */
-#define  PANEL_CLEAR                      18      /* control type: command, callback function: onClear */
-#define  PANEL_WAVEFORM                   19      /* control type: graph, callback function: onWaveform */
-#define  PANEL_PANELCURSOR                20      /* control type: deco, callback function: (none) */
-#define  PANEL_C1                         21      /* control type: textMsg, callback function: (none) */
-#define  PANEL_C2                         22      /* control type: textMsg, callback function: (none) */
-#define  PANEL_D2                         23      /* control type: textMsg, callback function: (none) */
-#define  PANEL_PANELBOTTOM                24      /* control type: deco, callback function: (none) */
-#define  PANEL_VERSION                    25      /* control type: textMsg, callback function: (none) */
-#define  PANEL_DEBUG                      26      /* control type: command, callback function: onDebug */
-#define  PANEL_TIMESTAMP                  27      /* control type: textMsg, callback function: (none) */
-#define  PANEL_LED                        28      /* control type: LED, callback function: (none) */
+#define  PANEL_WAVEFORM                   18      /* control type: graph, callback function: onWaveform */
+#define  PANEL_PANELCURSOR                19      /* control type: deco, callback function: (none) */
+#define  PANEL_C1                         20      /* control type: textMsg, callback function: (none) */
+#define  PANEL_C2                         21      /* control type: textMsg, callback function: (none) */
+#define  PANEL_D2                         22      /* control type: textMsg, callback function: (none) */
+#define  PANEL_PANELBOTTOM                23      /* control type: deco, callback function: (none) */
+#define  PANEL_VERSION                    24      /* control type: textMsg, callback function: (none) */
+#define  PANEL_DEBUG                      25      /* control type: command, callback function: onDebug */
+#define  PANEL_TIMESTAMP                  26      /* control type: textMsg, callback function: (none) */
+#define  PANEL_LED                        27      /* control type: LED, callback function: (none) */
 
 #define  PANELSAVE                        2
 #define  PANELSAVE_SERIAL                 2       /* control type: string, callback function: (none) */
@@ -102,8 +101,7 @@ int  CVICALLBACK onAcquire(int panel, int control, int event, void *callbackData
 void CVICALLBACK onChangeBg1(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangeBg2(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onChangeDiel(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK onChangeEnd(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK onChangeStart(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onChangeWindow(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onChangeX1(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangeX2(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangeX3(int menubar, int menuItem, void *callbackData, int panel);
@@ -111,7 +109,6 @@ void CVICALLBACK onChangeY1(int menubar, int menuItem, void *callbackData, int p
 void CVICALLBACK onChangeY2(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangeY3(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onChangeY4(int menubar, int menuItem, void *callbackData, int panel);
-int  CVICALLBACK onClear(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onClearMenu(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onCSV(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onDebug(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);

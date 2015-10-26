@@ -40,6 +40,12 @@ extern	int		plotType;
 clock_t timerStart, timerEnd;
 float timeSpent;
 
+static double minWidth[] =
+{
+	1.0,
+	3.0,
+	5.0
+};
 
 //==============================================================================
 // Global functions
@@ -85,7 +91,6 @@ int setAutoscale (int checked)
 	// TODO #106: useful return
 	return 1;
 }
-
 
 // Get value of dielectric
 double getDiel (void)
@@ -200,6 +205,95 @@ int setPlot (int plot)
 	// TODO #106: useful return
 	return 1;
 }
+
+// Verify size and zero of acquisition window
+int setWindow (void)
+{
+	int status;
+	
+	double x1 = getXStart ();
+	double x2 = getXEnd ();
+	
+	// Verify start is less than end
+	if (x1 > x2)
+	{
+		double xTmp = x2;
+		x2 = x1;
+		x1 = xTmp;
+	}
+	
+	// Verify window is wide enough
+	if ((x1 + minWidth[xUnits]) < x2)
+	{
+		// Pass absolute values
+		status = setXStart (x1 + xZero);
+		status = setXEnd (x2 + xZero);
+	}
+	// Adjustment if end less than start
+	else
+	{
+		// Retrieve proper adjustment amount
+		double adjust = minWidth[xUnits];
+		
+		status = setXStart (x1 + xZero);
+		
+		x2 = x1 + adjust;
+		status = setXEnd (x2 + xZero);
+	}
+	
+	// TODO #106: useful return
+	return 1;
+}
+
+// Get horizontal window end
+double getXEnd (void)
+{
+	int status;
+
+	double x;
+	status = GetCtrlVal (panelHandle, PANEL_END, &x);
+
+	return x;
+}
+
+// Get horizontal window start
+double getXStart (void)
+{
+	int status;
+
+	double x;
+	status = GetCtrlVal (panelHandle, PANEL_START, &x);
+
+	return x;
+}
+
+// Set horizontal window end
+int setXEnd (double x)
+{
+	int status;
+
+	xEnd = x;
+	status = SetCtrlVal (panelHandle, PANEL_END, x - xZero);
+
+	// TODO #202: useful return
+	return 1;
+}
+
+// Set horizontal window start
+int setXStart (double x)
+{
+	int status;
+
+	xStart = x;
+	status = SetCtrlVal (panelHandle, PANEL_START, x - xZero);
+
+	// TODO #202: useful return
+	return 1;
+}
+
+
+
+
 
 // Start event timer
 int startTimer (void)

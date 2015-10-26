@@ -96,49 +96,26 @@ int CVICALLBACK onChangeDiel (int panel, int control, int event,
 	return 0;
 }
 
-
-
-
-
-// Window start changed
-int CVICALLBACK onChangeStart (int panel, int control, int event,
+// Acquisition window changed
+int CVICALLBACK onChangeWindow (int panel, int control, int event,
 							   void *callbackData, int eventData1, int eventData2)
 {
 	switch (event)
 	{
 		case EVENT_VAL_CHANGED:
 		{
-			resizeWindow ();
+			int status;
 
-			setupTimescale ();
+			status = setWindow ();
 
-			acquire (1);
-
-			break;
-		}
-
-		case EVENT_RIGHT_CLICK:
-		{
-			break;
-		}
-	}
-
-	return 0;
-}
-
-// Window width changed
-int CVICALLBACK onChangeEnd (int panel, int control, int event,
-							 void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_VAL_CHANGED:
-		{
-			resizeWindow ();
-
-			setupTimescale ();
-
-			acquire (1);
+			if (getAutoAcq () != 1)
+			{
+				// Conditional calibrations
+				asyncCal = ASYNC_COND;
+				
+				// Add to acquisition queue
+				asyncAcqCount++;
+			}
 
 			break;
 		}
@@ -152,31 +129,11 @@ int CVICALLBACK onChangeEnd (int panel, int control, int event,
 	return 0;
 }
 
-// Reset UI to clear recalled waveform settings
-int CVICALLBACK onClear (int panel, int control, int event,
-						 void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-		{
-			clearWaveform ();
 
-			setupTimescale ();
 
-			acquire (1);
 
-			break;
-		}
 
-		case EVENT_RIGHT_CLICK:
-		{
-			break;
-		}
-	}
 
-	return 0;
-}
 
 // Reset to default zoom
 int CVICALLBACK onReset (int panel, int control, int event,
@@ -188,7 +145,7 @@ int CVICALLBACK onReset (int panel, int control, int event,
 
 			resetZoom ();
 
-			resizeWindow ();
+			// resizeWindow ();
 
 			setupTimescale ();
 
@@ -295,7 +252,7 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 		{
 			zoom ();
 
-			resizeWindow ();
+			// resizeWindow ();
 
 			setupTimescale ();
 
@@ -404,7 +361,7 @@ void CVICALLBACK onChangeX1 (int menuBar, int menuItem, void *callbackData,
 {
 	changeUnitX (0);
 
-	resizeWindow ();
+	// resizeWindow ();
 
 	setupTimescale ();
 
@@ -417,7 +374,7 @@ void CVICALLBACK onChangeX2 (int menuBar, int menuItem, void *callbackData,
 {
 	changeUnitX (1);
 
-	resizeWindow ();
+	// resizeWindow ();
 
 	setupTimescale ();
 
@@ -430,7 +387,7 @@ void CVICALLBACK onChangeX3 (int menuBar, int menuItem, void *callbackData,
 {
 	changeUnitX (2);
 
-	resizeWindow ();
+	// resizeWindow ();
 
 	setupTimescale ();
 
