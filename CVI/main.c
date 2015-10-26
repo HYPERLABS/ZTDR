@@ -236,10 +236,6 @@ void main (int argc, char *argv[])
 		status = SetGraphCursorIndex (panelHandle, PANEL_WAVEFORM, 2, WfmActive, 667);
 
 		status = SetBreakOnLibraryErrors (TRUE);
-		
-		// Start event timers
-		status = SetCtrlAttribute (panelHandle, PANEL_TIMER, ATTR_ENABLED, 1);
-		status = SetCtrlAttribute (panelHandle, PANEL_CALTIMER, ATTR_ENABLED, 1);
 	}
 	// Initial calibration failed
 	else
@@ -629,29 +625,6 @@ void changeBg (int color)
 		// Update checkmarks
 		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_DARK, ATTR_CHECKED, 0);
 		status = SetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_LIGHT, ATTR_CHECKED, 1);
-	}
-}
-
-// Toggle autoscale
-void changeAutoCal (void)
-{
-	int status;
-
-	// Get status of timer
-	int autoStatus;
-	status = GetCtrlAttribute (panelHandle, PANEL_CALTIMER, ATTR_ENABLED, &autoStatus);
-	
-	if (autoStatus == 1)
-	{
-		// Turn off timer and uncheck menu item
-		status = SetCtrlAttribute (panelHandle, PANEL_CALTIMER, ATTR_ENABLED, 0);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_CALIBRATION_AUTOCAL, ATTR_CHECKED, 0);
-	}
-	else
-	{
-		// Turn on timer and check menu item
-		status = SetCtrlAttribute (panelHandle, PANEL_CALTIMER, ATTR_ENABLED, 1);
-		status = SetMenuBarAttribute (menuHandle, MENUBAR_CALIBRATION_AUTOCAL, ATTR_CHECKED, 1);
 	}
 }
 

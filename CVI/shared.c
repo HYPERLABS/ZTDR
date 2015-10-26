@@ -20,7 +20,11 @@
 //==============================================================================
 // Externs
 
-extern	int	panelHandle;
+// User interface
+extern	int		panelHandle;
+extern	int		menuHandle;
+extern	int		plotType;
+
 
 //==============================================================================
 // Global variables

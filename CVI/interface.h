@@ -37,11 +37,9 @@
 #define  PANEL_C2                         22      /* control type: textMsg, callback function: (none) */
 #define  PANEL_D2                         23      /* control type: textMsg, callback function: (none) */
 #define  PANEL_PANELBOTTOM                24      /* control type: deco, callback function: (none) */
-#define  PANEL_CALTIMER                   25      /* control type: timer, callback function: onTimerCal */
-#define  PANEL_VERSION                    26      /* control type: textMsg, callback function: (none) */
-#define  PANEL_TIMER                      27      /* control type: timer, callback function: onTimer */
-#define  PANEL_DEBUG                      28      /* control type: command, callback function: onDebug */
-#define  PANEL_TIMESTAMP                  29      /* control type: textMsg, callback function: (none) */
+#define  PANEL_VERSION                    25      /* control type: textMsg, callback function: (none) */
+#define  PANEL_DEBUG                      26      /* control type: command, callback function: onDebug */
+#define  PANEL_TIMESTAMP                  27      /* control type: textMsg, callback function: (none) */
 
 #define  PANELSAVE                        2
 #define  PANELSAVE_SERIAL                 2       /* control type: string, callback function: (none) */
@@ -95,14 +93,11 @@
 #define  MENUBAR_CALIBRATION_SEPARATOR_7  38
 #define  MENUBAR_CALIBRATION_VERTCAL      39      /* callback function: onVertCal */
 #define  MENUBAR_CALIBRATION_FULLCAL      40      /* callback function: onTimeCal */
-#define  MENUBAR_CALIBRATION_SEPARATOR_5  41
-#define  MENUBAR_CALIBRATION_AUTOCAL      42      /* callback function: onAutoCal */
 
 
      /* Callback Prototypes: */
 
 int  CVICALLBACK onAcquire(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-void CVICALLBACK onAutoCal(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onAutoScale(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeAverage(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onChangeBg1(int menubar, int menuItem, void *callbackData, int panel);
@@ -139,8 +134,6 @@ void CVICALLBACK onSetPlotThin(int menubar, int menuItem, void *callbackData, in
 void CVICALLBACK onSetZero(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onStore(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onTimeCal(int menubar, int menuItem, void *callbackData, int panel);
-int  CVICALLBACK onTimer(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK onTimerCal(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onVertCal(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onWaveform(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onZoom(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);

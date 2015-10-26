@@ -290,69 +290,6 @@ int CVICALLBACK onPanel (int panel, int event, void *callbackData,
 	return 0;
 }
 
-// Timer-based acquisition, if set to auto-acquire
-int CVICALLBACK onTimer (int panel, int control, int event,
-						 void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_TIMER_TICK:
-		{
-			int status;
-			GetCtrlVal (panel, PANEL_AUTOACQUIRE, &status);
-
-			// Run if autoacquire enabled  
-			if (status == 1)
-			{
-				acquire (1);
-			}
-
-			break;
-		}
-
-		case EVENT_RIGHT_CLICK:
-		{
-			break;
-		}
-	}
-
-	return 0;
-}
-
-// Timer-based acquisition, if set to auto-acquire
-int CVICALLBACK onTimerCal (int panel, int control, int event,
-							void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_TIMER_TICK:
-		{
-			int status;
-			
-			GetCtrlVal (panel, PANEL_AUTOACQUIRE, &status);
-
-			// Run if autoacquire enabled
-			if (status == 1)
-			{
-				int calStatus = vertCal ();
-	
-				// writeMsgVertCal (calStatus);
-
-				acquire (1);
-			}
-
-			break;
-		}
-
-		case EVENT_RIGHT_CLICK:
-		{
-			break;
-		}
-	}
-
-	return 0;
-}
-
 // Update cursors on waveform acquisition
 int CVICALLBACK onWaveform (int panel, int control, int event,
 							void *callbackData, int eventData1, int eventData2)
@@ -453,15 +390,6 @@ void CVICALLBACK onSetPlotThick (int menuBar, int menuItem, void *callbackData,
 
 
 
-
-
-
-// Auto-calibration
-void CVICALLBACK onAutoCal (int menuBar, int menuItem, void *callbackData,
-							int panel)
-{
-	changeAutoCal ();
-}
 
 // Change to dark background
 void CVICALLBACK onChangeBg1 (int menuBar, int menuItem, void *callbackData,
