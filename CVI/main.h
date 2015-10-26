@@ -38,7 +38,6 @@ extern "C" {
 
 
 	void 	changeBg (int color);
-	void 	changeDiel (void);
 	void 	changeUnitX (int unit);
 	void 	changeUnitY (int unit);
 	void	clearWaveform (void);

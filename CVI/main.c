@@ -804,17 +804,7 @@ void changeAutoScale (void)
 	}
 }
 
-// Dielectric constant changed
-void changeDiel (void)
-{
-	int status;
-	
-	status = GetCtrlVal (panelHandle, PANEL_DIEL, &dielK);
-	
-	double vc = 1 / sqrt (dielK);
-	
-	status = SetCtrlVal (panelHandle, PANEL_VC, vc);
-}
+
 
 // Change horizontal units
 void changeUnitX (int unit)
@@ -1450,7 +1440,7 @@ void recallWaveform (void)
 	setZero (zeroStored);
 	resizeWindow ();
 	setupTimescale ();
-	changeDiel ();
+	// changeDiel ();
 	
 	// Remove any other recalled waveforms
 	if (WfmStored)
@@ -1932,7 +1922,7 @@ int loadSettings (int isAuto)
 		setZero (zeroStored);
 		resizeWindow ();
 		setupTimescale ();
-		changeDiel ();
+		// changeDiel ();
 	}
 	// If manually loading bad settings file, alert user and revert to default
 	else if (isValid == 0 && isAuto == 0)
@@ -1986,7 +1976,7 @@ void resetSettings (void)
 	// Change window and K
 	resizeWindow ();
 	setupTimescale ();
-	changeDiel ();
+	// changeDiel ();
 	
 	// Acquire new waveform with loaded settings
 	acquire (1);

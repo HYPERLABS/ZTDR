@@ -20,6 +20,13 @@
 //==============================================================================
 // Externs
 
+ // Acquisition environment
+extern	int		xUnits;
+extern	double	xStart;
+extern	double	xEnd;
+extern	double	xZero;
+extern	double	dielK;
+
 // User interface
 extern	int		panelHandle;
 extern	int		menuHandle;
@@ -76,6 +83,40 @@ int setAutoscale (int checked)
 	status = SetCtrlVal (panelHandle, PANEL_AUTOSCALE, &checked);
 	
 	// TODO #106: useful return
+	return 1;
+}
+
+
+// Get value of dielectric
+double getDiel (void)
+{
+	int status;
+	double k;
+	
+	status = GetCtrlVal (panelHandle, PANEL_DIEL, &k);
+	
+	return k;
+}
+
+// Update values of dielectric, VC
+int setDiel (double k)
+{
+	int status;
+	
+	// Derive from UIR field
+	if (k < 0)
+	{
+		dielK = getDiel ();
+	}
+	// Set to specific value
+	else
+	{
+		dielK = k;
+		
+		status = SetCtrlVal (panelHandle, PANEL_DIEL, dielK);
+	}
+	
+	// TODO #202: useful return
 	return 1;
 }
 

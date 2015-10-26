@@ -25,10 +25,12 @@ extern "C" {
 
 	int		getAutoAcq (void);
 	int 	getAutoscale (void);
+	double 	getDiel (void);
 	int 	getLED (void);
 	int		getNumAvg (void);
 	int		setAutoAcq (int checked);
 	int 	setAutoscale (int checked);
+	int 	setDiel (double k);
 	int 	setLED (int light);
 	int		setNumAvg (int num);
 	int 	setPlot (int plot);				// no corresponding get

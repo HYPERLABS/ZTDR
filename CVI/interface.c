@@ -62,51 +62,26 @@ int CVICALLBACK onAcquire (int panel, int control, int event,
 	return 0;
 }
 
-
-
-
-
-
-
-
-
-
-
-// Waveform averaging changed
-int CVICALLBACK onChangeAverage (int panel, int control, int event,
-								 void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_COMMIT:
-		{
-			acquire (1);
-
-			break;
-		}
-
-		case EVENT_RIGHT_CLICK:
-		{
-			break;
-		}
-	}
-
-	return 0;
-}
-
 // Dielectric (K) changed
-int CVICALLBACK onChangeK (int panel, int control, int event,
-						   void *callbackData, int eventData1, int eventData2)
+int CVICALLBACK onChangeDiel (int panel, int control, int event,
+							  void *callbackData, int eventData1, int eventData2)
 {
 	switch (event)
 	{
 		case EVENT_COMMIT:
 		{
-			changeDiel ();
+			int status;
 
-			setupTimescale ();
+			status = setDiel (-1);
 
-			acquire (1);
+			if (getAutoAcq () != 1)
+			{
+				// Conditional calibrations
+				asyncCal = ASYNC_COND;
+				
+				// Add to acquisition queue
+				asyncAcqCount++;
+			}
 
 			break;
 		}
@@ -120,6 +95,10 @@ int CVICALLBACK onChangeK (int panel, int control, int event,
 
 	return 0;
 }
+
+
+
+
 
 // Window start changed
 int CVICALLBACK onChangeStart (int panel, int control, int event,
