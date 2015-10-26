@@ -107,6 +107,8 @@ int CVICALLBACK onChangeWindow (int panel, int control, int event,
 			int status;
 
 			status = setWindow ();
+			
+			setupTimescale ();
 
 			if (getAutoAcq () != 1)
 			{
@@ -129,7 +131,34 @@ int CVICALLBACK onChangeWindow (int panel, int control, int event,
 	return 0;
 }
 
+// Generic callback to acquire new waveform
+int CVICALLBACK onGeneric (int panel, int control, int event,
+						   void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_VAL_CHANGED:
+		{
+			if (getAutoAcq () != 1)
+			{
+				// Conditional calibration
+				asyncCal = ASYNC_COND;
+				
+				// Add to acquisition queue
+				asyncAcqCount++;
+			}
 
+			break;
+		}
+
+		case EVENT_RIGHT_CLICK:
+		{
+			break;
+		}
+	}
+
+	return 0;
+}
 
 
 
@@ -156,27 +185,7 @@ int CVICALLBACK onReset (int panel, int control, int event,
 	return 0;
 }
 
-// Generic callback that just acquires a new waveform
-int CVICALLBACK onGeneric (int panel, int control, int event,
-						   void *callbackData, int eventData1, int eventData2)
-{
-	switch (event)
-	{
-		case EVENT_VAL_CHANGED:
-		{
-			acquire (1);
 
-			break;
-		}
-
-		case EVENT_RIGHT_CLICK:
-		{
-			break;
-		}
-	}
-
-	return 0;
-}
 
 // Basic panel behavior
 int CVICALLBACK onPanel (int panel, int event, void *callbackData,
