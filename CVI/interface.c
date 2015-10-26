@@ -14,7 +14,7 @@
 #include "constants.h"
 #include "interface.h"
 #include "main.h"
-#include "ZTDR_1XX.h"
+#include "ZTDR_2XX.h"
 
 //==============================================================================
 // Externs

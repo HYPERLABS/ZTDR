@@ -23,6 +23,10 @@ extern "C" {
 //==============================================================================
 // Global functions
 
+	int 	checkDirs (void);
+	
+	
+	
 	void 	acquire (void);
 	void 	changeAutoCal (void);
 	void 	changeAutoScale (void);
@@ -31,7 +35,6 @@ extern "C" {
 	void 	changePlot (int plot);
 	void 	changeUnitX (int unit);
 	void 	changeUnitY (int unit);
-	void 	checkDirs (void);
 	void	clearWaveform (void);
 	int 	loadSettings (int isAuto);
 	void	main (int argc, char *argv[]);

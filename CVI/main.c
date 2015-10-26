@@ -18,7 +18,7 @@
 #include "constants.h"
 #include "interface.h"
 #include "main.h"
-#include "ZTDR_1XX.h"
+#include "ZTDR_2XX.h"
 
 
 //==============================================================================
@@ -151,11 +151,9 @@ char *monthName[] =
 	"DEC"
 };
 
-// Horizontal values for each unit
-double wfmRecallX[NPOINTS_MAX]; 	// Recalled waveform
-
-// Vertical values in different modes
-double wfmRecall[NPOINTS_MAX]; 	// Recalled waveform
+// Recalled waveform data
+double wfmRecall[NPOINTS_MAX];
+double wfmRecallX[NPOINTS_MAX];
 
 // Temporary data storage for rise time filtering
 double wfmPreFilter[2048];
@@ -258,6 +256,69 @@ void main (int argc, char *argv[])
 	
 	DiscardPanel (panelHandle);
 }
+
+// Verify necessary folders
+int checkDirs (void)
+{
+	int status;
+	
+	int existsDir;
+	
+	// Default .PNG output folder	
+	status = FileExists ("images", &existsDir);
+	
+	if (status == 0) 
+	{
+		MakeDir ("images");
+	}
+	
+	// Default .ZTDR output folder
+	status = FileExists ("waveforms", &existsDir);
+	
+	if (status == 0) 
+	{
+		MakeDir ("waveforms");
+	}
+	
+	// Default settings folder
+	status = FileExists ("settings", &existsDir);
+	
+	if (status == 0) 
+	{
+		MakeDir ("settings");
+	}
+	
+	// Default CSV output folder
+	status = FileExists ("datalogs", &existsDir);
+	
+	if (status == 0) 
+	{
+		MakeDir ("datalogs");
+	}
+	
+	// TODO #106: useful return
+	return 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Main acquisition function
 void acquire (void)
@@ -469,167 +530,6 @@ void acquire (void)
 	
 	// Stop acquisition timer
 	stopTimer ("ACQ DATA: ", 0);
-}
-
-// Apply waveform filter
-/* TODO: enable feature
-void applyFilter (void)
-{
-	int filterLength;
-	double acqRiseTime = 200 * 1e-12;	
-	// TODO double acqRiseTime = riseTime * 1e-12;
-	
-	// Set filter based on timebase
-	// TODO: get proper value for increment
-	filterLength = (int) (acqRiseTime / (14.0e-6 / 65536.0) / increment);
-	
-	// Scale filter to valid size
-	if (filterLength > 1000)
-	{
-		filterLength = 1000;
-	}
-	
-	// Filter so small as to not affect waveform
-	if (filterLength < 3)
-	{
-		// Minimum of 3-point filtering
-		filterLength = 3;
-	}
-	
-	// Determine how much to filter in each direction
-	int filterLeft = 0;
-	int filterRight = 0;
-	
-	// Filter width is odd number
-	if (filterLength % 2)
-	{
-		// Use same number of points on both sides
-		filterLeft = (filterLength - 1) / 2;
-		filterRight = (filterLength - 1) /2;
-	}
-	// Filter width is even number
-	else
-	{
-		// Filter to the right one extra point
-		filterLeft = (filterLength / 2) - 1;
-		filterRight = (filterLength / 2);
-	}
-
-	// Define i to avoid redefinition error
-	int i;
-	
-	// Prepare data for filtering
-	for (i = 0; i < 1024; i++)
-	{
-		wfmPreFilter[i] = wfmAvg[i];
-	}
-
-	for (i = 1024; i < 1024 + filterLength; i++)
-	{
-		wfmPreFilter[i] = wfmAvg[1023];
-	}
-
-	// Run data through filter
-	for (i = 0; i < 1024; i++)
-	{
-		double wfmSum = 0.0;
-
-		// Take value of actual data point
-		// TODO: remove debug when assured this part is working (NumSum)
-		wfmSum = wfmPreFilter[i];
-		int numSum = 1;
-		int numSumR = 0;
-		int numSumL = 0;
-		
-		// Filter to the right
-		for (int j = (i + 1); j <= i + filterRight; j++)
-		{
-			wfmSum = wfmSum + wfmPreFilter[j];
-			
-			numSumR++;
-		}
-		
-		// Filter to the left
-		for (int j = (i - 1); j >= i - filterLeft; j--)
-		{
-			// Ensure not to filter outside left edge
-			if (j < 0)
-			{
-				wfmSum = wfmSum + wfmPreFilter[0];
-			}
-			else 	
-			{
-				wfmSum = wfmSum + wfmPreFilter[j];
-			}
-			
-			numSumL++;
-		}
-
-		wfmPostFilter[i] = wfmSum / filterLength;
-	}
-
-	// Prepare data for re-filtering
-	for (i = 0; i < 1024; i++)
-	{
-		wfmPreFilter[i] = wfmPostFilter[i];
-	}
-
-	// Run data through filter again
-	for (i = 0; i < 1024; i++)
-	{
-		double wfmSum = 0.0;
-
-		for (int j = i; j < i + filterLength; j++)
-		{
-			wfmSum = wfmSum + wfmPreFilter[j];
-		}
-
-		wfmPostFilter[i] = wfmSum / filterLength;
-
-		// Write back to main array
-		wfmAvg[i] = wfmPostFilter[i];
-	}
-}
-*/
-
-// Verify necessary folders
-void checkDirs (void)
-{
-	int status;
-	
-	int existsDir;
-	
-	// Default .PNG output folder	
-	status = FileExists ("images", &existsDir);
-	
-	if (status == 0) 
-	{
-		MakeDir ("images");
-	}
-	
-	// Default .ZTDR output folder
-	status = FileExists ("waveforms", &existsDir);
-	
-	if (status == 0) 
-	{
-		MakeDir ("waveforms");
-	}
-	
-	// Default settings folder
-	status = FileExists ("settings", &existsDir);
-	
-	if (status == 0) 
-	{
-		MakeDir ("settings");
-	}
-	
-	// Default CSV output folder
-	status = FileExists ("datalogs", &existsDir);
-	
-	if (status == 0) 
-	{
-		MakeDir ("datalogs");
-	}
 }
 
 // Format and show current version and instrument
@@ -2071,3 +1971,124 @@ void stopTimer (char label[16], int log)
 		status = SetCtrlVal (panelHandle, PANEL_MESSAGES, msg);
 	}
 }
+
+// Apply waveform filter
+/* TODO: enable feature
+void applyFilter (void)
+{
+	int filterLength;
+	double acqRiseTime = 200 * 1e-12;	
+	// TODO double acqRiseTime = riseTime * 1e-12;
+	
+	// Set filter based on timebase
+	// TODO: get proper value for increment
+	filterLength = (int) (acqRiseTime / (14.0e-6 / 65536.0) / increment);
+	
+	// Scale filter to valid size
+	if (filterLength > 1000)
+	{
+		filterLength = 1000;
+	}
+	
+	// Filter so small as to not affect waveform
+	if (filterLength < 3)
+	{
+		// Minimum of 3-point filtering
+		filterLength = 3;
+	}
+	
+	// Determine how much to filter in each direction
+	int filterLeft = 0;
+	int filterRight = 0;
+	
+	// Filter width is odd number
+	if (filterLength % 2)
+	{
+		// Use same number of points on both sides
+		filterLeft = (filterLength - 1) / 2;
+		filterRight = (filterLength - 1) /2;
+	}
+	// Filter width is even number
+	else
+	{
+		// Filter to the right one extra point
+		filterLeft = (filterLength / 2) - 1;
+		filterRight = (filterLength / 2);
+	}
+
+	// Define i to avoid redefinition error
+	int i;
+	
+	// Prepare data for filtering
+	for (i = 0; i < 1024; i++)
+	{
+		wfmPreFilter[i] = wfmAvg[i];
+	}
+
+	for (i = 1024; i < 1024 + filterLength; i++)
+	{
+		wfmPreFilter[i] = wfmAvg[1023];
+	}
+
+	// Run data through filter
+	for (i = 0; i < 1024; i++)
+	{
+		double wfmSum = 0.0;
+
+		// Take value of actual data point
+		// TODO: remove debug when assured this part is working (NumSum)
+		wfmSum = wfmPreFilter[i];
+		int numSum = 1;
+		int numSumR = 0;
+		int numSumL = 0;
+		
+		// Filter to the right
+		for (int j = (i + 1); j <= i + filterRight; j++)
+		{
+			wfmSum = wfmSum + wfmPreFilter[j];
+			
+			numSumR++;
+		}
+		
+		// Filter to the left
+		for (int j = (i - 1); j >= i - filterLeft; j--)
+		{
+			// Ensure not to filter outside left edge
+			if (j < 0)
+			{
+				wfmSum = wfmSum + wfmPreFilter[0];
+			}
+			else 	
+			{
+				wfmSum = wfmSum + wfmPreFilter[j];
+			}
+			
+			numSumL++;
+		}
+
+		wfmPostFilter[i] = wfmSum / filterLength;
+	}
+
+	// Prepare data for re-filtering
+	for (i = 0; i < 1024; i++)
+	{
+		wfmPreFilter[i] = wfmPostFilter[i];
+	}
+
+	// Run data through filter again
+	for (i = 0; i < 1024; i++)
+	{
+		double wfmSum = 0.0;
+
+		for (int j = i; j < i + filterLength; j++)
+		{
+			wfmSum = wfmSum + wfmPreFilter[j];
+		}
+
+		wfmPostFilter[i] = wfmSum / filterLength;
+
+		// Write back to main array
+		wfmAvg[i] = wfmPostFilter[i];
+	}
+}
+*/
