@@ -33,8 +33,51 @@ float timeSpent;
 //==============================================================================
 // Global functions
 
+// Get whether vertical autoscaling active
+int getAutoscale (void)
+{
+	int status, checked;
+	
+	status = GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &checked);
+	
+	return checked;
+}
+
+// Set vertical autoscaling
+int setAutoscale (int checked)
+{
+	int status;
+	
+	status = SetCtrlVal (panelHandle, PANEL_AUTOSCALE, &checked);
+	
+	// TODO #106: useful return
+	return 1;
+}
+
+// Get number of acquisitions to average
+int getNumAvg (void)
+{
+	int status, numAvg;
+	
+	status = GetCtrlVal (panelHandle, PANEL_AVERAGE, &numAvg);
+	
+	return numAvg;
+}
+
+// Set waveform averaging
+int setNumAvg (int numAvg)
+{
+	int status;
+	
+	status = SetCtrlVal (panelHandle, PANEL_AVERAGE, &numAvg);
+	
+	// TODO #106: useful return
+	return 1;
+}
+
+
 // Start event timer
-int startTimer (char label[16], int log)
+int startTimer (void)
 {
 	// Label and log used for in-code reference only
 	timerStart = clock ();

@@ -23,12 +23,15 @@ extern "C" {
 //==============================================================================
 // Global functions
 
+	int 	acquire (int doDraw);
 	int 	checkDirs (void);
-	int	showVersion (void);
-	
-	
-	
-	void 	acquire (void);
+	int		showVersion (void);
+	int		updateCursors (void);
+	int 	updateTimestamp (void);
+
+
+
+
 	void 	changeAutoCal (void);
 	void 	changeAutoScale (void);
 	void 	changeBg (int color);
@@ -48,9 +51,7 @@ extern "C" {
 	void 	saveSettings (int isAuto);
 	void	setZero (double x);
 	void 	storeWaveform (int format);
-	void	updateCursors (void);
 	void	updateSize (void);
-	void 	updateTimestamp (void);
 	void 	zoom (void);
 
 

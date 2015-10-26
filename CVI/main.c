@@ -219,28 +219,33 @@ void main (int argc, char *argv[])
 	// Initial calibration complete
 	if (calStatus == 1)
 	{   
-		// Run first acquisition
-		acquire ();
-	
-		// Set initial cursor positions
-		status = SetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, 2.25, -250);
-		status = SetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, 3.25, 0);
+		// Run first acquisition, don't draw
+		status = acquire (0);
 		
 		// Load user.ini, if any
 		loadSettings (1);
 		
 		// Acquire with loaded settings
-		acquire ();
+		status = acquire (1);
+		
+		// Silence error if 333 and/or 667 are outside the graph area
+		status = SetBreakOnLibraryErrors (FALSE);
+
+		// Position cursors on initial waveform
+		status = SetGraphCursorIndex (panelHandle, PANEL_WAVEFORM, 1, WfmActive, 333);
+		status = SetGraphCursorIndex (panelHandle, PANEL_WAVEFORM, 2, WfmActive, 667);
+
+		status = SetBreakOnLibraryErrors (TRUE);
 		
 		// Start event timers
 		status = SetCtrlAttribute (panelHandle, PANEL_TIMER, ATTR_ENABLED, 1);
 		status = SetCtrlAttribute (panelHandle, PANEL_CALTIMER, ATTR_ENABLED, 1);
 	}
-	// Initial calibratin failed
+	// Initial calibration failed
 	else
 	{
 		// Instrument not connected or initial calibration failed
-		status = MessagePopup ("Error", "Could not initialize the TDR device.");
+		status = MessagePopup ("ERROR #1001", "Could not initialize the TDR device.");
 		
 		QuitUserInterface (0);
 	}
@@ -315,39 +320,19 @@ int showVersion (void)
 	return 1;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Main acquisition function
-void acquire (void)
+int acquire (int doDraw)
 {
 	int status;
 
 	// Acquisition timer	
-	startTimer("INIT: ", 0);
+	status = startTimer ();
 	
 	// Number of waveforms to average
-	int numAvg;
-	GetCtrlVal (panelHandle, PANEL_AVERAGE, &numAvg);
+	int numAvg = getNumAvg ();
 	
 	// Call unified acquisition function
-	acquireWaveform (numAvg);
+	status = acquireWaveform (numAvg);
     
 	// Min/max of averaged waveform
 	double ymax = 0.0;
@@ -386,7 +371,6 @@ void acquire (void)
 			
 			break;
 		}
-		
 		case UNIT_NORM:
 		{   
 			// Values certain to be overwritten immediately
@@ -417,7 +401,6 @@ void acquire (void)
 
 			break;
 		}
-		
 		case UNIT_OHM:
 		{	 
 			 // Values certain to be overwritten immediately
@@ -448,8 +431,7 @@ void acquire (void)
 
 			break;
 		}
-		
-		default: // RHO, data already in this unit
+		default: // RHO, data already scaled
 		{
 			// Values certain to be overwritten immediately
 			ymin = 1.00;
@@ -482,8 +464,7 @@ void acquire (void)
 	}
 
 	// Determine whether to autoscale
-	int autoScale;
-	status = GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &autoScale);
+	int autoScale = getAutoscale ();
 
 	// YMAX/YMIN behavior
 	if (autoScale == 1)
@@ -497,59 +478,44 @@ void acquire (void)
 	{
 		status = GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
 		status = GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
+	}
 
-		// Compensate if min > max
-		if((double) ymin >= (double) ymax)
+	// Draw waveform if requested
+	if (doDraw == 1)
+	{
+		// Set range if not constrained by recalled waveform
+		if (!WfmStored)
 		{
-			ymin = (double) ymax - (double) 1.0;
+			status = SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, ymin, ymax);
 		}
-	}
-	
-	// Avoid crashes on partial waveforms
-	if (ymax == ymin)
-	{
-		ymax += 1;
-		ymin -= 1;
-	}
-	else if (ymax < ymin)
-	{
-		ymin = ymax -1;
-	}
 
-	// Set range if not constrained by recalled waveform
-	if (!WfmStored)
-	{
-		SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, ymin, ymax);
+		// Clear existing WfmActive, don't affect recalled waveforms
+		if (WfmActive)
+		{
+			// Delay draw so there is no flicker before next waveform is plotted
+			status = DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmActive, VAL_DELAYED_DRAW);
+		}
+	
+		// Plot main acquisition
+		WfmActive = PlotXY (panelHandle, PANEL_WAVEFORM, wfmX, wfmAvg, recLen, VAL_DOUBLE, VAL_DOUBLE,
+							plotType, VAL_SMALL_SOLID_SQUARE, VAL_SOLID, 1, MakeColor (113, 233, 70));
+		
+		// Show timestamp of acquisition
+		status = updateTimestamp ();
+	
+		// Position cursors and update control reading
+		status = updateCursors ();
 	}
-
-	// Clear existing WfmActive, don't affect recalled waveforms
-	if (WfmActive)
-	{
-		// Delay draw so there is no flicker before next waveform is plotted
-		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmActive, VAL_DELAYED_DRAW);
-	}
-	
-	// Plot main acquisition
-	WfmActive = PlotXY (panelHandle, PANEL_WAVEFORM, wfmX, wfmAvg, recLen, VAL_DOUBLE, VAL_DOUBLE,
-						plotType, VAL_SMALL_SOLID_SQUARE, VAL_SOLID, 1, MakeColor (113, 233, 70));
-	
-	// Trigger the DELAYED_DRAW
-	RefreshGraph (panelHandle, PANEL_WAVEFORM);
-	
-	// Show timestamp of acquisition
-	updateTimestamp ();
-	
-	// Position cursors and update control reading
-	updateCursors ();
 	
 	// Stop acquisition timer
-	stopTimer ("ACQ DATA: ", 0);
+	status = stopTimer ("ACQ DATA: ", 0);
+	
+	// TODO #106: useful return
+	return 1;
 }
 
-
-
 // Show timestamp of acquisition
-void updateTimestamp (void)
+int updateTimestamp (void)
 {
 	int status;
 	
@@ -564,7 +530,58 @@ void updateTimestamp (void)
 	
 	// Show version, timestamp
 	status = SetCtrlVal (panelHandle, PANEL_TIMESTAMP, timestamp);
+	
+	// TODO #106: useful return
+	return 1;
 }
+
+// Update cursor readings
+int updateCursors (void)
+{  	
+	int status;
+	
+	double c1x, c1y, c2x, c2y;
+	static char buf[128];
+
+	c1x = c1y = c2x = c2y = 0;
+	
+	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
+	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
+
+	// Cursor 1
+	status = sprintf (buf, " %.3f %s, %.3f %s", c1x, shortX[xUnits], c1y, shortY[yUnits]);
+	status = SetCtrlVal (panelHandle, PANEL_CURSOR1,  buf);
+
+	// Cursor 2
+	status = sprintf (buf, " %.3f %s, %.3f %s", c2x, shortX[xUnits], c2y, shortY[yUnits]);
+	status = SetCtrlVal (panelHandle, PANEL_CURSOR2, buf);
+
+	// Delta
+	status = sprintf(buf, " %.3f %s, %.3f %s", c2x-c1x, shortX[xUnits], c2y-c1y, shortY[yUnits]);
+	status = SetCtrlVal (panelHandle, PANEL_DELTA, buf);
+	
+	// TODO #106: useful return
+	return 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // Change between dots and line
@@ -913,31 +930,7 @@ void changeUnitY (int unit)
 	status = SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_YNAME, labelY[yUnits]);
 }
 
-// Update cursor readings
-void updateCursors (void)
-{  	
-	int status;
-	
-	double c1x, c1y, c2x, c2y;
-	static char buf[128];
 
-	c1x = c1y = c2x = c2y = 0;
-	
-	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 1, &c1x, &c1y);
-	status = GetGraphCursor (panelHandle, PANEL_WAVEFORM, 2, &c2x, &c2y);
-
-	// Cursor 1
-	status = sprintf (buf, " %.3f %s, %.3f %s", c1x, shortX[xUnits], c1y, shortY[yUnits]);
-	status = SetCtrlVal (panelHandle, PANEL_CURSOR1,  buf);
-
-	// Cursor 2
-	status = sprintf (buf, " %.3f %s, %.3f %s", c2x, shortX[xUnits], c2y, shortY[yUnits]);
-	status = SetCtrlVal (panelHandle, PANEL_CURSOR2, buf);
-
-	// Delta
-	status = sprintf(buf, " %.3f %s, %.3f %s", c2x-c1x, shortX[xUnits], c2y-c1y, shortY[yUnits]);
-	status = SetCtrlVal (panelHandle, PANEL_DELTA, buf);
-}
 
 // Cursor-based zoom
 void zoom (void)
@@ -988,7 +981,7 @@ void resizeWindow (void)
 	// Adjustment if end less than start
 	else
 	{
-		int adjust = 0;
+		double adjust = 0;
 		
 		if (xUnits == UNIT_M)
 		{
@@ -1903,7 +1896,7 @@ void resetSettings (void)
 	changeDiel ();
 	
 	// Acquire new waveform with loaded settings
-	acquire ();
+	acquire (1);
 	
 	// Re-enable timers 
 	status = ResumeTimerCallbacks ();

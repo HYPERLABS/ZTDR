@@ -35,7 +35,7 @@ int CVICALLBACK onAcquire (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 		{
-			acquire ();
+			acquire (1);
 
 			break;
 		}
@@ -59,7 +59,7 @@ int CVICALLBACK onAutoScale (int panel, int control, int event,
 		{
 			changeAutoScale ();
 
-			acquire ();
+			acquire (1);
 
 			break;
 
@@ -82,7 +82,7 @@ int CVICALLBACK onChangeAverage (int panel, int control, int event,
 	{
 		case EVENT_COMMIT:
 		{
-			acquire ();
+			acquire (1);
 
 			break;
 		}
@@ -108,7 +108,7 @@ int CVICALLBACK onChangeK (int panel, int control, int event,
 
 			setupTimescale ();
 
-			acquire ();
+			acquire (1);
 
 			break;
 		}
@@ -135,7 +135,7 @@ int CVICALLBACK onChangeStart (int panel, int control, int event,
 
 			setupTimescale ();
 
-			acquire ();
+			acquire (1);
 
 			break;
 		}
@@ -161,7 +161,7 @@ int CVICALLBACK onChangeEnd (int panel, int control, int event,
 
 			setupTimescale ();
 
-			acquire ();
+			acquire (1);
 
 			break;
 		}
@@ -187,7 +187,7 @@ int CVICALLBACK onClear (int panel, int control, int event,
 
 			setupTimescale ();
 
-			acquire ();
+			acquire (1);
 
 			break;
 		}
@@ -215,7 +215,7 @@ int CVICALLBACK onReset (int panel, int control, int event,
 
 			setupTimescale ();
 
-			acquire ();
+			acquire (1);
 
 			break;
 	}
@@ -230,7 +230,7 @@ int CVICALLBACK onGeneric (int panel, int control, int event,
 	{
 		case EVENT_VAL_CHANGED:
 		{
-			acquire ();
+			acquire (1);
 
 			break;
 		}
@@ -295,7 +295,7 @@ int CVICALLBACK onTimer (int panel, int control, int event,
 			// Run if autoacquire enabled  
 			if (status == 1)
 			{
-				acquire ();
+				acquire (1);
 			}
 
 			break;
@@ -329,7 +329,7 @@ int CVICALLBACK onTimerCal (int panel, int control, int event,
 	
 				// writeMsgVertCal (calStatus);
 
-				acquire ();
+				acquire (1);
 			}
 
 			break;
@@ -385,7 +385,7 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 
 			setupTimescale ();
 
-			acquire ();
+			acquire (1);
 
 			break;
 
@@ -417,7 +417,7 @@ void CVICALLBACK onChangeBg1 (int menuBar, int menuItem, void *callbackData,
 {
 	changeBg (0);
 
-	acquire ();
+	acquire (1);
 }
 
 // Change to light background
@@ -426,7 +426,7 @@ void CVICALLBACK onChangeBg2 (int menuBar, int menuItem, void *callbackData,
 {
 	changeBg (1);
 
-	acquire ();
+	acquire (1);
 }
 
 // Display changed to DOTS
@@ -435,7 +435,7 @@ void CVICALLBACK onChangePlot1 (int menuBar, int menuItem, void *callbackData,
 {
 	changePlot (0);
 
-	acquire ();
+	acquire (1);
 }
 
 // Display changed to THIN_LINE
@@ -444,7 +444,7 @@ void CVICALLBACK onChangePlot2 (int menuBar, int menuItem, void *callbackData,
 {
 	changePlot (1);
 
-	acquire ();
+	acquire (1);
 }
 
 // Display changed to FAT_LINE
@@ -453,7 +453,7 @@ void CVICALLBACK onChangePlot3 (int menuBar, int menuItem, void *callbackData,
 {
 	changePlot (2);
 
-	acquire ();
+	acquire (1);
 }
 
 // Horizontal units changed to M
@@ -466,7 +466,7 @@ void CVICALLBACK onChangeX1 (int menuBar, int menuItem, void *callbackData,
 
 	setupTimescale ();
 
-	acquire ();
+	acquire (1);
 }
 
 // Horizontal units changed to FT
@@ -479,7 +479,7 @@ void CVICALLBACK onChangeX2 (int menuBar, int menuItem, void *callbackData,
 
 	setupTimescale ();
 
-	acquire ();
+	acquire (1);
 }
 
 // Horizontal units changed to NS
@@ -492,7 +492,7 @@ void CVICALLBACK onChangeX3 (int menuBar, int menuItem, void *callbackData,
 
 	setupTimescale ();
 
-	acquire ();
+	acquire (1);
 }
 
 // Vertical units changed to mV
@@ -501,7 +501,7 @@ void CVICALLBACK onChangeY1 (int menuBar, int menuItem, void *callbackData,
 {
 	changeUnitY (0);
 
-	acquire ();
+	acquire (1);
 }
 
 // Vertical units changed to Norm
@@ -510,7 +510,7 @@ void CVICALLBACK onChangeY2 (int menuBar, int menuItem, void *callbackData,
 {
 	changeUnitY (1);
 
-	acquire ();
+	acquire (1);
 }
 
 // Vertical units changed to Ohm
@@ -519,7 +519,7 @@ void CVICALLBACK onChangeY3 (int menuBar, int menuItem, void *callbackData,
 {
 	changeUnitY (2);
 
-	acquire ();
+	acquire (1);
 }
 
 // Vertical units changed to Rho
@@ -528,7 +528,7 @@ void CVICALLBACK onChangeY4 (int menuBar, int menuItem, void *callbackData,
 {
 	changeUnitY (3);
 
-	acquire ();
+	acquire (1);
 }
 
 // Clear stored waveform (from menu)
@@ -539,7 +539,7 @@ void CVICALLBACK onClearMenu (int menuBar, int menuItem, void *callbackData,
 
 	setupTimescale ();
 
-	acquire ();
+	acquire (1);
 }
 
 // Save CSV file
@@ -555,7 +555,7 @@ void CVICALLBACK onLoadSettings (int menuBar, int menuItem, void *callbackData,
 {
 	loadSettings (0);
 	
-	acquire ();
+	acquire (1);
 }
 
 // Save CSV and PNG with comments
@@ -604,7 +604,7 @@ void CVICALLBACK onResetSettings (int menuBar, int menuItem, void *callbackData,
 {
 	resetSettings ();
 	
-	acquire ();
+	acquire (1);
 }
 
 // Save settings
@@ -620,7 +620,7 @@ void CVICALLBACK onResetZero (int menuBar, int menuItem, void *callbackData,
 {
 	setZero (0.0);
 			
-	acquire ();
+	acquire (1);
 }
 
 // Set x-axis zero to open
@@ -629,7 +629,7 @@ void CVICALLBACK onSetZero (int menuBar, int menuItem, void *callbackData,
 {
 	setZero (-1.0);
 			
-	acquire ();
+	acquire (1);
 }
 
 // Store waveform
@@ -654,7 +654,7 @@ void CVICALLBACK onTimeCal (int menuBar, int menuItem, void *callbackData,
 	int calMsg = calTimebase ();
 	// writeMsgCal (calMsg);
 
-	acquire ();
+	acquire (1);
 	
 	// Reenable callbacks
 	status = ResumeTimerCallbacks ();
@@ -668,7 +668,7 @@ void CVICALLBACK onVertCal (int menuBar, int menuItem, void *callbackData,
 	
 	// writeMsgVertCal (calStatus);
 
-	acquire ();
+	acquire (1);
 }
 
 
