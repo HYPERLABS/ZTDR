@@ -38,6 +38,7 @@ extern "C" {
 	int 	setUnitY (int unit);
 	int		setZero (double x);
 	int		showVersion (void);
+	int 	storeWaveform (int format);
 	int		updateCursors (void);
 	int 	updateTimestamp (void);
 	int		updateWindowSize (void);
@@ -52,7 +53,6 @@ extern "C" {
 	void 	recallWaveform (void);
 	
 	void 	savePNG (void);
-	void 	storeWaveform (int format);
 
 
 #ifdef __cplusplus

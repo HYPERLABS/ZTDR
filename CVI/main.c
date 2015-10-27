@@ -1341,11 +1341,11 @@ int loadSettings (int isAuto)
 		
 		if (fd < 1)
 		{
-			status = writeMessage (2031, "Previous settings file not found or could not be loaded. Reverting to defaults.", MSG_MAIN);
+			status = writeMessage (2032, "Previous settings file not found or could not be loaded. Reverting to defaults.", MSG_MAIN);
 
 			status = resetSettings ();
 
-			return -1;
+			return -2;
 		}
 	}
 	// User manually loads settings
@@ -1374,7 +1374,7 @@ int loadSettings (int isAuto)
 			// Re-enable timers
 			status = ResumeTimerCallbacks ();
 		
-			return 0;
+			return -1;
 		}
 	
 		// Open file for reading
@@ -1382,9 +1382,9 @@ int loadSettings (int isAuto)
 
 		if (fd == -1)
 		{
-			status = writeMessage (2032, "Could not read settings file.", MSG_MAIN);
+			status = writeMessage (2033, "Could not read settings file.", MSG_MAIN);
 
-			return -2;
+			return -3;
 		}
 	}
 	
@@ -1436,9 +1436,9 @@ int loadSettings (int isAuto)
 
 	if (status == -1)
 	{
-		status = writeMessage (2033, "Could not close settings file.", MSG_MAIN);
+		status = writeMessage (2043, "Could not close settings file.", MSG_MAIN);
 
-		return -3;
+		return -13;
 	}
 	
 	// If any variable is out of range, don't load settings
@@ -1591,6 +1591,127 @@ int resetSettings (void)
 	return 1;
 }
 
+// Store waveform to file as ZTDR (format = 1) or CSV (= 0)
+int storeWaveform (int format)
+{   
+	int status;
+	
+	// File setup
+	char save_file[512];
+	char filename[64];
+	
+	// Format as ZTDR file
+	if (format == 1)
+	{
+		status = sprintf (filename, ".ztdr");
+		
+		// Choose save folder
+		char dir[16];
+	
+		if (defaultSaveZTDR == 1)
+		{
+			// Use default folder if first save attempt
+			status = sprintf (dir, "waveforms");
+			defaultSaveZTDR = 0;
+		}
+		else
+		{
+			status = sprintf (dir, "");
+		}
+
+		status = FileSelectPopup (dir, filename, "ZTDR Waveform (*.ztdr)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+	}
+	// Format as CSV file
+	else
+	{
+		status = sprintf (filename, ".csv");
+		
+		// Choose save folder
+		char dir[16];
+	
+		if (defaultSaveCSV == 1)
+		{
+			// Use default folder if first save attempt
+			status = sprintf (dir, "datalogs");
+			defaultSaveCSV = 0;
+		}
+		else
+		{
+			status = sprintf (dir, "");
+		}
+		
+		status = FileSelectPopup (dir, filename, "CSV (*.csv)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+	}
+
+	// Don't attempt to save if user cancels
+	if (status == VAL_NO_FILE_SELECTED)
+	{
+		return -1;
+	}	
+	
+	// Open selected file for write
+	int fd;
+	fd = OpenFile (save_file, VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
+	
+	if (fd == -1)
+	{
+		status = writeMessage (2072, "Could not open target save file.", MSG_MAIN);
+
+		return -2;
+	}
+	
+	// Set up data buffer;
+	char buf[128];
+	buf[0] = 0;
+
+	// Write expanded header row for ZTDR file
+	if (format == 1)
+	{
+		double ymin = getYMin ();
+		double ymax = getYMax ();
+		
+		status = sprintf (buf + strlen(buf), "%d,%d,%lf,%lf,%lf,%lf,%lf,%lf\n", yUnits, xUnits, xStart, xEnd, ymin, ymax, dielK, xZero);
+	}
+	// Write basic header line for CSV
+	else
+	{
+		// Header for .CSV
+		status = sprintf (buf + strlen(buf), "%s,%s\n", labelY[yUnits], labelX[xUnits]);
+	}
+	
+	status = WriteFile (fd, buf, strlen (buf));
+	
+	if (status < 0)
+	{
+		status = writeMessage (2073, "Could not write header labels.", MSG_MAIN);
+
+		return -3;
+	}
+	
+	// Log X/Y data
+	for (int i = 0; i < recLen; i++)
+	{
+		// Reset buffer
+		buf[0] = 0;
+	
+		status = sprintf (buf + strlen (buf), "%lf,%lf\n", wfmAvg[i], wfmX[i]);
+		
+		status = WriteFile (fd, buf, strlen(buf));
+	}
+	
+	// Close final file
+	status = CloseFile (fd);
+	
+	if (status == -1)
+	{
+		status = writeMessage (2074, "Could not close file.", MSG_MAIN);
+
+		return -4;
+	}
+	
+	// TODO #106:useful return
+	return 1;
+}
 
 
 
@@ -1661,114 +1782,6 @@ void savePNG (void)
 	status = ResumeTimerCallbacks ();
 }
 
-// Store waveform to file as ZTDR (format = 1) or CSV (= 0)
-void storeWaveform (int format)
-{   
-	int status;	
-
-	// Disable timers during action
-	status = SuspendTimerCallbacks ();
-	
-	// File setup
-	char save_file[512];
-	char filename[64];
-	
-	
-	// Save dialog
-	if (format == 1)
-	{
-		status = sprintf (filename, ".ztdr");
-		
-		// Choose save folder
-		char dir[16];
-	
-		if (defaultSaveZTDR == 1)
-		{
-			// Use default folder if first save attempt
-			status = sprintf (dir, "waveforms");
-			defaultSaveZTDR = 0;
-		}
-		else
-		{
-			status = sprintf (dir, "");
-		}
-
-		status = FileSelectPopup (dir, filename, "ZTDR Waveform (*.ztdr)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
-	}
-	else
-	{
-		status = sprintf (filename, ".csv");
-		
-		// Choose save folder
-		char dir[16];
-	
-		if (defaultSaveCSV == 1)
-		{
-			// Use default folder if first save attempt
-			status = sprintf (dir, "datalogs");
-			defaultSaveCSV = 0;
-		}
-		else
-		{
-			status = sprintf (dir, "");
-		}
-		
-		status = FileSelectPopup (dir, filename, "CSV (*.csv)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
-	}
-
-	// Don't attempt to save if user cancels
-	if (status == VAL_NO_FILE_SELECTED)
-	{
-		// Re-enable timers
-		status = ResumeTimerCallbacks ();
-		
-		return;
-	}	
-	
-	// Open selected file for write
-	int fd;
-	fd = OpenFile (save_file, VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
-	
-	// Set up data buffer;
-	char buf[128];
-	buf[0] = 0;
-
-	// Create header row
-	double ymin, ymax;
-	
-	GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
-	GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
-	
-	// Write header row
-	if (format == 1)
-	{
-		// Header for .ZTDR
-		status = sprintf (buf + strlen(buf), "%d, %d, %3.10f, %3.10f, %3.3f, %3.3f, %3.5f, %3.10f\n", yUnits, xUnits, xStart, xEnd, ymin, ymax, dielK, xZero);
-	}
-	else
-	{
-		// Header for .CSV
-		status = sprintf (buf + strlen(buf), "%s, %s\n", labelY[yUnits], labelX[xUnits]);
-	}
-	
-	status = WriteFile (fd, buf, strlen (buf));
-	
-	// Log X/Y data
-	for (int i = 0; i < recLen; i++)
-	{
-		// Reset buffer
-		buf[0] = 0;
-	
-		status = sprintf (buf + strlen(buf), "%3.10f, %3.10f\n", wfmAvg[i], wfmX[i]);
-		
-		status = WriteFile (fd, buf, strlen(buf));
-	}
-	
-	status = CloseFile (fd);
-	
-	// Re-enable timers 
-	status = ResumeTimerCallbacks ();
-}
 
 // Recall stored waveform
 void recallWaveform (void)
