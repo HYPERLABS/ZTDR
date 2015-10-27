@@ -577,7 +577,18 @@ int acquire (int doDraw)
 		// Set range if not constrained by recalled waveform
 		if (!WfmStored)
 		{
-			status = SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, ymin, ymax);
+			if (ymax > ymin)
+			{
+				// Scale waveform
+				status = SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, ymin, ymax);
+			}
+			else
+			{
+				// Don't scale if ymax <= ymin (typically caused by getting no waveform)
+				status = MessagePopup ("Error #3011", "Invalid waveform received from device.");
+				
+				return -1;
+			}
 		}
 
 		// Clear existing WfmActive, don't affect recalled waveforms
