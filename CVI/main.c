@@ -1255,19 +1255,7 @@ int printWaveform (void)
 
 
 
-// Save both PNG and CSV
-void saveMulti (void)
-{
-	int status;
-	
-	// Disable timers during action
-	status = SuspendTimerCallbacks ();
-	
-	
-	
-	// Re-enable timers
-	status = ResumeTimerCallbacks ();
-}
+
 
 // Save waveform and controls to PNG
 void savePNG (void)
@@ -2076,5 +2064,21 @@ void applyFilter (void)
 		// Write back to main array
 		wfmAvg[i] = wfmPostFilter[i];
 	}
+}
+*/
+
+/*
+// Save both PNG and CSV
+void saveMulti (void)
+{
+	int status;
+	
+	// Disable timers during action
+	status = SuspendTimerCallbacks ();
+	
+	
+	
+	// Re-enable timers
+	status = ResumeTimerCallbacks ();
 }
 */
