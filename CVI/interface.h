@@ -16,9 +16,9 @@
 #define  PANEL                            1       /* callback function: onPanel */
 #define  PANEL_AUTOACQUIRE                2       /* control type: radioButton, callback function: (none) */
 #define  PANEL_ACQUIRE                    3       /* control type: command, callback function: onAcquire */
-#define  PANEL_AUTOSCALE                  4       /* control type: radioButton, callback function: onGeneric */
-#define  PANEL_YMIN                       5       /* control type: numeric, callback function: onGeneric */
-#define  PANEL_YMAX                       6       /* control type: numeric, callback function: onGeneric */
+#define  PANEL_AUTOSCALE                  4       /* control type: radioButton, callback function: onSetAutoscale */
+#define  PANEL_YMIN                       5       /* control type: numeric, callback function: onCheckMinMax */
+#define  PANEL_YMAX                       6       /* control type: numeric, callback function: onCheckMinMax */
 #define  PANEL_CURSOR1                    7       /* control type: textMsg, callback function: (none) */
 #define  PANEL_CURSOR2                    8       /* control type: textMsg, callback function: (none) */
 #define  PANEL_DELTA                      9       /* control type: textMsg, callback function: (none) */
@@ -101,6 +101,7 @@ void CVICALLBACK onCalibrate(int menubar, int menuItem, void *callbackData, int 
 void CVICALLBACK onCalTimebase(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onChangeDiel(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeWindow(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK onCheckMinMax(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onClearWaveform(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onCSV(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onDebug(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
@@ -115,6 +116,7 @@ void CVICALLBACK onResetSettings(int menubar, int menuItem, void *callbackData, 
 void CVICALLBACK onResetZero(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onResetZoom(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onSaveSettings(int menubar, int menuItem, void *callbackData, int panel);
+int  CVICALLBACK onSetAutoscale(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onSetBgDark(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onSetBgLight(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onSetPlotDots(int menubar, int menuItem, void *callbackData, int panel);

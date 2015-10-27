@@ -23,6 +23,7 @@ extern "C" {
 //==============================================================================
 // Global functions
 
+	int 	checkMinMax (void);
 	int		getAutoAcq (void);
 	int 	getAutoscale (void);
 	int 	getBg (void);

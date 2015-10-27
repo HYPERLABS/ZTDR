@@ -98,6 +98,50 @@ int CVICALLBACK onChangeDiel (int panel, int control, int event,
 }
 
 // Acquisition window changed
+int CVICALLBACK onCheckMinMax (int panel, int control, int event,
+							   void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_VAL_CHANGED:
+		{
+			int status;
+
+			// Stop timers before exit
+			status = SuspendAsyncTimerCallbacks ();
+			
+			// Don't interrupt calibration/acquisition
+			while (getLED () == 1 || timerLock == 1)
+			{
+				// do nothing	
+			}
+			
+			status = checkMinMax ();
+
+			if (getAutoAcq () != 1)
+			{
+				// Conditional calibrations
+				asyncCal = ASYNC_COND;
+				
+				// Add to acquisition queue
+				asyncAcqCount++;
+			}
+			
+			status = ResumeAsyncTimerCallbacks ();
+
+			break;
+		}
+
+		case EVENT_RIGHT_CLICK:
+		{
+			break;
+		}
+	}
+
+	return 0;
+}
+
+// Acquisition window changed
 int CVICALLBACK onChangeWindow (int panel, int control, int event,
 							   void *callbackData, int eventData1, int eventData2)
 {
@@ -534,6 +578,39 @@ void CVICALLBACK onSaveSettings (int menuBar, int menuItem, void *callbackData,
 				
 	// Add to acquisition queue
 	asyncAcqCount++;
+}
+
+// Set autoscale mode
+int CVICALLBACK onSetAutoscale (int panel, int control, int event,
+								void *callbackData, int eventData1, int eventData2)
+{
+	switch (event)
+	{
+		case EVENT_COMMIT:
+		{
+			int status;
+
+			status = setAutoscale (-1);
+
+			if (getAutoAcq () != 1)
+			{
+				// Conditional calibrations
+				asyncCal = ASYNC_COND;
+				
+				// Add to acquisition queue
+				asyncAcqCount++;
+			}
+
+			break;
+		}
+
+		case EVENT_RIGHT_CLICK:
+		{
+			break;
+		}
+	}
+
+	return 0;
 }
 
 // Change to dark background

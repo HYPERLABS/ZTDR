@@ -50,6 +50,25 @@ static double minWidth[] =
 //==============================================================================
 // Global functions
 
+// Check Y min/max
+int checkMinMax (void)
+{
+	int status;
+	
+	// Verify that max > min
+	double max = getYMax ();
+	double min = getYMin ();
+	
+	if (max < min)
+	{
+		status = setYMin (max);
+		status = setYMax (min);
+	}
+	
+	// TODO #106: useful return
+	return 1;
+}
+
 // Get auto acquisition mode
 int getAutoAcq (void)
 {
@@ -86,7 +105,27 @@ int setAutoscale (int checked)
 {
 	int status;
 	
-	status = SetCtrlVal (panelHandle, PANEL_AUTOSCALE, checked);
+	// Set to control value
+	if (checked == -1)
+	{
+		checked = getAutoscale ();
+	}
+	else
+	{
+		status = SetCtrlVal (panelHandle, PANEL_AUTOSCALE, checked);
+	}
+	
+	// Dim limit controls in autoscale
+	if (checked == 1)
+	{
+		status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 1);
+		status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 1);
+	}
+	else
+	{
+		status = SetCtrlAttribute (panelHandle, PANEL_YMIN, ATTR_DIMMED, 0);
+		status = SetCtrlAttribute (panelHandle, PANEL_YMAX, ATTR_DIMMED, 0);
+	}
 	
 	// TODO #106: useful return
 	return 1;
@@ -399,7 +438,7 @@ int setYMax (double y)
 	int status;
 			  ;
 	status = SetCtrlVal (panelHandle, PANEL_YMAX, y);
-
+	
 	// TODO #106: useful return
 	return 1;
 } 
