@@ -583,6 +583,10 @@ int acquire (int doDraw)
 		// Clear existing WfmActive, don't affect recalled waveforms
 		if (WfmActive)
 		{
+			// Disable plot snapping while waveform is refreshing
+			status = SetCursorAttribute (panelHandle, PANEL_WAVEFORM, 1, ATTR_CURSOR_MODE, VAL_FREE_FORM);
+			status = SetCursorAttribute (panelHandle, PANEL_WAVEFORM, 2, ATTR_CURSOR_MODE, VAL_FREE_FORM);
+			
 			// Delay draw so there is no flicker before next waveform is plotted
 			status = DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmActive, VAL_DELAYED_DRAW);
 		}
@@ -590,6 +594,13 @@ int acquire (int doDraw)
 		// Plot main acquisition
 		WfmActive = PlotXY (panelHandle, PANEL_WAVEFORM, wfmX, wfmAvg, recLen, VAL_DOUBLE, VAL_DOUBLE,
 							plotType, VAL_SMALL_SOLID_SQUARE, VAL_SOLID, 1, MakeColor (113, 233, 70));
+		
+		// Necessary to ensure snapping works
+		Delay (0.1);
+		
+		// Reenable cursor snapping
+		status = SetCursorAttribute (panelHandle, PANEL_WAVEFORM, 1, ATTR_CURSOR_MODE, VAL_SNAP_TO_POINT);
+		status = SetCursorAttribute (panelHandle, PANEL_WAVEFORM, 2, ATTR_CURSOR_MODE, VAL_SNAP_TO_POINT);
 		
 		// Show timestamp of acquisition
 		status = updateTimestamp ();
