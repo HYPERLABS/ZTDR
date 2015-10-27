@@ -711,7 +711,26 @@ void CVICALLBACK onCalibrate (int menuBar, int menuItem, void *callbackData,
 	asyncAcqCount++;
 }
 
+// Print waveform
+void CVICALLBACK onPrint (int menuBar, int menuItem, void *callbackData,
+						  int panel)
+{
+	int status;
+	
+	// Stop timers before action
+	status = SuspendAsyncTimerCallbacks ();
+	
+	// Don't interrupt calibration/acquisition
+	while (getLED () == 1 || timerLock == 1)
+	{
+		// do nothing	
+	}
 
+	status = printWaveform ();
+	
+	// Resume timers
+	status = ResumeAsyncTimerCallbacks ();
+}
 
 
 
@@ -745,12 +764,7 @@ void CVICALLBACK onStore (int menuBar, int menuItem, void *callbackData,
 
 
 
-// Print waveform
-void CVICALLBACK onPrint (int menuBar, int menuItem, void *callbackData,
-						  int panel)
-{
-	printWaveform ();
-}
+
 
 // Save CSV file
 void CVICALLBACK onCSV (int menuBar, int menuItem, void *callbackData,

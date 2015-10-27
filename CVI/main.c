@@ -1196,51 +1196,17 @@ int setZero (double x)
 	return 1;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Print current waveform and controles
-void printWaveform (void)
+int printWaveform (void)
 {
 	int status;
 	
-	// Disable timers during action
-	status = SuspendTimerCallbacks ();
-	
 	// Force light color scheme to save toner
-	int color;
-	status = GetMenuBarAttribute (menuHandle,MENUBAR_DISPLAY_DARK, ATTR_CHECKED, &color);
+	int color = getBg ();
 	
-	if (color == 1)
+	if (color == COLOR_DARK)
 	{
-		setBg (1);
+		setBg (COLOR_LIGHT);
 	}
 	
 	// Set optimal printer settings
@@ -1250,14 +1216,44 @@ void printWaveform (void)
 	status = PrintPanel (panelHandle, "", 1, VAL_FULL_PANEL, 1);
 	
 	// Change back to dark scheme if necessary
-	if (color == 1)
+	if (color == COLOR_DARK)
 	{
-		setBg (0);
+		setBg (COLOR_DARK);
 	}
 	
-	// Re-enable timers 
-	status = ResumeTimerCallbacks ();
+	// TODO #106: useful return
+	return 1;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Save both PNG and CSV
 void saveMulti (void)

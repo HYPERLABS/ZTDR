@@ -100,7 +100,14 @@ int getBg (void)
 	int color;
 	status = GetMenuBarAttribute (menuHandle, MENUBAR_DISPLAY_DARK, ATTR_CHECKED, &color);
 	
-	return color;
+	if (color == 1)
+	{
+		return COLOR_DARK;
+	}
+	else
+	{
+		return COLOR_LIGHT;
+	}
 }
 
 // Change color scheme

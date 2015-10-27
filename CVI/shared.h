@@ -25,6 +25,7 @@ extern "C" {
 
 	int		getAutoAcq (void);
 	int 	getAutoscale (void);
+	int 	getBg (void);
 	double 	getDiel (void);
 	int 	getLED (void);
 	int		getNumAvg (void);
