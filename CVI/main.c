@@ -234,6 +234,9 @@ void main (int argc, char *argv[])
 		// Load user.ini, if any
 		loadSettings (1);
 		
+		// Calibrate with new settings
+		status = calibrate (MSG_MAIN);
+		
 		// Acquire with loaded settings
 		status = acquire (1);
 		
@@ -278,11 +281,33 @@ int CVICALLBACK onAsyncTimer (int reserved, int timerId, int event, void *callba
 	// Calibration logic
 	if (asyncCal == ASYNC_TIME)
 	{
+		// TODO: move to separate function later?
+		// Turn on activity light
+		status = setLED (1);
+	
+		// Acquisition timer	
+		status = startTimer ();
+		
 		// Recalibrate timebase
 		status = calTimebase ();
 		
+		if (status == 1)
+		{
+			status = writeMessage (0, "Timebase calibration... DONE", MSG_MAIN);
+		}
+		else
+		{
+			status = writeMessage (1031, "Timebase calibration... FAILED", MSG_MAIN);
+		}
+		
+		// Stop calibration timer
+		status = stopTimer ("TIMECAL", 1);
+	
+		// Turn off activity light
+		status = setLED (0);
+		
 		// Recalibrate amplitude
-		status = calibrate (asyncCal);
+		status = calibrate (MSG_NONE);
 		
 		// Reset cal timer if successful
 		if (status == 1)
@@ -324,7 +349,7 @@ int CVICALLBACK onAsyncTimer (int reserved, int timerId, int event, void *callba
 		// Recalibrate if last calibration was more than 30 seconds ago
 		if (calElapsed > 30)
 		{
-			status = calibrate (0);
+			status = calibrate (MSG_NONE);
 
 			// Reset cal timer if successful
 			if (status == 1)
@@ -591,7 +616,32 @@ int calibrate (int showMsg)
 {
 	int status;
 	
+	// Turn on activity light
+	status = setLED (1);
+	
+	// Acquisition timer	
+	status = startTimer ();
+	
 	status = vertCal ();
+	
+	if (showMsg == MSG_MAIN && status == 1)
+	{
+		status = writeMessage (0, "Calibration... DONE", MSG_MAIN);
+	}
+	else if (status != 1)
+	{
+		status = writeMessage (0, "Calibration... FAILED", MSG_MAIN);
+	}
+	else
+	{
+		status = writeMessage (0, "Calibration... DONE", MSG_NONE);
+	}
+	
+	// Stop calibration timer
+	status = stopTimer ("VERTCAL", 1);
+	
+	// Turn off activity light
+	status = setLED (0);
 	
 	// TODO #106: useful return
 	return 1;

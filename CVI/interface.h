@@ -88,11 +88,11 @@
 #define  MENUBAR_YUNITS_YUNITSOHM         33      /* callback function: onSetYOhm */
 #define  MENUBAR_YUNITS_YUNITSRHO         34      /* callback function: onSetYRho */
 #define  MENUBAR_CALIBRATION              35
-#define  MENUBAR_CALIBRATION_SETZERO      36      /* callback function: onSetZero */
-#define  MENUBAR_CALIBRATION_RESETZERO    37      /* callback function: onResetZero */
-#define  MENUBAR_CALIBRATION_SEPARATOR_7  38
-#define  MENUBAR_CALIBRATION_FULLCAL      39      /* callback function: onCalTimebase */
-#define  MENUBAR_CALIBRATION_SEPARATOR_5  40
+#define  MENUBAR_CALIBRATION_FULLCAL      36      /* callback function: onCalTimebase */
+#define  MENUBAR_CALIBRATION_SEPARATOR_5  37
+#define  MENUBAR_CALIBRATION_SETZERO      38      /* callback function: onSetZero */
+#define  MENUBAR_CALIBRATION_RESETZERO    39      /* callback function: onResetZero */
+#define  MENUBAR_CALIBRATION_SEPARATOR_7  40
 #define  MENUBAR_CALIBRATION_VERTCAL      41      /* callback function: onCalibrate */
 
 

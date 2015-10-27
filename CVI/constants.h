@@ -51,6 +51,7 @@ extern "C" {
 #define FT_TO_M 0.3048
 	
 // Message output locations
+#define MSG_NONE	-1
 #define MSG_MAIN	0
 	
 // Asynchronus timer
