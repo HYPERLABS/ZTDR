@@ -276,7 +276,29 @@ int CVICALLBACK onAsyncTimer (int reserved, int timerId, int event, void *callba
 	status = CVIProfSetCurrentThreadProfiling (1);
 
 	// Calibration logic
-	if (asyncCal == ASYNC_YES || asyncCal == ASYNC_MSG)
+	if (asyncCal == ASYNC_TIME)
+	{
+		// Recalibrate timebase
+		status = calTimebase ();
+		
+		// Recalibrate amplitude
+		status = calibrate (asyncCal);
+		
+		// Reset cal timer if successful
+		if (status == 1)
+		{
+			status = setCalTime ();
+			asyncCal = ASYNC_NO;
+		}
+		else
+		{
+			// Retry calibration next timer tick
+		}
+
+		// Ensure calibration settles before acquisition
+		Delay (0.5);
+	}
+	else if (asyncCal == ASYNC_YES || asyncCal == ASYNC_MSG)
 	{
 		// Force instrument recalibration and optionally show message
 		status = calibrate (asyncCal);

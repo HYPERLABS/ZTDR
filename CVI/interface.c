@@ -689,7 +689,27 @@ void CVICALLBACK onSetZero (int menuBar, int menuItem, void *callbackData,
 	status = ResumeAsyncTimerCallbacks ();
 }
 
+// Timebase calibration
+void CVICALLBACK onCalTimebase (int menuBar, int menuItem, void *callbackData,
+								int panel)
+{	
+	// Conditional calibrations
+	asyncCal = ASYNC_TIME;
+		
+	// Add to acquisition queue
+	asyncAcqCount++;
+}
 
+// Vertical calibration
+void CVICALLBACK onCalibrate (int menuBar, int menuItem, void *callbackData,
+							  int panel)
+{
+	// Force recalibration
+	asyncCal = ASYNC_MSG;
+				
+	// Add to acquisition queue
+	asyncAcqCount++;
+}
 
 
 
@@ -787,37 +807,7 @@ void CVICALLBACK onSaveSettings (int menuBar, int menuItem, void *callbackData,
 
 
 
-// Timebase calibration
-void CVICALLBACK onTimeCal (int menuBar, int menuItem, void *callbackData,
-							int panel)
-{	
-	int status;
 
-	// Suspend callbacks
-	status = SuspendTimerCallbacks ();
-
-	// Write calibration message
-	// writeMsgCal (0);
-
-	int calMsg = calTimebase ();
-	// writeMsgCal (calMsg);
-
-	acquire (1);
-	
-	// Reenable callbacks
-	status = ResumeTimerCallbacks ();
-}
-
-// Vertical calibration
-void CVICALLBACK onVertCal (int menuBar, int menuItem, void *callbackData,
-							int panel)
-{
-	int calStatus = vertCal ();
-	
-	// writeMsgVertCal (calStatus);
-
-	acquire (1);
-}
 
 
 //==============================================================================

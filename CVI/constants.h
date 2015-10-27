@@ -58,6 +58,7 @@ extern "C" {
 #define	ASYNC_YES	0
 #define	ASYNC_MSG	1
 #define	ASYNC_COND	2
+#define ASYNC_TIME	3
 	
 // Interface background
 #define COLOR_DARK	0

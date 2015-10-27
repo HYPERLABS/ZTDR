@@ -91,13 +91,16 @@
 #define  MENUBAR_CALIBRATION_SETZERO      36      /* callback function: onSetZero */
 #define  MENUBAR_CALIBRATION_RESETZERO    37      /* callback function: onResetZero */
 #define  MENUBAR_CALIBRATION_SEPARATOR_7  38
-#define  MENUBAR_CALIBRATION_VERTCAL      39      /* callback function: onVertCal */
-#define  MENUBAR_CALIBRATION_FULLCAL      40      /* callback function: onTimeCal */
+#define  MENUBAR_CALIBRATION_FULLCAL      39      /* callback function: onCalTimebase */
+#define  MENUBAR_CALIBRATION_SEPARATOR_5  40
+#define  MENUBAR_CALIBRATION_VERTCAL      41      /* callback function: onCalibrate */
 
 
      /* Callback Prototypes: */
 
 int  CVICALLBACK onAcquire(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+void CVICALLBACK onCalibrate(int menubar, int menuItem, void *callbackData, int panel);
+void CVICALLBACK onCalTimebase(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onChangeDiel(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeWindow(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onClearMenu(int menubar, int menuItem, void *callbackData, int panel);
@@ -129,8 +132,6 @@ void CVICALLBACK onSetYOhm(int menubar, int menuItem, void *callbackData, int pa
 void CVICALLBACK onSetYRho(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onSetZero(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onStore(int menubar, int menuItem, void *callbackData, int panel);
-void CVICALLBACK onTimeCal(int menubar, int menuItem, void *callbackData, int panel);
-void CVICALLBACK onVertCal(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onWaveform(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onZoom(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 
