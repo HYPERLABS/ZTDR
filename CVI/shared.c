@@ -126,6 +126,7 @@ int setBg (int color)
 		// More visible cursors
 		status = SetCursorAttribute (panelHandle, PANEL_WAVEFORM, 1, ATTR_CURSOR_COLOR, MakeColor (83, 200, 233));
 		status = SetCursorAttribute (panelHandle, PANEL_WAVEFORM, 2, ATTR_CURSOR_COLOR, MakeColor (233, 83, 83));
+		status = SetCtrlAttribute (panelHandle, PANEL_PANELCURSOR, ATTR_FRAME_COLOR, MakeColor (32, 32, 32));
 		
 		// Timestamp
 		status = SetCtrlAttribute (panelHandle, PANEL_TIMESTAMP, ATTR_TEXT_COLOR , MakeColor (76, 157, 47));
@@ -146,6 +147,7 @@ int setBg (int color)
 		// More visible cursors
 		status = SetCursorAttribute (panelHandle, PANEL_WAVEFORM, 1, ATTR_CURSOR_COLOR, VAL_BLUE);
 		status = SetCursorAttribute (panelHandle, PANEL_WAVEFORM, 2, ATTR_CURSOR_COLOR, VAL_RED);
+		status = SetCtrlAttribute (panelHandle, PANEL_PANELCURSOR, ATTR_FRAME_COLOR, VAL_LT_GRAY);
 		
 		// Timestamp
 		status = SetCtrlAttribute (panelHandle, PANEL_TIMESTAMP, ATTR_TEXT_COLOR , VAL_BLACK);
