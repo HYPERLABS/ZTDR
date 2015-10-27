@@ -27,11 +27,14 @@ extern "C" {
 	int 	calibrate (int showMsg);
 	double 	checkCalTime (void);
 	int 	checkDirs (void);
+	int		clearWaveform (void);
 	int 	loadSettings (int isAuto);
 	void	main (int argc, char *argv[]);
 	int		printWaveform (void);
+	int 	recallWaveform (void);
 	int 	resetSettings (void);
 	int		resetZoom (void);
+	int 	savePNG (void);
 	int	 	saveSettings (int isAuto);
 	int 	setCalTime (void);
 	int 	setUnitX (int unit);
@@ -43,16 +46,8 @@ extern "C" {
 	int 	updateTimestamp (void);
 	int		updateWindowSize (void);
 	int 	zoom (void);
-	
+
 	int 	CVICALLBACK onAsyncTimer (int reserved, int timerId, int event, void *callbackData, int eventData1, int eventData2);
-
-
-
-
-	void	clearWaveform (void);
-	void 	recallWaveform (void);
-	
-	void 	savePNG (void);
 
 
 #ifdef __cplusplus

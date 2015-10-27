@@ -67,8 +67,8 @@
 #define  MENUBAR_DATA_SAVEPNG             12      /* callback function: onPNG */
 #define  MENUBAR_DATA_SEPARATOR           13
 #define  MENUBAR_DATA_STORE               14      /* callback function: onStore */
-#define  MENUBAR_DATA_RECALL              15      /* callback function: onRecall */
-#define  MENUBAR_DATA_CLEAR               16      /* callback function: onClearMenu */
+#define  MENUBAR_DATA_RECALL              15      /* callback function: onRecallWaveform */
+#define  MENUBAR_DATA_CLEAR               16      /* callback function: onClearWaveform */
 #define  MENUBAR_DISPLAY                  17
 #define  MENUBAR_DISPLAY_DOTS             18      /* callback function: onSetPlotDots */
 #define  MENUBAR_DISPLAY_THINLINE         19      /* callback function: onSetPlotThin */
@@ -101,7 +101,7 @@ void CVICALLBACK onCalibrate(int menubar, int menuItem, void *callbackData, int 
 void CVICALLBACK onCalTimebase(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onChangeDiel(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onChangeWindow(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-void CVICALLBACK onClearMenu(int menubar, int menuItem, void *callbackData, int panel);
+void CVICALLBACK onClearWaveform(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onCSV(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onDebug(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onExit(int menubar, int menuItem, void *callbackData, int panel);
@@ -110,7 +110,7 @@ void CVICALLBACK onLoadSettings(int menubar, int menuItem, void *callbackData, i
 int  CVICALLBACK onPanel(int panel, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onPNG(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onPrint(int menubar, int menuItem, void *callbackData, int panel);
-void CVICALLBACK onRecall(int menubar, int menuItem, void *callbackData, int panel);
+void CVICALLBACK onRecallWaveform(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onResetSettings(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onResetZero(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onResetZoom(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);

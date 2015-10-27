@@ -1591,6 +1591,61 @@ int resetSettings (void)
 	return 1;
 }
 
+// Save screenshot to PNG
+int savePNG (void)
+{
+	int status;
+
+	// Select file to save
+	char filename[64];
+	char save_file[260];
+	status = sprintf (filename, ".png");
+	
+	// Choose save folder
+	char dir[16];
+	
+	if (defaultSavePNG == 1)
+	{
+		// Use default folder if first save attempt
+		status = sprintf (dir, "images");
+		defaultSavePNG = 0;
+	}
+	else
+	{
+		status = sprintf (dir, "");
+	}
+	
+	status = FileSelectPopup (dir, filename, "PNG (*.png)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
+	
+
+	// Don't attempt to save if user cancels
+	if (status == VAL_NO_FILE_SELECTED)
+	{
+		return -1;
+	}
+	
+	// Prepare image file
+	int imageFile;
+	status = GetPanelDisplayBitmap (panelHandle, VAL_FULL_PANEL, VAL_ENTIRE_OBJECT, &imageFile);
+	status = SaveBitmapToPNGFile (imageFile, save_file);
+	
+	// File save failed
+	if (status < 0)
+	{
+		status = writeMessage (2052, "Could not save PNG file to disk.", MSG_MAIN);
+
+		return -2;
+	}
+	// File save successful
+	else
+	{
+		status = writeMessage (0, "PNG image saved successfully.", MSG_MAIN);
+	}
+	
+	// TODO #106: useful return
+	return 1;
+}
+
 // Store waveform to file as ZTDR (format = 1) or CSV (= 0)
 int storeWaveform (int format)
 {   
@@ -1713,83 +1768,10 @@ int storeWaveform (int format)
 	return 1;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Save waveform and controls to PNG
-void savePNG (void)
-{
-	int status;
-	
-	// Disable timers during action
-	status = SuspendTimerCallbacks ();
-
-	// Select file to save
-	char filename[64];
-	char save_file[260];
-	status = sprintf (filename, ".png");
-	
-	// Choose save folder
-	char dir[16];
-	
-	if (defaultSavePNG == 1)
-	{
-		// Use default folder if first save attempt
-		status = sprintf (dir, "images");
-		defaultSavePNG = 0;
-	}
-	else
-	{
-		status = sprintf (dir, "");
-	}
-	
-	status = FileSelectPopup (dir, filename, "PNG (*.png)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file);
-	
-
-	// Don't attempt to save if user cancels
-	if (status == VAL_NO_FILE_SELECTED)
-	{
-		// Re-enable timers 
-		status = ResumeTimerCallbacks ();
-		
-		return;
-	}
-	
-	// Prepare image file
-	int imageFile;
-	status = GetPanelDisplayBitmap (panelHandle, VAL_FULL_PANEL, VAL_ENTIRE_OBJECT, &imageFile);
-	status = SaveBitmapToPNGFile (imageFile, save_file);
-	
-	// Re-enable timers
-	status = ResumeTimerCallbacks ();
-}
-
-
 // Recall stored waveform
-void recallWaveform (void)
+int recallWaveform (void)
 {
 	int status;
-
-	// Disable timers during action
-	SuspendTimerCallbacks ();
 	
 	// Select file
 	char save_file[260];
@@ -1814,31 +1796,34 @@ void recallWaveform (void)
 	// Don't crash if user cancels
 	if (status == VAL_NO_FILE_SELECTED)
 	{
-		// Re-enable timers 
-		ResumeTimerCallbacks ();
-		
-		return;
+		return -1;
 	}
 	
 	// Open file for reading
 	int fd = OpenFile (save_file, VAL_READ_WRITE, VAL_OPEN_AS_IS, VAL_ASCII);
 	
+	if (fd == -1)
+	{
+		status = writeMessage (2092, "Could not open stored XTDR file.", MSG_MAIN);
+
+		return -2;
+	}
+	
 	// Set up data buffer
 	char buf[128];
 	int buf_len = 128;
-	buf[0] = 0;
-												
+	buf[0] = 0; 
 	
 	// Storage for environmental variables
 	int xStored, yStored;
-	float startStored, endStored, zeroStored;
-	float ymin, ymax;
-	float dielStored;
+	double startStored, endStored, zeroStored;
+	double ymin, ymax;
+	double dielStored;
 	double vc;
 	
 	// Read header line
 	status = ReadLine (fd, buf, buf_len - 1);
-	sscanf (buf, "%d, %d, %f, %f, %f, %f, %f, %f", &yStored, &xStored, &startStored, &endStored, &ymin, &ymax, &dielStored, &zeroStored);
+	sscanf (buf, "%d,%d,%lf,%lf,%lf,%lf,%lf,%lf", &yStored, &xStored, &startStored, &endStored, &ymin, &ymax, &dielStored, &zeroStored);
 	vc = (double) 3E8 / sqrt (dielStored);
 							   
 	// Read X, Y values
@@ -1855,48 +1840,56 @@ void recallWaveform (void)
 	
 	// Data read finished
 	status = CloseFile(fd);
-								   
-	// Set control values from stored waveform
-	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 0);
+
+	if (fd == -1)
+	{
+		status = writeMessage (2093, "Could not close stored XTDR file.", MSG_MAIN);
+
+		return -3;
+	}
 	
-	// Store globals
+	// Turn off autoscaling while waveform recalled
+	status = setAutoscale (0);
+	
+	// Update units and offsets
 	status = setUnitX (xStored);
 	status = setUnitY (yStored);
+	
+	status = setZero (zeroStored);
+	
+	status = setXStart (startStored);
+	status = setXEnd (endStored);
 
-	// Update controls
-	SetCtrlVal (panelHandle, PANEL_START, (double) startStored);
-	SetCtrlVal (panelHandle, PANEL_END, (double) endStored);
-	SetCtrlVal (panelHandle, PANEL_DIEL, (double) dielStored);
-	SetCtrlVal (panelHandle, PANEL_YMAX, (double) ymax);
-	SetCtrlVal (panelHandle, PANEL_YMIN, (double) ymin);
+	// Update remaining controls
+	status = setDiel (dielStored);
+	status = setYMax (ymax);
+	status = setYMin (ymin);
 	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, labelX[xUnits]);
 	
-	// Change window and K
-	setZero (zeroStored);
-	// resizeWindow ();
+	// Set new acquisition timescale
 	setupTimescale ();
-	// changeDiel ();
 	
 	// Remove any other recalled waveforms
 	if (WfmStored)
 	{
-		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmStored, VAL_IMMEDIATE_DRAW);
-		WfmStored = 0;
+		status = DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmStored, VAL_IMMEDIATE_DRAW);
 	}
 	
 	// Remove any active waveforms
 	if (WfmActive)
 	{
-		DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmActive, VAL_IMMEDIATE_DRAW);
+		status = DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmActive, VAL_IMMEDIATE_DRAW);
+		
+		// Mark waveform as already deleted
 		WfmActive = 0;
 	}
 	
 	// Scale waveform acquisition window
-	SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, (double) ymin, (double) ymax);
+	status = SetAxisRange (panelHandle, PANEL_WAVEFORM, VAL_AUTOSCALE, 0.0, 0.0, VAL_MANUAL, ymin, ymax);
 	
-	// Plot waveform
-	WfmStored = PlotXY (panelHandle, PANEL_WAVEFORM, wfmRecallX, wfmRecall, recLen, VAL_DOUBLE, VAL_DOUBLE, 
-						VAL_THIN_LINE, VAL_EMPTY_SQUARE, VAL_SOLID, 1, MakeColor (233, 113, 233));
+	// Plot stored waveform
+	status = WfmStored = PlotXY (panelHandle, PANEL_WAVEFORM, wfmRecallX, wfmRecall, recLen, VAL_DOUBLE, VAL_DOUBLE,
+								 VAL_THIN_LINE, VAL_EMPTY_SQUARE, VAL_SOLID, 1, MakeColor (233, 113, 233));
 
 	// Dim controls
 	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_DIMMED, 1);
@@ -1920,22 +1913,19 @@ void recallWaveform (void)
 	// Show clear menu option
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_CLEAR, ATTR_DIMMED, 0);
 	
-	// Re-enable timers 
-	ResumeTimerCallbacks ();
+	// TODO #106: useful return
+	return 1;
 }
 
 // Reset plot area and clear recalled waveform
-void clearWaveform (void)
+int clearWaveform (void)
 {
 	int status;
-	
-	status = SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 1);
-
+													  
 	// Remove recalled waveform, if any
 	if (WfmStored)
 	{
 		status = DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmStored, VAL_IMMEDIATE_DRAW);
-		WfmStored = 0;
 	}
 	
 	// Re-enable controls
@@ -1959,7 +1949,32 @@ void clearWaveform (void)
 	
 	// Hide clear option in menu
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_CLEAR, ATTR_DIMMED, 1);
+	
+	// TODO #106: useful return
+	return 1;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

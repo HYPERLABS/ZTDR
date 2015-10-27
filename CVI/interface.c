@@ -329,6 +329,76 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 //==============================================================================
 // Callback functions from menu commands (sorted alphabetically)
 
+// Vertical calibration
+void CVICALLBACK onCalibrate (int menuBar, int menuItem, void *callbackData,
+							  int panel)
+{
+	// Force recalibration
+	asyncCal = ASYNC_MSG;
+				
+	// Add to acquisition queue
+	asyncAcqCount++;
+}
+
+// Timebase calibration
+void CVICALLBACK onCalTimebase (int menuBar, int menuItem, void *callbackData,
+								int panel)
+{	
+	// Conditional calibrations
+	asyncCal = ASYNC_TIME;
+		
+	// Add to acquisition queue
+	asyncAcqCount++;
+}
+
+// Clear stored waveform (from menu)
+void CVICALLBACK onClearWaveform (int menuBar, int menuItem, void *callbackData,
+								  int panel)
+{
+	int status;
+
+	status = clearWaveform ();
+
+	if (getAutoAcq () != 1)
+	{
+		// Conditional calibrations
+		asyncCal = ASYNC_COND;
+
+		// Add to acquisition queue
+		asyncAcqCount++;
+	}
+}
+
+// Save CSV file
+void CVICALLBACK onCSV (int menuBar, int menuItem, void *callbackData,
+						int panel)
+{
+	int status;
+
+	// Stop timers before action
+	status = SuspendAsyncTimerCallbacks ();
+	
+	// Don't interrupt calibration/acquisition
+	while (getLED () == 1 || timerLock == 1)
+	{
+		// do nothing	
+	}
+	
+	status = storeWaveform (0);
+	
+	// Resume timers
+	status = ResumeAsyncTimerCallbacks ();
+	
+	if (getAutoAcq () != 1)
+	{
+		// Conditional calibrations
+		asyncCal = ASYNC_COND;
+				
+		// Add to acquisition queue
+		asyncAcqCount++;
+	}
+}
+
 // Exit program
 void CVICALLBACK onExit (int menuBar, int menuItem, void *callbackData,
 						 int panel)
@@ -378,7 +448,37 @@ void CVICALLBACK onLoadSettings (int menuBar, int menuItem, void *callbackData,
 	// Add to acquisition queue
 	asyncAcqCount++;
 }
- 
+
+// Recall waveform
+void CVICALLBACK onRecallWaveform (int menuBar, int menuItem, void *callbackData,
+								   int panel)
+{
+	int status;
+
+	// Stop timers before action
+	status = SuspendAsyncTimerCallbacks ();
+	
+	// Don't interrupt calibration/acquisition
+	while (getLED () == 1 || timerLock == 1)
+	{
+		// do nothing	
+	}
+	
+	status = recallWaveform ();
+	
+	// Resume timers
+	status = ResumeAsyncTimerCallbacks ();
+	
+	if (getAutoAcq () != 1)
+	{
+		// Conditional calibrations
+		asyncCal = ASYNC_COND;
+				
+		// Add to acquisition queue
+		asyncAcqCount++;
+	}
+}
+
 // Restore default settings
 void CVICALLBACK onResetSettings (int menuBar, int menuItem, void *callbackData,
 								  int panel)
@@ -775,28 +875,6 @@ void CVICALLBACK onSetZero (int menuBar, int menuItem, void *callbackData,
 	status = ResumeAsyncTimerCallbacks ();
 }
 
-// Timebase calibration
-void CVICALLBACK onCalTimebase (int menuBar, int menuItem, void *callbackData,
-								int panel)
-{	
-	// Conditional calibrations
-	asyncCal = ASYNC_TIME;
-		
-	// Add to acquisition queue
-	asyncAcqCount++;
-}
-
-// Vertical calibration
-void CVICALLBACK onCalibrate (int menuBar, int menuItem, void *callbackData,
-							  int panel)
-{
-	// Force recalibration
-	asyncCal = ASYNC_MSG;
-				
-	// Add to acquisition queue
-	asyncAcqCount++;
-}
-
 // Print waveform
 void CVICALLBACK onPrint (int menuBar, int menuItem, void *callbackData,
 						  int panel)
@@ -818,8 +896,8 @@ void CVICALLBACK onPrint (int menuBar, int menuItem, void *callbackData,
 	status = ResumeAsyncTimerCallbacks ();
 }
 
-// Save CSV file
-void CVICALLBACK onCSV (int menuBar, int menuItem, void *callbackData,
+// Save waveform as PNG
+void CVICALLBACK onPNG (int menuBar, int menuItem, void *callbackData,
 						int panel)
 {
 	int status;
@@ -833,19 +911,10 @@ void CVICALLBACK onCSV (int menuBar, int menuItem, void *callbackData,
 		// do nothing	
 	}
 	
-	status = storeWaveform (0);
+	status = savePNG ();
 	
 	// Resume timers
 	status = ResumeAsyncTimerCallbacks ();
-	
-	if (getAutoAcq () != 1)
-	{
-		// Conditional calibrations
-		asyncCal = ASYNC_COND;
-				
-		// Add to acquisition queue
-		asyncAcqCount++;
-	}
 }
 
 // Store waveform
@@ -877,48 +946,6 @@ void CVICALLBACK onStore (int menuBar, int menuItem, void *callbackData,
 		asyncAcqCount++;
 	}
 }
-
-
-
-
-
-
-
-// Recall waveform
-void CVICALLBACK onRecall (int menuBar, int menuItem, void *callbackData,
-						   int panel)
-{
-	recallWaveform ();
-}
-
-// Clear stored waveform (from menu)
-void CVICALLBACK onClearMenu (int menuBar, int menuItem, void *callbackData,
-							  int panel)
-{
-	clearWaveform ();
-
-	setupTimescale ();
-
-	acquire (1);
-}
-
-
-
-
-
-
-
-// Save waveform as PNG
-void CVICALLBACK onPNG (int menuBar, int menuItem, void *callbackData,
-						int panel)
-{
-	savePNG ();
-}
-
-
- 
-
-
 
 
 //==============================================================================
