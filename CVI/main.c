@@ -1934,14 +1934,14 @@ int recallWaveform (void)
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_FILE_SAVESETTINGS, ATTR_DIMMED, 1);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_FILE_LOADSETTINGS, ATTR_DIMMED, 1);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_FILE_DEFAULTSETTINGS, ATTR_DIMMED, 1);
-	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_STORE, ATTR_DIMMED, 1);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_FILE_STORE, ATTR_DIMMED, 1);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS, ATTR_DIMMED, 1);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS, ATTR_DIMMED, 1);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_CALIBRATION_SETZERO, ATTR_DIMMED, 1);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_CALIBRATION_RESETZERO, ATTR_DIMMED, 1);
 
 	// Show clear menu option
-	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_CLEAR, ATTR_DIMMED, 0);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_FILE_CLEAR, ATTR_DIMMED, 0);
 	
 	// Display message
 	status = writeMessage (0, "ZTDR file retrieved successfully.", MSG_MAIN);
@@ -1974,14 +1974,14 @@ int clearWaveform (void)
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_FILE_SAVESETTINGS, ATTR_DIMMED, 0);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_FILE_LOADSETTINGS, ATTR_DIMMED, 0);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_FILE_DEFAULTSETTINGS, ATTR_DIMMED, 0);
-	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_STORE, ATTR_DIMMED, 0);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_FILE_STORE, ATTR_DIMMED, 0);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_XUNITS, ATTR_DIMMED, 0);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_YUNITS, ATTR_DIMMED, 0);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_CALIBRATION_SETZERO, ATTR_DIMMED, 0);
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_CALIBRATION_RESETZERO, ATTR_DIMMED, 0);
 	
 	// Hide clear option in menu
-	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_CLEAR, ATTR_DIMMED, 1);
+	status = SetMenuBarAttribute (menuHandle, MENUBAR_FILE_CLEAR, ATTR_DIMMED, 1);
 	
 	// TODO #106: useful return
 	return 1;

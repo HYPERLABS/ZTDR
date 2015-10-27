@@ -55,20 +55,20 @@
 
 #define  MENUBAR                          1
 #define  MENUBAR_FILE                     2
-#define  MENUBAR_FILE_SAVESETTINGS        3       /* callback function: onSaveSettings */
-#define  MENUBAR_FILE_LOADSETTINGS        4       /* callback function: onLoadSettings */
-#define  MENUBAR_FILE_DEFAULTSETTINGS     5       /* callback function: onResetSettings */
-#define  MENUBAR_FILE_SEPARATOR_2         6
-#define  MENUBAR_FILE_EXIT                7       /* callback function: onExit */
-#define  MENUBAR_DATA                     8
-#define  MENUBAR_DATA_PRINT               9       /* callback function: onPrint */
-#define  MENUBAR_DATA_SEPARATOR_3         10
-#define  MENUBAR_DATA_SAVECSV             11      /* callback function: onCSV */
-#define  MENUBAR_DATA_SAVEPNG             12      /* callback function: onPNG */
-#define  MENUBAR_DATA_SEPARATOR           13
-#define  MENUBAR_DATA_STORE               14      /* callback function: onStoreWaveform */
-#define  MENUBAR_DATA_RECALL              15      /* callback function: onRecallWaveform */
-#define  MENUBAR_DATA_CLEAR               16      /* callback function: onClearWaveform */
+#define  MENUBAR_FILE_PRINT               3       /* callback function: onPrint */
+#define  MENUBAR_FILE_SEPARATOR_3         4
+#define  MENUBAR_FILE_SAVECSV             5       /* callback function: onCSV */
+#define  MENUBAR_FILE_SAVEPNG             6       /* callback function: onPNG */
+#define  MENUBAR_FILE_SEPARATOR           7
+#define  MENUBAR_FILE_STORE               8       /* callback function: onStoreWaveform */
+#define  MENUBAR_FILE_RECALL              9       /* callback function: onRecallWaveform */
+#define  MENUBAR_FILE_CLEAR               10      /* callback function: onClearWaveform */
+#define  MENUBAR_FILE_SEPARATOR_6         11
+#define  MENUBAR_FILE_SAVESETTINGS        12      /* callback function: onSaveSettings */
+#define  MENUBAR_FILE_LOADSETTINGS        13      /* callback function: onLoadSettings */
+#define  MENUBAR_FILE_DEFAULTSETTINGS     14      /* callback function: onResetSettings */
+#define  MENUBAR_FILE_SEPARATOR_2         15
+#define  MENUBAR_FILE_EXIT                16      /* callback function: onExit */
 #define  MENUBAR_DISPLAY                  17
 #define  MENUBAR_DISPLAY_DOTS             18      /* callback function: onSetPlotDots */
 #define  MENUBAR_DISPLAY_THINLINE         19      /* callback function: onSetPlotThin */
