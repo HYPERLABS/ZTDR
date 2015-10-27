@@ -183,6 +183,8 @@ int CVICALLBACK onPanel (int panel, int event, void *callbackData,
 			int status;
 			
 			status = updateWindowSize ();
+			
+			break;
 		}
 
 		case EVENT_CLOSE:
@@ -773,13 +775,6 @@ void CVICALLBACK onCSV (int menuBar, int menuItem, void *callbackData,
 	storeWaveform (0);
 }
 
-// Save CSV and PNG with comments
-void CVICALLBACK onMultiSave (int menuBar, int menuItem, void *callbackData,
-							  int panel)
-{
-	
-}
-
 // Save waveform as PNG
 void CVICALLBACK onPNG (int menuBar, int menuItem, void *callbackData,
 						int panel)
@@ -814,13 +809,6 @@ void CVICALLBACK onSaveSettings (int menuBar, int menuItem, void *callbackData,
 {
 	saveSettings (0);
 }
-
-
-
-
-
-
-
 
 
 
