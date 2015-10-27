@@ -918,8 +918,8 @@ void CVICALLBACK onPNG (int menuBar, int menuItem, void *callbackData,
 }
 
 // Store waveform
-void CVICALLBACK onStore (int menuBar, int menuItem, void *callbackData,
-						  int panel)
+void CVICALLBACK onStoreWaveform (int menuBar, int menuItem, void *callbackData,
+								  int panel)
 {
 	int status;
 

@@ -1271,6 +1271,13 @@ int saveSettings (int isAuto)
 		fd = OpenFile (save_file, VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
 	}
 	
+	if (fd == -1)
+	{
+		status = writeMessage (2072, "Could not open target save file.", MSG_MAIN);
+
+		return -2;
+	}
+	
 	// Open selected file for write
 	int bufLen;
 	
@@ -1320,8 +1327,25 @@ int saveSettings (int isAuto)
 	bufLen = strlen (buf);
 	status = WriteFile(fd, buf, bufLen);
 	
+	if (status < 0)
+	{
+		status = writeMessage (2073, "Could not write settings file.", MSG_MAIN);
+
+		return -3;
+	}
+	
 	// Close file
 	status = CloseFile(fd);
+	
+	if (status == -1)
+	{
+		status = writeMessage (2074, "Could not close settings file.", MSG_MAIN);
+
+		return -4;
+	}
+	
+	// Display message
+	status = writeMessage (0, "Settings saved successfully.", MSG_MAIN);
 	
 	// TODO #106: useful return
 	return 1;
@@ -1556,6 +1580,9 @@ int loadSettings (int isAuto)
 	status = setAutoAcq (autoAcq);
 	status = setAutoscale (autoScale);
 	
+	// Display message
+	status = writeMessage (0, "Stored settings loaded successfully.", MSG_MAIN);
+	
 	// Settings loaded correctly
 	return 1;
 }
@@ -1762,7 +1789,10 @@ int storeWaveform (int format)
 		status = writeMessage (2074, "Could not close file.", MSG_MAIN);
 
 		return -4;
-	}
+	} 
+
+	// Display message
+	status = writeMessage (0, "Waveform file saved successfully.", MSG_MAIN);
 	
 	// TODO #106:useful return
 	return 1;
@@ -1913,6 +1943,9 @@ int recallWaveform (void)
 	// Show clear menu option
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_CLEAR, ATTR_DIMMED, 0);
 	
+	// Display message
+	status = writeMessage (0, "ZTDR file retrieved successfully.", MSG_MAIN);
+
 	// TODO #106: useful return
 	return 1;
 }

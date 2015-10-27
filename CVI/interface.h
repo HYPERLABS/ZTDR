@@ -66,7 +66,7 @@
 #define  MENUBAR_DATA_SAVECSV             11      /* callback function: onCSV */
 #define  MENUBAR_DATA_SAVEPNG             12      /* callback function: onPNG */
 #define  MENUBAR_DATA_SEPARATOR           13
-#define  MENUBAR_DATA_STORE               14      /* callback function: onStore */
+#define  MENUBAR_DATA_STORE               14      /* callback function: onStoreWaveform */
 #define  MENUBAR_DATA_RECALL              15      /* callback function: onRecallWaveform */
 #define  MENUBAR_DATA_CLEAR               16      /* callback function: onClearWaveform */
 #define  MENUBAR_DISPLAY                  17
@@ -128,7 +128,7 @@ void CVICALLBACK onSetYNorm(int menubar, int menuItem, void *callbackData, int p
 void CVICALLBACK onSetYOhm(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onSetYRho(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onSetZero(int menubar, int menuItem, void *callbackData, int panel);
-void CVICALLBACK onStore(int menubar, int menuItem, void *callbackData, int panel);
+void CVICALLBACK onStoreWaveform(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onWaveform(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK onZoom(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 
