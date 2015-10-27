@@ -65,7 +65,7 @@ int setAutoAcq (int checked)
 {
 	int status;
 	
-	status = SetCtrlVal (panelHandle, PANEL_AUTOACQUIRE, &checked);
+	status = SetCtrlVal (panelHandle, PANEL_AUTOACQUIRE, checked);
 	
 	// TODO #106: useful return
 	return 1;
@@ -86,7 +86,7 @@ int setAutoscale (int checked)
 {
 	int status;
 	
-	status = SetCtrlVal (panelHandle, PANEL_AUTOSCALE, &checked);
+	status = SetCtrlVal (panelHandle, PANEL_AUTOSCALE, checked);
 	
 	// TODO #106: useful return
 	return 1;
@@ -358,9 +358,49 @@ int setXStart (double x)
 	return 1;
 }
 
+// Get vertical min
+double getYMin (void)
+{
+	int status;
 
+	double y;
+	status = GetCtrlVal (panelHandle, PANEL_YMIN, &y);
 
+	return y;
+}
 
+// Get vertical max
+double getYMax (void)
+{
+	int status;
+
+	double y;
+	status = GetCtrlVal (panelHandle, PANEL_YMAX, &y);
+
+	return y;
+}
+
+// Set vertical min
+int setYMin (double y)
+{
+	int status;
+			  ;
+	status = SetCtrlVal (panelHandle, PANEL_YMIN, y);
+
+	// TODO #106: useful return
+	return 1;
+}
+
+// Set vertical max
+int setYMax (double y)
+{
+	int status;
+			  ;
+	status = SetCtrlVal (panelHandle, PANEL_YMAX, y);
+
+	// TODO #106: useful return
+	return 1;
+} 
 
 // Start event timer
 int startTimer (void)

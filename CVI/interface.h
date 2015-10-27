@@ -63,37 +63,35 @@
 #define  MENUBAR_DATA                     8
 #define  MENUBAR_DATA_PRINT               9       /* callback function: onPrint */
 #define  MENUBAR_DATA_SEPARATOR_3         10
-#define  MENUBAR_DATA_SAVEALL             11      /* callback function: onMultiSave */
-#define  MENUBAR_DATA_SEPARATOR_6         12
-#define  MENUBAR_DATA_SAVECSV             13      /* callback function: onCSV */
-#define  MENUBAR_DATA_SAVEPNG             14      /* callback function: onPNG */
-#define  MENUBAR_DATA_SEPARATOR           15
-#define  MENUBAR_DATA_STORE               16      /* callback function: onStore */
-#define  MENUBAR_DATA_RECALL              17      /* callback function: onRecall */
-#define  MENUBAR_DATA_CLEAR               18      /* callback function: onClearMenu */
-#define  MENUBAR_DISPLAY                  19
-#define  MENUBAR_DISPLAY_DOTS             20      /* callback function: onSetPlotDots */
-#define  MENUBAR_DISPLAY_THINLINE         21      /* callback function: onSetPlotThin */
-#define  MENUBAR_DISPLAY_FATLINE          22      /* callback function: onSetPlotThick */
-#define  MENUBAR_DISPLAY_SEPARATOR_4      23
-#define  MENUBAR_DISPLAY_DARK             24      /* callback function: onSetBgDark */
-#define  MENUBAR_DISPLAY_LIGHT            25      /* callback function: onSetBgLight */
-#define  MENUBAR_XUNITS                   26
-#define  MENUBAR_XUNITS_XUNITSM           27      /* callback function: onSetXM */
-#define  MENUBAR_XUNITS_XUNITSFT          28      /* callback function: onSetXFt */
-#define  MENUBAR_XUNITS_XUNITSNS          29      /* callback function: onSetXNs */
-#define  MENUBAR_YUNITS                   30
-#define  MENUBAR_YUNITS_YUNITSMV          31      /* callback function: onSetYMV */
-#define  MENUBAR_YUNITS_YUNITSNORM        32      /* callback function: onSetYNorm */
-#define  MENUBAR_YUNITS_YUNITSOHM         33      /* callback function: onSetYOhm */
-#define  MENUBAR_YUNITS_YUNITSRHO         34      /* callback function: onSetYRho */
-#define  MENUBAR_CALIBRATION              35
-#define  MENUBAR_CALIBRATION_FULLCAL      36      /* callback function: onCalTimebase */
-#define  MENUBAR_CALIBRATION_SEPARATOR_5  37
-#define  MENUBAR_CALIBRATION_SETZERO      38      /* callback function: onSetZero */
-#define  MENUBAR_CALIBRATION_RESETZERO    39      /* callback function: onResetZero */
-#define  MENUBAR_CALIBRATION_SEPARATOR_7  40
-#define  MENUBAR_CALIBRATION_VERTCAL      41      /* callback function: onCalibrate */
+#define  MENUBAR_DATA_SAVECSV             11      /* callback function: onCSV */
+#define  MENUBAR_DATA_SAVEPNG             12      /* callback function: onPNG */
+#define  MENUBAR_DATA_SEPARATOR           13
+#define  MENUBAR_DATA_STORE               14      /* callback function: onStore */
+#define  MENUBAR_DATA_RECALL              15      /* callback function: onRecall */
+#define  MENUBAR_DATA_CLEAR               16      /* callback function: onClearMenu */
+#define  MENUBAR_DISPLAY                  17
+#define  MENUBAR_DISPLAY_DOTS             18      /* callback function: onSetPlotDots */
+#define  MENUBAR_DISPLAY_THINLINE         19      /* callback function: onSetPlotThin */
+#define  MENUBAR_DISPLAY_FATLINE          20      /* callback function: onSetPlotThick */
+#define  MENUBAR_DISPLAY_SEPARATOR_4      21
+#define  MENUBAR_DISPLAY_DARK             22      /* callback function: onSetBgDark */
+#define  MENUBAR_DISPLAY_LIGHT            23      /* callback function: onSetBgLight */
+#define  MENUBAR_XUNITS                   24
+#define  MENUBAR_XUNITS_XUNITSM           25      /* callback function: onSetXM */
+#define  MENUBAR_XUNITS_XUNITSFT          26      /* callback function: onSetXFt */
+#define  MENUBAR_XUNITS_XUNITSNS          27      /* callback function: onSetXNs */
+#define  MENUBAR_YUNITS                   28
+#define  MENUBAR_YUNITS_YUNITSMV          29      /* callback function: onSetYMV */
+#define  MENUBAR_YUNITS_YUNITSNORM        30      /* callback function: onSetYNorm */
+#define  MENUBAR_YUNITS_YUNITSOHM         31      /* callback function: onSetYOhm */
+#define  MENUBAR_YUNITS_YUNITSRHO         32      /* callback function: onSetYRho */
+#define  MENUBAR_CALIBRATION              33
+#define  MENUBAR_CALIBRATION_FULLCAL      34      /* callback function: onCalTimebase */
+#define  MENUBAR_CALIBRATION_SEPARATOR_5  35
+#define  MENUBAR_CALIBRATION_SETZERO      36      /* callback function: onSetZero */
+#define  MENUBAR_CALIBRATION_RESETZERO    37      /* callback function: onResetZero */
+#define  MENUBAR_CALIBRATION_SEPARATOR_7  38
+#define  MENUBAR_CALIBRATION_VERTCAL      39      /* callback function: onCalibrate */
 
 
      /* Callback Prototypes: */
@@ -109,7 +107,6 @@ int  CVICALLBACK onDebug(int panel, int control, int event, void *callbackData, 
 void CVICALLBACK onExit(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onGeneric(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onLoadSettings(int menubar, int menuItem, void *callbackData, int panel);
-void CVICALLBACK onMultiSave(int menubar, int menuItem, void *callbackData, int panel);
 int  CVICALLBACK onPanel(int panel, int event, void *callbackData, int eventData1, int eventData2);
 void CVICALLBACK onPNG(int menubar, int menuItem, void *callbackData, int panel);
 void CVICALLBACK onPrint(int menubar, int menuItem, void *callbackData, int panel);

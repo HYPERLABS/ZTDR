@@ -1225,15 +1225,371 @@ int printWaveform (void)
 	return 1;
 }
 
+// Save program settings
+int saveSettings (int isAuto)
+{
+	int status;
+	
+	int fd;
+	
+	// Autosave on program exit
+	if (isAuto == 1)
+	{											 
+		fd = OpenFile("user.ini",VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
+	}
+	// User manually saves settings
+	else
+	{   // File setup
+		char save_file[512];
+		char filename[64];
+		char dir[16];
 
+		status = sprintf (filename, ".ini");
 
+		if (defaultSaveINI == 1)
+		{
+			// Use default folder if first save attempt
+			status = sprintf (dir, "settings");
+			defaultSaveINI = 0;
+		}
+		else
+		{
+			status = sprintf (dir, "");
+		}
 
+		status = FileSelectPopup (dir, filename, "Configuration File (*.ini)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file); 
 
+		// Don't attempt to save if user cancels
+		if (status == VAL_NO_FILE_SELECTED)
+		{
+			// Re-enable timers
+			status = ResumeTimerCallbacks ();
+		
+			return -1;
+		}	
+		
+		fd = OpenFile (save_file, VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
+	}
+	
+	// Open selected file for write
+	int bufLen;
+	
+	// Set up data buffer;
+	char buf[1024];
+	buf[0] = 0;
+	
+	// Store dielectric constant 
+	status = sprintf (buf,"USER_DIELK\t\t\t%3.10f;\n", (float) dielK);
+	
+	// Store vertical units
+	status = sprintf (buf,"%sUSER_YUNITS\t\t\t%d;\n", buf, yUnits);
+	
+	// Store horizontal units
+	status = sprintf (buf,"%sUSER_XUNITS\t\t\t%d;\n", buf, xUnits);
+	
+	// Store window start
+	status = sprintf (buf,"%sUSER_XSTART\t\t\t%lf;\n", buf, xStart);
+	
+	// Store window end
+	status = sprintf (buf,"%sUSER_XEND\t\t\t%lf;\n", buf, xEnd);
+	
+	// Store horizontal reference
+	status = sprintf (buf,"%sUSER_XZERO\t\t\t%lf;\n", buf, xZero);
+	
+	// Store vertical max
+	double ymax = getYMax ();
+	
+	sprintf(buf,"%sUSER_YMAX\t\t\t%lf;\n", buf, ymax);
+	
+	// Store vertical min
+	double ymin = getYMin ();
+	
+	sprintf(buf,"%sUSER_YMIN\t\t\t%lf;\n", buf, ymin);
+	
+	// Store autoscale state
+	int autoScale = getAutoscale ();
+	
+	sprintf(buf,"%sUSER_AUTOSCALE\t\t\t%d;\n", buf, autoScale);
+	
+	// Store auto acquisition state
+	int autoAcquire = getAutoAcq ();
+	
+	sprintf(buf,"%sUSER_AUTOACQ\t\t\t%d;\n", buf, autoAcquire);
+	
+	// Write file
+	bufLen = strlen (buf);
+	status = WriteFile(fd, buf, bufLen);
+	
+	// Close file
+	status = CloseFile(fd);
+	
+	// TODO #106: useful return
+	return 1;
+}
 
+// Load program settings
+int loadSettings (int isAuto)
+{
+	int status;
+	
+	int fd;		 
 
+	// Auto load state at startup
+	if (isAuto == 1)
+	{
+		fd = OpenFile("user.ini", VAL_READ_WRITE,VAL_OPEN_AS_IS, VAL_ASCII);
+		
+		if (fd < 1)
+		{
+			status = writeMessage (2031, "Previous settings file not found or could not be loaded. Reverting to defaults.", MSG_MAIN);
 
+			status = resetSettings ();
 
+			return -1;
+		}
+	}
+	// User manually loads settings
+	else
+	{
+		// File setup
+		char save_file[512];
+		char dir[16];
+	
+		// Use default folder if first save attempt
+		if (defaultSaveINI == 1)
+		{
+			status = sprintf (dir, "settings");
+			defaultSaveINI = 0;
+		}
+		else
+		{
+			status = sprintf (dir, "");
+		}
+																																		 
+		status = FileSelectPopup (dir, "*.ini", "Configuration File (*.ini)", "Select File to Load", VAL_SELECT_BUTTON, 0, 0, 1, 1, save_file);
+	
+		// Don't attempt to save if user cancels
+		if (status == VAL_NO_FILE_SELECTED)
+		{
+			// Re-enable timers
+			status = ResumeTimerCallbacks ();
+		
+			return 0;
+		}
+	
+		// Open file for reading
+		fd = OpenFile(save_file, VAL_READ_WRITE,VAL_OPEN_AS_IS, VAL_ASCII);
 
+		if (fd == -1)
+		{
+			status = writeMessage (2032, "Could not read settings file.", MSG_MAIN);
+
+			return -2;
+		}
+	}
+	
+	// Set up data buffer
+	char buf[128];
+	int buf_len = 128;
+	buf[0] = 0;
+												
+	// Read header row for environmental variables
+	int xStored, yStored;
+	double startStored, endStored, zeroStored;
+	double ymin, ymax;
+	double dielStored;
+	int autoScale, autoAcq;
+	
+	// Read individual settings
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %lf", "USER_DIELK", &dielStored);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %d", "USER_YUNITS", &yStored);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %d", "USER_XUNITS", &xStored);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %lf", "USER_XSTART", &startStored);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %lf", "USER_XEND", &endStored);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %lf", "USER_XZERO", &zeroStored);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %lf", "USER_YMAX", &ymax);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %lf", "USER_YMIN", &ymin);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %d", "USER_AUTOSCALE", &autoScale);
+	
+	status = ReadLine (fd, buf, buf_len - 1);
+	sscanf (buf, "%s %d", "USER_AUTOACQ", &autoAcq);
+	
+	// Close file
+	status = CloseFile(fd);
+
+	if (status == -1)
+	{
+		status = writeMessage (2033, "Could not close settings file.", MSG_MAIN);
+
+		return -3;
+	}
+	
+	// If any variable is out of range, don't load settings
+	if (dielStored <= 0)
+	{
+		// status = writeMessage (2034, "Invalid dielectric constant from file.", MSG_MAIN);
+		status = writeMessage (2034, "Error loading settings file. Reverting to defaults.", MSG_MAIN);
+
+		status = resetSettings ();
+
+		return -4;
+	}
+	
+	if (yStored < 0 || yStored > 3)
+	{
+		//status = writeMessage (2035, "Invalid vertical units from file.", MSG_MAIN);
+		status = writeMessage (2035, "Error loading settings file. Reverting to defaults.", MSG_MAIN);
+
+		status = resetSettings ();
+
+		return -5;
+	}
+	
+	if (xStored < 0 || xStored > 2)
+	{
+		//status = writeMessage (2036, "Invalid horizontal units from file.", MSG_MAIN);
+		status = writeMessage (2036, "Error loading settings file. Reverting to defaults.", MSG_MAIN);
+
+		status = resetSettings ();
+
+		return -6;
+	}
+	
+	if (startStored < (0.0 - zeroStored))
+	{
+		//status = writeMessage (2037, "Invalid horizontal start value from file.", MSG_MAIN);
+		status = writeMessage (2037, "Error loading settings file. Reverting to defaults.", MSG_MAIN);
+
+		status = resetSettings ();
+
+		return -7;
+	}
+	
+	if (endStored < (0.0 - zeroStored))
+	{
+		//status = writeMessage (2038, "Invalid horizontal end value from file.", MSG_MAIN);
+		status = writeMessage (2038, "Error loading settings file. Reverting to defaults.", MSG_MAIN);
+
+		status = resetSettings ();
+
+		return -8;
+	}
+	
+	if (zeroStored < 0.0)
+	{
+		//status = writeMessage (2039, "Invalid zero reference from file.", MSG_MAIN);
+		status = writeMessage (2039, "Error loading settings file. Reverting to defaults.", MSG_MAIN);
+
+		status = resetSettings ();
+
+		return -9;
+	}
+	
+	if (ymax < ymin)
+	{
+		//status = writeMessage (2040, "Invalid vertical range from file.", MSG_MAIN);
+		status = writeMessage (2040, "Error loading settings file. Reverting to defaults.", MSG_MAIN);
+
+		status = resetSettings ();
+
+		return -10;
+	}
+	
+	if (autoScale != 0 && autoScale !=1)
+	{
+		//status = writeMessage (2041, "Invalid autoscale value from file.", MSG_MAIN);
+		status = writeMessage (2041, "Error loading settings file. Reverting to defaults.", MSG_MAIN);
+
+		status = resetSettings ();
+
+		return -11;
+	}
+	
+	if (autoAcq != 0 && autoAcq != 1)
+	{
+		//status = writeMessage (2042, "Invalid autoscale value from file.", MSG_MAIN);
+		status = writeMessage (2042, "Error loading settings file. Reverting to defaults.", MSG_MAIN);
+
+		status = resetSettings ();
+
+		return -12;
+	}
+	
+	// Load units and set timescale
+	status = setUnitX (xStored);
+	status = setUnitY (yStored);
+	
+	status = setZero (zeroStored);
+	setupTimescale ();
+	
+	// Adjust minimum values before out-of-range values potentially set
+	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MIN_VALUE, 0.0 - zeroStored);
+	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_MIN_VALUE, 0.0 - zeroStored);
+
+	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, labelX[xUnits]);
+	
+	// Update controls
+	status = setXStart (startStored);
+	status = setXEnd (endStored);
+	status = setDiel (dielStored);
+	
+	status = setYMax (ymax);
+	status = setYMin (ymin);
+	
+	status = setAutoAcq (autoAcq);
+	status = setAutoscale (autoScale);
+	
+	// Settings loaded correctly
+	return 1;
+}
+
+// Revert to default program settings
+int resetSettings (void)
+{
+	int status;
+	
+	// Set control values to default
+	status = setAutoAcq (1);
+	status = setAutoscale (1);
+	
+	// Remove horizontal offset
+	setZero (0.0);
+	
+	// Reset X/Y axes
+	status = setUnitX (0);
+	status = setUnitY (0);
+	
+	setXStart (0.0);
+	setXEnd (10.0);
+	setupTimescale ();
+	
+	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, labelX[xUnits]);
+	
+	// Update remaining controls
+	setDiel (2.25);
+	setYMax (250.0);
+	setYMin (-250.0);
+	
+	// TODO #106: useful return
+	return 1;
+}
 
 
 
@@ -1592,359 +1948,10 @@ void clearWaveform (void)
 	status = SetMenuBarAttribute (menuHandle, MENUBAR_DATA_CLEAR, ATTR_DIMMED, 1);
 }
 
-// Save program settings
-int saveSettings (int isAuto)
-{
-	int status;	
 
-	// Disable timers during action
-	status = SuspendTimerCallbacks ();
-	
-	int fd;
-	
-	// Autosave on program exit
-	if (isAuto == 1)
-	{											 
-		fd = OpenFile("user.ini",VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
-	}
-	// User manually saves settings
-	else
-	{   // File setup
-		char save_file[512];
-		char filename[64];
-		char dir[16];
 
-		status = sprintf (filename, ".ini");
 
-		if (defaultSaveINI == 1)
-		{
-			// Use default folder if first save attempt
-			status = sprintf (dir, "settings");
-			defaultSaveINI = 0;
-		}
-		else
-		{
-			status = sprintf (dir, "");
-		}
 
-		status = FileSelectPopup (dir, filename, "Configuration File (*.ini)", "Select File to Save", VAL_SAVE_BUTTON, 0, 0, 1, 1, save_file); 
-
-		// Don't attempt to save if user cancels
-		if (status == VAL_NO_FILE_SELECTED)
-		{
-			// Re-enable timers
-			status = ResumeTimerCallbacks ();
-		
-			return -1;
-		}	
-		
-		fd = OpenFile (save_file, VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);
-	}
-	
-	// Open selected file for write
-	int bufLen;
-	
-	// Set up data buffer;
-	char buf[1024];
-	buf[0] = 0;
-	
-	// Store dielectric constant 
-	sprintf(buf,"USER_DIELK\t\t\t%3.10f;\n", (float) dielK);
-	
-	// Store vertical units
-	sprintf(buf,"%sUSER_YUNITS\t\t\t%d;\n", buf, yUnits);
-	
-	// Store horizontal units
-	sprintf(buf,"%sUSER_XUNITS\t\t\t%d;\n", buf, xUnits);
-	
-	// Store window start
-	sprintf(buf,"%sUSER_XSTART\t\t\t%3.10f;\n", buf, (float) xStart - xZero);
-	
-	// Store window end
-	sprintf(buf,"%sUSER_XEND\t\t\t%3.10f;\n", buf, (float) xEnd - xZero);
-	
-	// Store horizontal reference
-	sprintf(buf,"%sUSER_XZERO\t\t\t%3.10f;\n", buf, (float) xZero);
-	
-	// Store vertical max
-	double ymax;
-	status = GetCtrlVal (panelHandle, PANEL_YMAX, &ymax);
-	
-	sprintf(buf,"%sUSER_YMAX\t\t\t%3.10f;\n", buf, (float) ymax);
-	
-	// Store vertical min
-	double ymin;
-	status = GetCtrlVal (panelHandle, PANEL_YMIN, &ymin);
-	
-	sprintf(buf,"%sUSER_YMIN\t\t\t%3.10f;\n", buf, (float) ymin);
-	
-	// Store autoscale state
-	int autoScale;
-	status = GetCtrlVal (panelHandle, PANEL_AUTOSCALE, &autoScale);
-	
-	sprintf(buf,"%sUSER_AUTOSCALE\t\t\t%d;\n", buf, autoScale);
-	
-	// Store auto acquisition state
-	int autoAcquire;
-	status = GetCtrlVal (panelHandle, PANEL_AUTOACQUIRE, &autoAcquire);
-	
-	sprintf(buf,"%sUSER_AUTOACQ\t\t\t%d;\n", buf, autoAcquire);
-	
-	// Write file
-	bufLen = strlen (buf);
-	status = WriteFile(fd, buf, bufLen);
-	
-	// Close file
-	status = CloseFile(fd);
-	
-	// Re-enable timers 
-	status = ResumeTimerCallbacks ();
-	
-	// TODO #106: useful return
-	return 1;
-}
-
-// Load program settings
-int loadSettings (int isAuto)
-{
-	int status;
-	
-	// Disable timers during action
-	status = SuspendTimerCallbacks ();
-	
-	// Store state of settings file validation
-	int isValid = 1;
-	
-	int fd;		 
-
-	// Auto load state at startup
-	if (isAuto == 1)
-	{
-		fd = OpenFile("user.ini", VAL_READ_WRITE,VAL_OPEN_AS_IS, VAL_ASCII);
-		
-		if (fd < 1)
-		{
-			isValid = -1;
-		}
-	}
-	// User manually loads settings
-	else
-	{
-		// File setup
-		char save_file[512];
-		char dir[16];
-	
-		// Use default folder if first save attempt
-		if (defaultSaveINI == 1)
-		{
-			status = sprintf (dir, "settings");
-			defaultSaveINI = 0;
-		}
-		else
-		{
-			status = sprintf (dir, "");
-		}
-																																		 
-		status = FileSelectPopup (dir, "*.ini", "Configuration File (*.ini)", "Select File to Load", VAL_SELECT_BUTTON, 0, 0, 1, 1, save_file);
-	
-		// Don't attempt to save if user cancels
-		if (status == VAL_NO_FILE_SELECTED)
-		{
-			// Re-enable timers
-			status = ResumeTimerCallbacks ();
-		
-			return 0;
-		}
-	
-		// Open file for reading
-		fd = OpenFile(save_file, VAL_READ_WRITE,VAL_OPEN_AS_IS, VAL_ASCII);
-	}
-	
-	// Set up data buffer
-	char buf[128];
-	int buf_len = 128;
-	buf[0] = 0;
-												
-	// Read header row for environmental variables
-	int xStored, yStored;
-	float startStored, endStored, zeroStored;
-	float ymin, ymax;
-	float dielStored;
-	int autoScale, autoAcq;
-	
-	// Read individual settings
-	status = ReadLine (fd, buf, buf_len - 1);
-	sscanf (buf, "%s %f", "USER_DIELK", &dielStored);
-	
-	status = ReadLine (fd, buf, buf_len - 1);
-	sscanf (buf, "%s %d", "USER_YUNITS", &yStored);
-	
-	status = ReadLine (fd, buf, buf_len - 1);
-	sscanf (buf, "%s %d", "USER_XUNITS", &xStored);
-	
-	status = ReadLine (fd, buf, buf_len - 1);
-	sscanf (buf, "%s %f", "USER_XSTART", &startStored);
-	
-	status = ReadLine (fd, buf, buf_len - 1);
-	sscanf (buf, "%s %f", "USER_XEND", &endStored);
-	
-	status = ReadLine (fd, buf, buf_len - 1);
-	sscanf (buf, "%s %f", "USER_XZERO", &zeroStored);
-	
-	status = ReadLine (fd, buf, buf_len - 1);
-	sscanf (buf, "%s %f", "USER_YMAX", &ymax);
-	
-	status = ReadLine (fd, buf, buf_len - 1);
-	sscanf (buf, "%s %f", "USER_YMIN", &ymin);
-	
-	status = ReadLine (fd, buf, buf_len - 1);
-	sscanf (buf, "%s %d", "USER_AUTOSCALE", &autoScale);
-	
-	status = ReadLine (fd, buf, buf_len - 1);
-	sscanf (buf, "%s %d", "USER_AUTOACQ", &autoAcq);
-	
-	// Close file
-	status = CloseFile(fd);
-
-	// If any variable is out of range, don't load settings
-	if (dielStored <= 0)
-	{
-		isValid = 0;
-	}
-	
-	if (yStored < 0 || yStored > 3)
-	{
-		isValid = 0;
-	}
-	
-	if (xStored < 0 || xStored > 2)
-	{
-		isValid = 0;
-	}
-	
-	if (startStored < (0.0 - zeroStored))
-	{
-		isValid = 0;
-	}
-	
-	if (endStored < (0.0 - zeroStored))
-	{
-		isValid = 0;
-	}
-	
-	if (zeroStored < 0.0)
-	{
-		isValid = 0;
-	}
-	
-	if (ymax < ymin)
-	{
-		isValid = 0;
-	}
-	
-	if (autoScale != 0 && autoScale !=1)
-	{
-		isValid = 0;
-	}
-	
-	if (autoAcq != 0 && autoAcq != 1)
-	{
-		isValid = 0;
-	}
-	
-	// If all settings valid, load them
-	if (isValid == 1)
-	{
-		// Store globals
-		status = setUnitX (xStored);
-		status = setUnitY (yStored);
-		
-		// Adjust minimum values before out-of-range values potentially set
-		status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MIN_VALUE, 0.0 - zeroStored);
-		status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_MIN_VALUE, 0.0 - zeroStored);
-
-		// Update controls
-		SetCtrlVal (panelHandle, PANEL_START, (double) startStored);
-		SetCtrlVal (panelHandle, PANEL_END, (double) endStored);
-		SetCtrlVal (panelHandle, PANEL_DIEL, (double) dielStored);
-		SetCtrlVal (panelHandle, PANEL_YMAX, (double) ymax);
-		SetCtrlVal (panelHandle, PANEL_YMIN, (double) ymin);
-		SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, labelX[xUnits]);
-	
-		// Set control values from stored settings
-		SetCtrlVal (panelHandle, PANEL_AUTOSCALE, autoScale);
-		SetCtrlVal (panelHandle, PANEL_AUTOACQUIRE, autoAcq);
-	
-		// Set stored value to start/end globals
-		xStart = startStored;
-		xEnd = endStored;
-		
-		// Change window and K
-		setZero (zeroStored);
-		// resizeWindow ();
-		setupTimescale ();
-		// changeDiel ();
-	}
-	// If manually loading bad settings file, alert user and revert to default
-	else if (isValid == 0 && isAuto == 0)
-	{
-		status = MessagePopup ("Invalid settings file", "Error reading settings file. Reverting to default settings.");
-		
-		resetSettings ();
-		
-	}
-	// If can't find a settings file, or user.ini is bad, leave defaults
-	else
-	{
-		// Likely triggered on first run, so don't alert user
-		
-		resetSettings ();
-	}
-	
-	// Re-enable timers 
-	status = ResumeTimerCallbacks ();
-	
-	return isValid;
-}
-
-// Revert to default program settings
-void resetSettings (void)
-{
-	int status;
-	
-	// Disable timers during action
-	status = SuspendTimerCallbacks ();
-	
-	// Set control values to default
-	SetCtrlVal (panelHandle, PANEL_AUTOSCALE, 1);
-	SetCtrlVal (panelHandle, PANEL_AUTOACQUIRE, 1);
-	
-	// Reset X/Y axes
-	status = setUnitX (0);
-	status = setUnitY (0);
-	
-	// Remove horizontal offset
-	setZero (0.0);
-
-	// Update controls
-	SetCtrlVal (panelHandle, PANEL_START, 0.0);
-	SetCtrlVal (panelHandle, PANEL_END, 10.0);
-	SetCtrlVal (panelHandle, PANEL_DIEL, 2.25);
-	SetCtrlVal (panelHandle, PANEL_YMAX, 250.0);
-	SetCtrlVal (panelHandle, PANEL_YMIN, -250.0);
-	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, labelX[xUnits]);
-	
-	// Change window and K
-	// resizeWindow ();
-	setupTimescale ();
-	// changeDiel ();
-	
-	// Acquire new waveform with loaded settings
-	acquire (1);
-	
-	// Re-enable timers 
-	status = ResumeTimerCallbacks ();
-}
 
 // Apply waveform filter
 /* TODO: enable feature

@@ -27,9 +27,12 @@ extern "C" {
 	int 	calibrate (int showMsg);
 	double 	checkCalTime (void);
 	int 	checkDirs (void);
+	int 	loadSettings (int isAuto);
 	void	main (int argc, char *argv[]);
 	int		printWaveform (void);
+	int 	resetSettings (void);
 	int		resetZoom (void);
+	int	 	saveSettings (int isAuto);
 	int 	setCalTime (void);
 	int 	setUnitX (int unit);
 	int 	setUnitY (int unit);
@@ -46,12 +49,9 @@ extern "C" {
 
 
 	void	clearWaveform (void);
-	int 	loadSettings (int isAuto);
 	void 	recallWaveform (void);
-	void 	resetSettings (void);
 	
 	void 	savePNG (void);
-	int	 	saveSettings (int isAuto);
 	void 	storeWaveform (int format);
 
 

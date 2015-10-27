@@ -352,6 +352,90 @@ void CVICALLBACK onExit (int menuBar, int menuItem, void *callbackData,
 	QuitUserInterface (0);
 }
 
+// Save settings
+void CVICALLBACK onLoadSettings (int menuBar, int menuItem, void *callbackData,
+								 int panel)
+{
+	int status;
+
+	// Stop timers before action
+	status = SuspendAsyncTimerCallbacks ();
+	
+	// Don't interrupt calibration/acquisition
+	while (getLED () == 1 || timerLock == 1)
+	{
+		// do nothing	
+	}
+	
+	status = loadSettings (0);
+	
+	// Resume timers
+	status = ResumeAsyncTimerCallbacks ();
+	
+	// Force recalibration
+	asyncCal = ASYNC_YES;
+				
+	// Add to acquisition queue
+	asyncAcqCount++;
+}
+ 
+// Restore default settings
+void CVICALLBACK onResetSettings (int menuBar, int menuItem, void *callbackData,
+								  int panel)
+{
+	int status;
+
+	// Stop timers before action
+	status = SuspendAsyncTimerCallbacks ();
+	
+	// Don't interrupt calibration/acquisition
+	while (getLED () == 1 || timerLock == 1)
+	{
+		// do nothing	
+	}
+	
+	status = resetSettings ();
+	
+	// Resume timers
+	status = ResumeAsyncTimerCallbacks ();
+	
+	if (getAutoAcq () != 1)
+	{
+		// Conditional calibrations
+		asyncCal = ASYNC_COND;
+				
+		// Add to acquisition queue
+		asyncAcqCount++;
+	}
+}
+
+// Save settings
+void CVICALLBACK onSaveSettings (int menuBar, int menuItem, void *callbackData,
+								 int panel)
+{
+	int status;
+
+	// Stop timers before action
+	status = SuspendAsyncTimerCallbacks ();
+	
+	// Don't interrupt calibration/acquisition
+	while (getLED () == 1 || timerLock == 1)
+	{
+		// do nothing	
+	}
+	
+	status = resetSettings ();
+	
+	// Resume timers
+	status = ResumeAsyncTimerCallbacks ();
+	
+	// Force recalibration
+	asyncCal = ASYNC_YES;
+				
+	// Add to acquisition queue
+	asyncAcqCount++;
+}
+
 // Change to dark background
 void CVICALLBACK onSetBgDark (int menuBar, int menuItem, void *callbackData,
 							  int panel)
@@ -785,30 +869,6 @@ void CVICALLBACK onPNG (int menuBar, int menuItem, void *callbackData,
 
  
 
-// Save settings
-void CVICALLBACK onLoadSettings (int menuBar, int menuItem, void *callbackData,
-								 int panel)
-{
-	loadSettings (0);
-	
-	acquire (1);
-}
-
-// Restore default settings
-void CVICALLBACK onResetSettings (int menuBar, int menuItem, void *callbackData,
-								  int panel)
-{
-	resetSettings ();
-	
-	acquire (1);
-}
-
-// Save settings
-void CVICALLBACK onSaveSettings (int menuBar, int menuItem, void *callbackData,
-								 int panel)
-{
-	saveSettings (0);
-}
 
 
 

@@ -31,6 +31,8 @@ extern "C" {
 	int		getNumAvg (void);
 	double 	getXEnd (void);
 	double 	getXStart (void);
+	double 	getYMax (void);
+	double 	getYMin (void);
 	int		setAutoAcq (int checked);
 	int 	setAutoscale (int checked);
 	int 	setBg (int color);
@@ -41,6 +43,8 @@ extern "C" {
 	int 	setWindow (void);				// no corresponding get
 	int 	setXEnd (double x);
 	int 	setXStart (double x);
+	int 	setYMax (double y);
+	int 	setYMin (double y);
 	int 	startTimer (void);
 	int	 	stopTimer (char label[16], int log);
 	int 	writeMessage (int code, char message[256], int field);
