@@ -600,6 +600,7 @@ int acquire (int doDraw)
 			
 			// Delay draw so there is no flicker before next waveform is plotted
 			status = DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmActive, VAL_DELAYED_DRAW);
+			WfmActive = 0;
 		}
 	
 		// Plot main acquisition
@@ -1922,6 +1923,7 @@ int recallWaveform (void)
 	if (WfmStored)
 	{
 		status = DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmStored, VAL_IMMEDIATE_DRAW);
+		WfmStored = 0;
 	}
 	
 	// Remove any active waveforms
@@ -1978,6 +1980,7 @@ int clearWaveform (void)
 	if (WfmStored)
 	{
 		status = DeleteGraphPlot (panelHandle, PANEL_WAVEFORM, WfmStored, VAL_IMMEDIATE_DRAW);
+		WfmStored = 0;
 	}
 	
 	// Re-enable controls
