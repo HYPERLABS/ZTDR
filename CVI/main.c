@@ -1071,46 +1071,13 @@ int setUnitY (int unit)
 	return 1;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Set zero on horizontal axis
-void setZero (double x)
+int setZero (double x)
 {
 	int status;
 	
-	// Disable timers during action
-	status = SuspendTimerCallbacks ();
-	
 	// Derive horizontal reference from open
-	if (x == -1.0)
+	if (x < 0.0)
 	{
 		// Confirm that user wants to set zero
 		status = ConfirmPopup ("Set New Horizontal Zero/Reference Point", "Please ensure the TDR is in open before setting a new horizontal reference point.\n\nDo you want to continue?");
@@ -1118,14 +1085,11 @@ void setZero (double x)
 		// If user cancels, break
 		if (status == 0)
 		{
-			// Restart timers
-			status = ResumeTimerCallbacks ();
-		
-			return;
+			return -1;
 		}
 	
 		// Find new reference point based on open
-		status = setRefX(-1.0);
+		status = setRefX (-1.0);
 	}
 	// Set reference to specified value
 	else
@@ -1137,8 +1101,8 @@ void setZero (double x)
 	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MIN_VALUE, 0.0 - xZero);
 	status = SetCtrlAttribute (panelHandle, PANEL_END, ATTR_MIN_VALUE, 0.0 - xZero);
 	
-	status = SetCtrlVal (panelHandle, PANEL_START, xStart - xZero);
-	status = SetCtrlVal (panelHandle, PANEL_END, xEnd - xZero);
+	status = setXStart (xStart);
+	status = setXEnd (xEnd);
 	
 	if (xZero > 0)
 	{
@@ -1155,7 +1119,40 @@ void setZero (double x)
 	
 	// Restart timers
 	status = ResumeTimerCallbacks ();
+	
+	// TODO #106: useful return
+	return 1;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Print current waveform and controles
 void printWaveform (void)
@@ -1582,7 +1579,7 @@ int saveSettings (int isAuto)
 			// Re-enable timers
 			status = ResumeTimerCallbacks ();
 		
-			return;
+			return -1;
 		}	
 		
 		fd = OpenFile (save_file, VAL_READ_WRITE, VAL_TRUNCATE, VAL_ASCII);

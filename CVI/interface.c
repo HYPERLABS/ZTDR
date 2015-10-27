@@ -631,7 +631,63 @@ void CVICALLBACK onSetYRho (int menuBar, int menuItem, void *callbackData,
 	status = ResumeAsyncTimerCallbacks ();
 }
 
+// Reset to absolute zero
+void CVICALLBACK onResetZero (int menuBar, int menuItem, void *callbackData,
+							  int panel)
+{
+	int status;
+	
+	// Stop timers before exit
+	status = SuspendAsyncTimerCallbacks ();
+	
+	// Don't interrupt calibration/acquisition
+	while (getLED () == 1 || timerLock == 1)
+	{
+		// do nothing	
+	}
+	
+	status = setZero (0.0);
+	
+	if (getAutoAcq () != 1)
+	{
+		// Conditional calibrations
+		asyncCal = ASYNC_COND;
+		
+		// Add to acquisition queue
+		asyncAcqCount++;
+	}
+	
+	status = ResumeAsyncTimerCallbacks ();
+}
 
+// Set x-axis zero to open
+void CVICALLBACK onSetZero (int menuBar, int menuItem, void *callbackData,
+							int panel)
+{
+	int status;
+	
+	// Stop timers before exit
+	status = SuspendAsyncTimerCallbacks ();
+	
+	// Don't interrupt calibration/acquisition
+	while (getLED () == 1 || timerLock == 1)
+	{
+		// do nothing	
+	}
+	
+	status = setZero (-1.0);
+
+	if (getAutoAcq () != 1)
+	{
+		// Conditional calibrations
+		asyncCal = ASYNC_COND;
+		
+		// Add to acquisition queue
+		asyncAcqCount++;
+	}
+	
+	status = ResumeAsyncTimerCallbacks ();
+}
 
 
 
@@ -727,24 +783,6 @@ void CVICALLBACK onSaveSettings (int menuBar, int menuItem, void *callbackData,
 
 
 
-
-// Reset to absolute zero
-void CVICALLBACK onResetZero (int menuBar, int menuItem, void *callbackData,
-							  int panel)
-{
-	setZero (0.0);
-			
-	acquire (1);
-}
-
-// Set x-axis zero to open
-void CVICALLBACK onSetZero (int menuBar, int menuItem, void *callbackData,
-							int panel)
-{
-	setZero (-1.0);
-			
-	acquire (1);
-}
 
 
 

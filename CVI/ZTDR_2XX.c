@@ -296,7 +296,7 @@ __stdcall int setRefX (double x)
 		// Switch to Rho to find 150% point
 		int yUnitsPrev = yUnits;
 		yUnits = 3;
-		double idx150 = 0.5;
+		double idx150 = 0.6;
 		
 		// Acquire new waveform with no X offset
 		xZero = 0.0;

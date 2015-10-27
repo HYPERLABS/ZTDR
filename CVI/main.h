@@ -31,6 +31,7 @@ extern "C" {
 	int 	setCalTime (void);
 	int 	setUnitX (int unit);
 	int 	setUnitY (int unit);
+	int		setZero (double x);
 	int		showVersion (void);
 	int		updateCursors (void);
 	int 	updateTimestamp (void);
@@ -51,7 +52,6 @@ extern "C" {
 	
 	void 	savePNG (void);
 	int	 	saveSettings (int isAuto);
-	void	setZero (double x);
 	void 	storeWaveform (int format);
 
 
