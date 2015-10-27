@@ -73,6 +73,15 @@ int CVICALLBACK onChangeDiel (int panel, int control, int event,
 		{
 			int status;
 
+			// Stop timers before exit
+			status = SuspendAsyncTimerCallbacks ();
+			
+			// Don't interrupt calibration/acquisition
+			while (getLED () == 1 || timerLock == 1)
+			{
+				// do nothing	
+			}
+			
 			status = setDiel (-1);
 
 			if (getAutoAcq () != 1)
@@ -83,6 +92,8 @@ int CVICALLBACK onChangeDiel (int panel, int control, int event,
 				// Add to acquisition queue
 				asyncAcqCount++;
 			}
+			
+			status = ResumeAsyncTimerCallbacks ();
 
 			break;
 		}
@@ -193,7 +204,7 @@ int CVICALLBACK onGeneric (int panel, int control, int event,
 {
 	switch (event)
 	{
-		case EVENT_VAL_CHANGED:
+		case EVENT_COMMIT:
 		{
 			if (getAutoAcq () != 1)
 			{
