@@ -188,7 +188,7 @@ int setDiel (double k)
 		status = SetCtrlVal (panelHandle, PANEL_DIEL, dielK);
 	}
 	
-	// TODO #202: useful return
+	// TODO #106: useful return
 	return 1;
 }
 
@@ -210,7 +210,7 @@ int setLED (int light)
 	
 	status = SetCtrlVal (panelHandle, PANEL_LED, light);
 	
-	// TODO #352: useful return
+	// TODO #106: useful return
 	return 1;
 }
 
@@ -342,7 +342,7 @@ int setXEnd (double x)
 	xEnd = x;
 	status = SetCtrlVal (panelHandle, PANEL_END, x - xZero);
 
-	// TODO #202: useful return
+	// TODO #106: useful return
 	return 1;
 }
 
@@ -354,7 +354,7 @@ int setXStart (double x)
 	xStart = x;
 	status = SetCtrlVal (panelHandle, PANEL_START, x - xZero);
 
-	// TODO #202: useful return
+	// TODO #106: useful return
 	return 1;
 }
 

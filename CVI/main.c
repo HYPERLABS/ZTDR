@@ -188,8 +188,6 @@ static	clock_t lastCal;
 //==============================================================================
 // Global functions
 
-// TODO: organize these functions
-
 // Main startup function
 void main (int argc, char *argv[])
 {
@@ -281,7 +279,6 @@ int CVICALLBACK onAsyncTimer (int reserved, int timerId, int event, void *callba
 	// Calibration logic
 	if (asyncCal == ASYNC_TIME)
 	{
-		// TODO: move to separate function later?
 		// Turn on activity light
 		status = setLED (1);
 	
@@ -407,7 +404,7 @@ int CVICALLBACK onAsyncTimer (int reserved, int timerId, int event, void *callba
 	// Timer has finished
 	timerLock = 0;
 
-	// TODO #352: useful return
+	// TODO #106: useful return
 	return 1;
 }
 
@@ -663,7 +660,7 @@ int setCalTime (void)
 {
 	lastCal = clock ();
 
-	// TODO #352: useful return
+	// TODO #106: useful return
 	return 1;
 }
 
@@ -1988,34 +1985,8 @@ int clearWaveform (void)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Apply waveform filter
-/* TODO: enable feature
+/*
 void applyFilter (void)
 {
 	int filterLength;
