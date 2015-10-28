@@ -298,7 +298,7 @@ int CVICALLBACK onAsyncTimer (int reserved, int timerId, int event, void *callba
 		}
 		
 		// Stop calibration timer
-		status = stopTimer ("TIMECAL", 1);
+		status = stopTimer ("TIMECAL", 0);
 	
 		// Turn off activity light
 		status = setLED (0);
@@ -622,7 +622,7 @@ int acquire (int doDraw)
 	}
 	
 	// Stop acquisition timer
-	status = stopTimer ("ACQUIRE", 1);
+	status = stopTimer ("ACQUIRE", 0);
 
 	// Turn off activity light
 	status = setLED (0);
@@ -658,7 +658,7 @@ int calibrate (int showMsg)
 	}
 	
 	// Stop calibration timer
-	status = stopTimer ("VERTCAL", 1);
+	status = stopTimer ("VERTCAL", 0);
 	
 	// Turn off activity light
 	status = setLED (0);

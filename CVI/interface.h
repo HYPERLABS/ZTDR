@@ -38,8 +38,8 @@
 #define  PANEL_PANELBOTTOM                23      /* control type: deco, callback function: (none) */
 #define  PANEL_VERSION                    24      /* control type: textMsg, callback function: (none) */
 #define  PANEL_DEBUG                      25      /* control type: command, callback function: onDebug */
-#define  PANEL_TIMESTAMP                  26      /* control type: textMsg, callback function: (none) */
-#define  PANEL_LED                        27      /* control type: LED, callback function: (none) */
+#define  PANEL_LED                        26      /* control type: LED, callback function: (none) */
+#define  PANEL_TIMESTAMP                  27      /* control type: textMsg, callback function: (none) */
 
 #define  PANELSAVE                        2
 #define  PANELSAVE_SERIAL                 2       /* control type: string, callback function: (none) */
