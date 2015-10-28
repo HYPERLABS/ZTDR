@@ -579,7 +579,7 @@ void CVICALLBACK onSaveSettings (int menuBar, int menuItem, void *callbackData,
 		// do nothing	
 	}
 	
-	status = resetSettings ();
+	status = saveSettings (0);
 	
 	// Resume timers
 	status = ResumeAsyncTimerCallbacks ();
