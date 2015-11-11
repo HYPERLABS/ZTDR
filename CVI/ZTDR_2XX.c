@@ -523,7 +523,7 @@ __stdcall int acquireWaveform (int numAvg)
 		
 			default: // RHO, data already in this unit
 			{ 
-				for (i=0; i < recLen; i++)
+				for (i = 0; i < recLen; i++)
 				{ 
 					// No further conversion necessary
 				}
