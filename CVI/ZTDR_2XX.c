@@ -78,7 +78,7 @@ int 	dev_opened = 0;
 
 
 //==============================================================================
-// Global functions (user-facing, sorted by functionality)
+// Global functions (user-facing)
 
 // Initialize and calibrate device (UIR agnostic)
 __stdcall int initDevice (void)
@@ -635,7 +635,7 @@ __stdcall int dumpFile (char *filename)
 
 
 //==============================================================================
-// Global functions (not user-facing, sorted by functionality)
+// Global functions (not user-facing)
 
 // Open FTDI device
 __stdcall void openDevice (void)
