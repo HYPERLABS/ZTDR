@@ -27,9 +27,6 @@
 //==============================================================================
 // Externs
 
-// Initialization
-extern	int 	usb_opened;
-
 // Calibration
 extern 	int 	calIncrement;
 extern	double	vampl;
@@ -221,10 +218,10 @@ void main (int argc, char *argv[])
 	status = showVersion ();
 	
 	// Peform unified initialization and calibration
-	int calStatus = initDevice ();
+	int initStatus = initDevice ();
 	
-	// Initial calibration complete
-	if (calStatus == 1)
+	// Initialation complete
+	if (initStatus == 1)
 	{   
 		// Run first acquisition, don't draw
 		status = acquire (0);
@@ -247,7 +244,7 @@ void main (int argc, char *argv[])
 
 		status = SetBreakOnLibraryErrors (TRUE);
 	}
-	// Initial calibration failed
+	// Initialization failed
 	else
 	{
 		// Instrument not connected or initial calibration failed
