@@ -43,7 +43,6 @@ extern "C" {
 		UINT8 b3;
 	};
 
-
 	union _timeinf
 	{
 		UINT32 time;
@@ -58,7 +57,7 @@ extern "C" {
 // Global functions
 
 	// User-facing functions
-	int		__stdcall 	initDevice (void);
+	int		__stdcall 	initDevice (void); 
 	int 	__stdcall	vertCal (void);
 	int 	__stdcall	setEnviron (int x, int y, double start, double end, double k, int rec);
 	int 	__stdcall	setRefX (double x);
@@ -68,25 +67,19 @@ extern "C" {
 	double	__stdcall	fetchDataY (int idx);
 
 	// Other driver functions
-	void 	__stdcall	calAcquireWaveform (int calStepIndex);
-	void 	__stdcall	calDAC (void);
-	void 	__stdcall	calFindDiscont (void);
-	void 	__stdcall	calFindMean (int calStepIndex);
+	int 	__stdcall	calDAC (void);
+	double 	__stdcall	calFindDiscont (void);
+	double 	__stdcall	calFindMean (void);
 	int 	__stdcall	calFindStepcount (void);
-	void 	__stdcall	calReconstructData (void);
-	void 	__stdcall	calSetParams (void);
-	void 	__stdcall	calSetupTimescale (void);
 	int 	__stdcall	calTimebase (void);
+	int		__stdcall 	getData (void);
 	double 	__stdcall	meanArray (void);
-	void 	__stdcall	openDevice (void);
-	void 	__stdcall	reconstructData (double offset);
-	void 	__stdcall	setupTimescale (void);
-	void 	__stdcall	vertCalTimescale (void);
-	void 	__stdcall	vertCalZero (double windowStart);
-	int 	__stdcall	vertCalWriteParams (void);
+	int 	__stdcall	openDevice (void);
+	int 	__stdcall	reconstructData (double offset, int filter);
+	int 	__stdcall	setupTimescale (void);
 	int 	__stdcall	writeParams (void);
 
-	// USBFIFO functionality
+	// USBFIFO functionality  
 	char 	__stdcall	ftrdbyte (void);
 	void 	__stdcall	ftwrbyte (char ch);
 	int 	__stdcall	usbfifo_acquire (UINT8 *ret_val, UINT8 arg);
