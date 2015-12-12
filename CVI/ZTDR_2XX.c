@@ -148,7 +148,7 @@ __stdcall int vertCal (void)
 	int status, i;
 	
 	// Timescale for 50 averaging 1024 samples at 0 ns
-	start_tm.time = 0.0;
+	start_tm.time = 0;
 	end_tm.time = start_tm.time;
 
 	// Acquisition for offset calculation
@@ -314,7 +314,7 @@ __stdcall int acquireWaveform (int numAvg)
 	int status, i;
 
 	// Timescale for averaging 1024 samples at 0 ns
-	start_tm.time = 0.0;
+	start_tm.time = 0;
 	end_tm.time = start_tm.time;
 
 	// Acquisition for offset calculation
@@ -425,7 +425,7 @@ __stdcall int acquireWaveform (int numAvg)
 	// Horizontal units in time
 	if (xUnits == UNIT_NS)
 	{
-		for (int i = 0; i < recLen; i++)
+		for (i = 0; i < recLen; i++)
 		{
 			wfmX[i] = wfmTime[i] - xZero;
 		}
@@ -433,7 +433,7 @@ __stdcall int acquireWaveform (int numAvg)
 	// Horizontal units in meters
 	else if (xUnits == UNIT_M)
 	{
-		for (int i = 0; i < recLen; i++)
+		for (i = 0; i < recLen; i++)
 		{
 			wfmX[i] = wfmDistM[i] - xZero;
 		}
@@ -441,7 +441,7 @@ __stdcall int acquireWaveform (int numAvg)
 	// Horizontal units in feet
 	else
 	{
-		for (int i = 0; i < recLen; i++)
+		for (i = 0; i < recLen; i++)
 		{
 			wfmX[i] = wfmDistFt[i] - xZero;
 		}
@@ -860,6 +860,8 @@ __stdcall int calDAC (void)
 	
 	status = getData ();
 	
+	status = reconstructData (0, 1);
+	
 	calDiscLevel = calFindDiscont ();
 
 	int i = 0;
@@ -869,6 +871,8 @@ __stdcall int calDAC (void)
 		calstart = calstart + 100;
 		
 		status = getData ();
+	
+		status = reconstructData (0, 1);
 	
 		calDiscLevel = calFindDiscont ();
 		
@@ -887,6 +891,8 @@ __stdcall int calDAC (void)
 		calstart = calstart - 10;
 		
 		status = getData ();
+	
+		status = reconstructData (0, 1);
 	
 		calDiscLevel = calFindDiscont ();
 		
@@ -918,6 +924,8 @@ __stdcall int calDAC (void)
 
 	status = getData ();
 	
+	status = reconstructData (0, 1);
+	
 	calDiscLevel = calFindDiscont ();
 
 	i = 0;
@@ -927,6 +935,8 @@ __stdcall int calDAC (void)
 		calstart = calstart + 100;
 		
 		status = getData ();
+	
+		status = reconstructData (0, 1);
 	
 		calDiscLevel = calFindDiscont ();
 		
@@ -944,6 +954,8 @@ __stdcall int calDAC (void)
 		calstart = calstart - 10;
 		
 		status = getData ();
+	
+		status = reconstructData (0, 1);
 	
 		calDiscLevel = calFindDiscont ();
 		
