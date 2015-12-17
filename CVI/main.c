@@ -894,6 +894,9 @@ int updateWindowSize (void)
 	status = GetCtrlAttribute (panelHandle, PANEL_DIEL, ATTR_LEFT, &ctrlLeft);
 	status = SetCtrlAttribute (panelHandle, PANEL_DIEL, ATTR_LEFT, ctrlLeft + xOffset);
 	
+	status = GetCtrlAttribute (panelHandle, PANEL_VC, ATTR_LEFT, &ctrlLeft);
+	status = SetCtrlAttribute (panelHandle, PANEL_VC, ATTR_LEFT, ctrlLeft + xOffset);
+	
 	// Write new window size to globals
 	windowWidth = newWidth;
 	windowHeight = newHeight;

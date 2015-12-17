@@ -229,6 +229,11 @@ int setDiel (double k)
 		status = SetCtrlVal (panelHandle, PANEL_DIEL, dielK);
 	}
 	
+	// Calculate V/C
+	double vc = 1.0 / sqrt (dielK);
+	
+	status = SetCtrlVal (panelHandle, PANEL_VC, vc);
+	
 	// TODO #106: useful return
 	return 1;
 }
