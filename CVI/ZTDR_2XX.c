@@ -528,13 +528,13 @@ __stdcall int openDevice (void)
 	usbOpened = usbfifo_open ();
 
 	// USB communication initialized
-	if (usbOpened)
+	if (usbOpened == 1)
 	{
 		// Get ID of USBFIFO device
 		usbfifo_getid (buf, 32);
 		strcpy (dev_id, buf);
 
-		// TODO: error message (-102) if not as expected
+		// TODO: error message (-121) if not as expected
 
 		// Get comm speed of USBFIFO device
 		usbfifo_getcomspd (buf, 32);
@@ -543,7 +543,7 @@ __stdcall int openDevice (void)
 		// Compare retrieved with expected comm speed
 		if (devbps != usbfifo_gethostbps ())
 		{
-			return -103;
+			return -122;
 		}
 
 		// Inialization successful
@@ -552,7 +552,8 @@ __stdcall int openDevice (void)
 	// USB communication failed
 	else
 	{
-		return -101;
+		// Return specific error message
+		return usbOpened;
 	}
 }
 
@@ -1111,12 +1112,14 @@ __stdcall int usbfifo_open (void)
 {
 	char ch;
 	int n;
-	FT_STATUS stat, statfifo;
+	FT_STATUS statserial, statfifo;
 
-	// Don't perform operation if already done
+	// If device open, close it before re-opening
 	if (dev_opened)
 	{
-		return 1;
+		usbfifo_close ();
+		
+		dev_opened = 0;
 	}
 
 	// NOTE: Possible that "dev_handle" is the serial, dev_fifo_handle is FIFO
@@ -1124,52 +1127,60 @@ __stdcall int usbfifo_open (void)
 	// NOTE: this tells Aki to either look at SERIAL or FIFO port soldering
 
 	statfifo = FT_OpenEx ("USBFIFOV1A", FT_OPEN_BY_SERIAL_NUMBER, &dev_fifo_handle);
-	stat = FT_OpenEx ("USBFIFOV1B", FT_OPEN_BY_SERIAL_NUMBER, &dev_serial_handle);
+	statserial = FT_OpenEx ("USBFIFOV1B", FT_OPEN_BY_SERIAL_NUMBER, &dev_serial_handle);
 
-	if (stat != FT_OK || statfifo != FT_OK)
+	if (statserial != FT_OK || statfifo != FT_OK)
 	{
-		if (stat == FT_OK)
+		// Serial OK, FIFO failed
+		if (statserial == FT_OK)
 		{
-			FT_Close(dev_serial_handle);
-		}
+			FT_Close (dev_serial_handle);
 
-		if (statfifo == FT_OK)
+			dev_opened = -102;
+		}
+		// FIFO OK, Serial failed
+		else if (statfifo == FT_OK)
 		{
-			FT_Close(dev_fifo_handle);
-		}
+			FT_Close (dev_fifo_handle);
 
-		dev_opened = 0;
+			dev_opened = -103;
+		}
+		// Both Serial and FIFO failed
+		else
+		{
+			dev_opened = -101;
+		}
 	}
 
 	else
 	{
 		dev_opened = 1;
 
-		stat = FT_SetBaudRate (dev_serial_handle, dev_hostbps);
-		if (stat != FT_OK)
+		statserial = FT_SetBaudRate (dev_serial_handle, dev_hostbps);
+		if (statserial != FT_OK)
 		{
-			return -1;
+			return -111;
 		}
 
-		stat = FT_SetDataCharacteristics (dev_serial_handle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_NONE);
+		statserial = FT_SetDataCharacteristics (dev_serial_handle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_NONE);
 
-		if (stat != FT_OK)
+		if (statserial != FT_OK)
 		{
-			return -2;
+			return -112;
 		}
 
-		stat = FT_SetFlowControl (dev_serial_handle, FT_FLOW_NONE, 'o', 'p');  // o and p are bogus characters
+		statserial = FT_SetFlowControl (dev_serial_handle, FT_FLOW_NONE, 'o', 'p');  // o and p are bogus characters
 
-		if (stat != FT_OK)
+		if (statserial != FT_OK)
 		{
-			return -3;
+			return -113;
 		}
 
-		stat = FT_SetTimeouts (dev_serial_handle, STD_TIMEOUT, STD_TIMEOUT);
+		statserial = FT_SetTimeouts (dev_serial_handle, STD_TIMEOUT, STD_TIMEOUT);
 
-		if (stat != FT_OK)
+		if (statserial != FT_OK)
 		{
-			return -4;
+			return -114;
 		}
 
 		// Read id string
@@ -1183,7 +1194,7 @@ __stdcall int usbfifo_open (void)
 
 		if (ch != '.')
 		{
-			return -5;
+			return -115;
 		}
 
 		// Read compspeed
@@ -1195,14 +1206,12 @@ __stdcall int usbfifo_open (void)
 
 		if (ch != '.')
 		{
-			return -6;
+			return -116;
 		}
-
-
 
 		if (strncmp (dev_idbuf, "USBFIFO", 7) != 0)
 		{
-			return -7;
+			return -117;
 		}
 
 		// NOTE: FTDI comm lines; nothing important to debug
