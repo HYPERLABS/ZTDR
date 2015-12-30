@@ -6,7 +6,7 @@
 		<workingdir>workspacedir</workingdir>
 		<actions></actions></postbuild>
 	<msi GUID="{19A16F8B-B0A6-4056-BF6C-E22260352FB7}">
-		<general appName="ZTDR" outputLocation="d:\Dropbox\Documents\HYPERLABS\GitHub\ZTDR\Install\cvidistkit.ZTDR_2.0.2" relOutputLocation="..\Install\cvidistkit.ZTDR_2.0.2" outputLocationWithVars="d:\Dropbox\Documents\HYPERLABS\GitHub\ZTDR\Install\cvidistkit.%name_%version" relOutputLocationWithVars="..\Install\cvidistkit.%name_%version" upgradeBehavior="1" autoIncrement="true" version="2.0.2">
+		<general appName="ZTDR" outputLocation="d:\Dropbox\Documents\HYPERLABS\GitHub\ZTDR\Install\cvidistkit.ZTDR_2.0.3" relOutputLocation="..\Install\cvidistkit.ZTDR_2.0.3" outputLocationWithVars="d:\Dropbox\Documents\HYPERLABS\GitHub\ZTDR\Install\cvidistkit.%name_%version" relOutputLocationWithVars="..\Install\cvidistkit.%name_%version" upgradeBehavior="1" autoIncrement="true" version="2.0.3">
 			<arp company=" HYPERLABS" companyURL="http://www.hyperlabsinc.com" supportURL="" contact="" phone="" comments=""/>
 			<summary title="ZTDR" subject="" keyWords="" comments="" author=""/></general>
 		<userinterface language="English" showPaths="true" readMe="" license="">
@@ -57,14 +57,14 @@
 			<signDescURL></signDescURL></advanced>
 		<Projects NumProjects="1">
 			<Project000 ProjectID="0" ProjectAbsolutePath="d:\Dropbox\Documents\HYPERLABS\GitHub\ZTDR\CVI\ZTDR.prj" ProjectRelativePath="ZTDR.prj"/></Projects>
-		<buildData progressBarRate="3.926291266763840">
+		<buildData progressBarRate="4.670330699463213">
 			<progressTimes>
 				<Begin>0.000000000000000</Begin>
-				<ProductsAdded>0.071536773659646</ProductsAdded>
-				<DPConfigured>1.189465945223192</DPConfigured>
-				<DPMergeModulesAdded>1.795053913170137</DPMergeModulesAdded>
-				<DPClosed>2.761565733942126</DPClosed>
-				<DistributionsCopied>2.888297063952749</DistributionsCopied>
-				<End>25.469327975360017</End></progressTimes></buildData>
+				<ProductsAdded>0.062660386829823</ProductsAdded>
+				<DPConfigured>0.821624472611596</DPConfigured>
+				<DPMergeModulesAdded>1.349418456585068</DPMergeModulesAdded>
+				<DPClosed>2.182674366971063</DPClosed>
+				<DistributionsCopied>2.296137531976374</DistributionsCopied>
+				<End>21.411759987680007</End></progressTimes></buildData>
 	</msi>
 </distribution>
