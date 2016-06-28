@@ -95,7 +95,7 @@ extern "C" {
 #define IDX_STROBECNT_UPPER 24
 #define IDX_STROBECNT_LOWER 25
 
-#define STD_TIMEOUT 200
+#define STD_TIMEOUT 1000
 
 
 	int Declare_Your_Functions_Here (int x);
