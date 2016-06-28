@@ -22,6 +22,36 @@
 //==============================================================================
 // Global variables
 
+// Device status
+int 	deviceOpen = 0;
+FT_HANDLE 	fifoHandle;				// ADUC FIFO lane
+FT_HANDLE 	serialHandle;			// ADUC serial lane
+
+// Device characteristics
+int			deviceBps = 256000;		// expected host comm speed
+char 		deviceID[16];			// device ID
+char 		deviceCommspeed[10];	// commspeed of device
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // State of USB device
 int 	usbOpened;
 
@@ -31,10 +61,7 @@ int 	usbOpened;
 // TODO: clean these up
 
 // USBFIFO functionality
-FT_HANDLE 	dev_fifo_handle;		// ADUC FIFO lane
-FT_HANDLE 	dev_serial_handle;		// ADUC serial lane
 
-int			dev_hostbps = 256000;	// expectedhost comm speed
 
 UINT8 	freerun_en = 0;				// unknown purpose, but always 0
 
@@ -99,13 +126,159 @@ UINT16 	stepcountArray[5] = {4, 5, 6, 7, 8};
 UINT16 	dac0val = 0, dac1val = 0, dac2val = 0;
 UINT16 	strobecount = 2;
 
-char 	dev_comspdbuf[20];
-char 	dev_idbuf[20];
-int 	dev_opened = 0;
 
 
 //==============================================================================
 // Global functions (user-facing)
+
+// Initialize and calibrate device (UIR agnostic)
+__stdcall int ZTDR_Init (void)
+{
+	// Instrument initialization status
+	int initStatus = 0;
+	int n;
+	FT_STATUS serialStatus, fifoStatus;
+	
+	// If device already open, close it before re-opening
+	if (deviceOpen)
+	{
+		usbfifo_close ();			   // TODO #999
+		
+		deviceOpen = 0;
+	}
+	
+	// Initialize individual FIFO and serial lanes
+	fifoStatus = FT_OpenEx ("USBFIFOV1A", FT_OPEN_BY_SERIAL_NUMBER, &fifoHandle);
+	serialStatus = FT_OpenEx ("USBFIFOV1B", FT_OPEN_BY_SERIAL_NUMBER, &serialHandle);
+	
+	// One or both lanes failed to initialize
+	if (serialStatus != FT_OK || fifoStatus != FT_OK)
+	{
+		// Serial OK, FIFO failed
+		if (serialStatus == FT_OK)
+		{
+			FT_Close (serialHandle);
+
+			initStatus = -102;
+		}
+		// FIFO OK, serial failed
+		else if (fifoStatus == FT_OK)
+		{
+			FT_Close (fifoHandle);
+
+			initStatus = -103;
+		}
+		// Both serial and FIFO failed
+		else
+		{
+			initStatus = -101;
+		}
+	}
+	// Both serial and FIFO lanes initialized
+	else
+	{
+		// Flag device as open
+		deviceOpen = 1;
+
+		// Set device baud rate
+		serialStatus = FT_SetBaudRate (serialHandle, deviceBps);
+		if (serialStatus != FT_OK)
+		{
+			return -111;
+		}
+		
+		// Set device data characteristics
+		serialStatus = FT_SetDataCharacteristics (serialHandle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_NONE);
+
+		if (serialStatus != FT_OK)
+		{
+			return -112;
+		}
+		
+		// Set device flow control
+		serialStatus = FT_SetFlowControl (serialHandle, FT_FLOW_NONE, 'o', 'p');  // o and p are bogus characters
+
+		if (serialStatus != FT_OK)
+		{
+			return -113;
+		}
+
+		// Set device timeouts
+		serialStatus = FT_SetTimeouts (serialHandle, STD_TIMEOUT, STD_TIMEOUT);
+
+		if (serialStatus != FT_OK)
+		{
+			return -114;
+		}
+		
+		// Read device identification
+		ftwrbyte ('i');
+		FT_Read (serialHandle, deviceID, 16, &n);
+		
+		if (strncmp (deviceID, "USBFIFO", 7) != 0)
+		{
+			return -115;
+		}
+		
+		// Read device commspeed
+		ftwrbyte ('s');
+		FT_Read (serialHandle, deviceCommspeed, 16, &n );
+		
+		/*
+		if (ch != '.')
+		{
+			return -116;
+		}
+		*/
+		
+
+		// NOTE: FTDI comm lines; nothing important to debug
+		FT_ClrDtr(serialHandle);
+
+		FT_SetRts(serialHandle);
+		FT_ClrRts(serialHandle);
+	}
+	
+	// Set increment for default 50 ns timescale
+	calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 )/
+						  (((double) 50.0e-9) / (double) 65536.0));
+	
+	// Full timebase calibration
+	int calStatus = calTimebase ();
+	// TODO: something with timebase
+	
+	// Initialization successful
+	return 1;
+}
+
+
+
+
+/*
+// Open FTDI for use by software
+__stdcall int usbfifo_open (void)
+{
+	char ch;
+
+	
+
+
+	
+
+	
+
+	return dev_opened;
+}
+*/
+
+
+
+
+
+/*
+
+
+
 
 // Initialize and calibrate device (UIR agnostic)
 __stdcall int initDevice (void)
@@ -141,6 +314,9 @@ __stdcall int initDevice (void)
 		return calStatus;
 	}
 }
+*/
+
+
 
 // Calibrate vertical axis
 __stdcall int vertCal (void)
@@ -521,43 +697,6 @@ __stdcall int dumpFile (char *filename)
 //==============================================================================
 // Global functions (not user-facing)
 
-// Open communication with FTDI device
-__stdcall int openDevice (void)
-{
-	char buf[32];
-
-	usbOpened = usbfifo_open ();
-
-	// USB communication initialized
-	if (usbOpened == 1)
-	{
-		// Get ID of USBFIFO device
-		usbfifo_getid (buf, 32);
-		strcpy (dev_id, buf);
-
-		// TODO: error message (-121) if not as expected
-
-		// Get comm speed of USBFIFO device
-		usbfifo_getcomspd (buf, 32);
-		int devbps = atoi (buf);
-
-		// Compare retrieved with expected comm speed
-		if (devbps != usbfifo_gethostbps ())
-		{
-			return -122;
-		}
-
-		// Inialization successful
-		return 1;
-	}
-	// USB communication failed
-	else
-	{
-		// Return specific error message
-		return usbOpened;
-	}
-}
-
 // Quantize acquisition timescale
 __stdcall int setupTimescale (void)
 {
@@ -620,7 +759,7 @@ __stdcall int getData (void)
 	int status = 0;
 	
 	// Device communication failure
-	if (!usbOpened)
+	if (!deviceOpen)
 	{
 		return -201;
 	}
@@ -1008,7 +1147,7 @@ __stdcall char ftrdbyte(void)
 	char ch;
 	int n;
 
-	FT_Read (dev_serial_handle, &ch, 1, &n);
+	FT_Read (serialHandle, &ch, 1, &n);
 
 	return ch;
 }
@@ -1018,7 +1157,7 @@ __stdcall void ftwrbyte(char ch)
 {
 	int n;
 
-	FT_Write (dev_serial_handle, &ch, 1, &n);
+	FT_Write (serialHandle, &ch, 1, &n);
 }
 
 // Acquire from FDTI device
@@ -1029,7 +1168,7 @@ __stdcall int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
 	char ch;
 	FT_STATUS stat;
 
-	if (!dev_opened)
+	if (!deviceOpen)
 	{
 		return 0;
 	}
@@ -1041,7 +1180,7 @@ __stdcall int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
 	ftwrbyte (arg);
 
 	// NOTE: Sets time for ADUC to respond
-	stat = FT_SetTimeouts (dev_serial_handle, 1000, 1000);
+	stat = FT_SetTimeouts (serialHandle, 1000, 1000);
 
 	// NOTE: this actually returns the waveform?
 	*ret_val = ftrdbyte ();
@@ -1049,7 +1188,7 @@ __stdcall int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
 	// NOTE: '.' means the acquisition successful
 	ch = ftrdbyte ();
 
-	stat = FT_SetTimeouts (dev_serial_handle, STD_TIMEOUT, STD_TIMEOUT);
+	stat = FT_SetTimeouts (serialHandle, STD_TIMEOUT, STD_TIMEOUT);
 
 	if (ch != '.')
 	{
@@ -1068,17 +1207,18 @@ __stdcall void usbfifo_close (void)
 {
 	FT_STATUS stat;
 
-	if (!dev_opened)
+	if (!deviceOpen)
 	{
 		return;
 	}
 
-	stat = FT_Close (dev_serial_handle);
-	stat = FT_Close (dev_fifo_handle);
+	stat = FT_Close (serialHandle);
+	stat = FT_Close (fifoHandle);
 
-	dev_opened = 0;
+	deviceOpen = 0;
 }
 
+/*
 // Get device comm speed
 __stdcall void usbfifo_getcomspd (char *buf, int len)
 {
@@ -1089,12 +1229,14 @@ __stdcall void usbfifo_getcomspd (char *buf, int len)
 		*buf++ = dev_comspdbuf[i];
 	}
 }
+*/
 
+/*
 // Get host comm speed
 __stdcall int usbfifo_gethostbps (void)
 {
 	// Return value (hard-coded)
-	return dev_hostbps;
+	return deviceBps;
 }
 
 // Get device ID
@@ -1107,124 +1249,9 @@ __stdcall void usbfifo_getid (char *buf, int len)
 		*buf++ = dev_idbuf[i];
 	}
 }
+*/
 
-// Open FTDI for use by software
-__stdcall int usbfifo_open (void)
-{
-	char ch;
-	int n;
-	FT_STATUS statserial, statfifo;
 
-	// If device open, close it before re-opening
-	if (dev_opened)
-	{
-		usbfifo_close ();
-		
-		dev_opened = 0;
-	}
-
-	// NOTE: Possible that "dev_handle" is the serial, dev_fifo_handle is FIFO
-
-	// NOTE: this tells Aki to either look at SERIAL or FIFO port soldering
-
-	statfifo = FT_OpenEx ("USBFIFOV1A", FT_OPEN_BY_SERIAL_NUMBER, &dev_fifo_handle);
-	statserial = FT_OpenEx ("USBFIFOV1B", FT_OPEN_BY_SERIAL_NUMBER, &dev_serial_handle);
-
-	if (statserial != FT_OK || statfifo != FT_OK)
-	{
-		// Serial OK, FIFO failed
-		if (statserial == FT_OK)
-		{
-			FT_Close (dev_serial_handle);
-
-			dev_opened = -102;
-		}
-		// FIFO OK, Serial failed
-		else if (statfifo == FT_OK)
-		{
-			FT_Close (dev_fifo_handle);
-
-			dev_opened = -103;
-		}
-		// Both Serial and FIFO failed
-		else
-		{
-			dev_opened = -101;
-		}
-	}
-
-	else
-	{
-		dev_opened = 1;
-
-		statserial = FT_SetBaudRate (dev_serial_handle, dev_hostbps);
-		if (statserial != FT_OK)
-		{
-			return -111;
-		}
-
-		statserial = FT_SetDataCharacteristics (dev_serial_handle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_NONE);
-
-		if (statserial != FT_OK)
-		{
-			return -112;
-		}
-
-		statserial = FT_SetFlowControl (dev_serial_handle, FT_FLOW_NONE, 'o', 'p');  // o and p are bogus characters
-
-		if (statserial != FT_OK)
-		{
-			return -113;
-		}
-
-		statserial = FT_SetTimeouts (dev_serial_handle, STD_TIMEOUT, STD_TIMEOUT);
-
-		if (statserial != FT_OK)
-		{
-			return -114;
-		}
-
-		// Read id string
-		ftwrbyte ('i');
-		FT_Read (dev_serial_handle, dev_idbuf, 16, &n);
-		dev_idbuf[16] = '\0';
-		ftwrbyte ('i');
-		ch = ftrdbyte ();
-
-		// NOTE: if no ".", failed to reed id
-
-		if (ch != '.')
-		{
-			return -115;
-		}
-
-		// Read compspeed
-		ftwrbyte('s');
-		FT_Read( dev_serial_handle, dev_comspdbuf, 16, &n );
-		dev_comspdbuf[16] = '\0';
-		ftwrbyte('s');
-		ch = ftrdbyte();
-
-		if (ch != '.')
-		{
-			return -116;
-		}
-
-		if (strncmp (dev_idbuf, "USBFIFO", 7) != 0)
-		{
-			return -117;
-		}
-
-		// NOTE: FTDI comm lines; nothing important to debug
-
-		FT_ClrDtr(dev_serial_handle);
-
-		FT_SetRts(dev_serial_handle);
-		FT_ClrRts(dev_serial_handle);
-	}
-
-	return dev_opened;
-}
 
 // Read data blocks of acquisition
 __stdcall int usbfifo_readblock (UINT8 block_no, UINT16 *buf)
@@ -1235,7 +1262,7 @@ __stdcall int usbfifo_readblock (UINT8 block_no, UINT16 *buf)
 	int n, ret,i;
 	UINT8 rawbuf8[2*BLOCK_LEN];
 
-	if (!dev_opened)
+	if (!deviceOpen)
 	{
 		return 0;
 	}
@@ -1249,7 +1276,7 @@ __stdcall int usbfifo_readblock (UINT8 block_no, UINT16 *buf)
 
 	// NOTE: FTDI function, goes to FIFO handle, reads buffer
 
-	ret = FT_Read (dev_fifo_handle, rawbuf8, BLOCK_LEN * 2, &n);
+	ret = FT_Read (fifoHandle, rawbuf8, BLOCK_LEN * 2, &n);
 
 	ch = ftrdbyte();
 
@@ -1258,7 +1285,7 @@ __stdcall int usbfifo_readblock (UINT8 block_no, UINT16 *buf)
 	if (ch == 'f')
 	{
 		// handle failure, clean out FIFO and return error
-		while (FT_Read (dev_fifo_handle, rawbuf8, 1, &n) == FT_OK && n == 1);
+		while (FT_Read (fifoHandle, rawbuf8, 1, &n) == FT_OK && n == 1);
 		return -1;
 	}
 
@@ -1286,7 +1313,7 @@ __stdcall int usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calen
 	int n;
 	int ret;
 
-	if (!dev_opened)
+	if (!deviceOpen)
 	{
 		return 0;
 	}
@@ -1319,7 +1346,7 @@ __stdcall int usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calen
 	params[IDX_STROBECNT_LOWER] = (UINT8) strobecount;
 
 	ftwrbyte('p');
-	ret = FT_Write (dev_serial_handle, params, NPARAMS, &n);
+	ret = FT_Write (serialHandle, params, NPARAMS, &n);
 	ch = ftrdbyte();
 
 	if (ch != '.')

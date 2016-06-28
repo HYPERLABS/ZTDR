@@ -57,7 +57,15 @@ extern "C" {
 // Global functions
 
 	// User-facing functions
-	int		__stdcall 	initDevice (void); 
+	int		__stdcall 	ZTDR_Init (void);
+	
+	
+	
+	
+	
+	
+	
+	
 	int 	__stdcall	vertCal (void);
 	int 	__stdcall	setEnviron (int x, int y, double start, double end, double k, int rec);
 	int 	__stdcall	setRefX (double x);
@@ -74,7 +82,6 @@ extern "C" {
 	int 	__stdcall	calTimebase (void);
 	int		__stdcall 	getData (void);
 	double 	__stdcall	meanArray (void);
-	int 	__stdcall	openDevice (void);
 	int 	__stdcall	reconstructData (double offset, int filter);
 	int 	__stdcall	setupTimescale (void);
 	int 	__stdcall	writeParams (void);

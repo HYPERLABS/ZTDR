@@ -218,7 +218,7 @@ void main (int argc, char *argv[])
 	status = showVersion ();
 	
 	// Peform unified initialization and calibration
-	int initStatus = initDevice ();
+	int initStatus = ZTDR_Init ();
 	
 	// Initialation complete
 	if (initStatus == 1)
