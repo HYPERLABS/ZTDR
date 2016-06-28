@@ -254,67 +254,6 @@ __stdcall int ZTDR_Init (void)
 
 
 
-/*
-// Open FTDI for use by software
-__stdcall int usbfifo_open (void)
-{
-	char ch;
-
-	
-
-
-	
-
-	
-
-	return dev_opened;
-}
-*/
-
-
-
-
-
-/*
-
-
-
-
-// Initialize and calibrate device (UIR agnostic)
-__stdcall int initDevice (void)
-{
-	// Initial values for maximum length of array
-	for (int i = 0; i < NPOINTS_MAX; i++)
-	{
-		wfm[i] = 0;
-		wfmFilter[i] = 0.0;
-	}
-
-	// Open communication with USB device
-	int initStatus = openDevice ();
-
-	// Break on initilization failure
-	if (initStatus < 0)
-	{
-		return initStatus;
-	}
-	// Continue with full timebase calibration
-	else
-	{
-		// Set increment for default 50 ns timescale
-		calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 )/
-							  (((double) 50.0e-9) / (double) 65536.0));
-
-		// TODO: remove if this is unnecessary
-		// status = setupTimescale ();
-
-		// Full timebase calibration
-		int calStatus = calTimebase ();
-
-		return calStatus;
-	}
-}
-*/
 
 
 
