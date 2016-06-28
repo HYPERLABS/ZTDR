@@ -41,45 +41,7 @@ char 		deviceCommspeed[10];	// commspeed of device
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-// State of USB device
-int 	usbOpened;
-
-
-
-
 // TODO: clean these up
-
-// USBFIFO functionality
-
-
-UINT8 	freerun_en = 0;				// unknown purpose, but always 0
-
-
-
-// Debug results
-char	dev_id[32];		// ID retrieved from device
-int		dev_commspeed;	// Comm speed retrieved from device
-
-
-
-
-
-
-
-
-
-
 
 // Calibration
 double 	calDiscLevel;
@@ -675,7 +637,7 @@ __stdcall int writeParams (void)
 {
 	int status;
 
-	status = usbfifo_setparams (freerun_en, calstart, calend, start_tm, end_tm, stepcount,
+	status = usbfifo_setparams (0, calstart, calend, start_tm, end_tm, stepcount,
 								strobecount, 0, recLen, dac0val, dac1val, dac2val);
 
 	// Parameters successfully written
