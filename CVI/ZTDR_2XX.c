@@ -450,7 +450,7 @@ __stdcall int acquireWaveform (int numAvg)
 	return 1;
 }
 
-// Acquire horizontal data
+// Acquire horizontal value of specific point
 __stdcall double fetchDataX (int idx)
 {
 	double val = wfmX[idx];
@@ -458,7 +458,7 @@ __stdcall double fetchDataX (int idx)
 	return val;
 }
 
-// Acquire vertical data
+// Acquire vertical value of specific point
 __stdcall double fetchDataY (int idx)
 {
 	double val = wfmAvg[idx];
@@ -496,6 +496,7 @@ __stdcall int dumpFile (char *filename)
 	};
 
 	// Write header row
+	// TODO: why does it do Y data first then X?
 	status = sprintf (buf + strlen(buf), "%s, %s, %3.10f, %3.10f, %3.3f, %3.10f\n", nameY[yUnits], nameX[xUnits], xStart, xEnd, dielK, xZero);
 
 	status = fwrite (buf, 1, strlen (buf), fd);
