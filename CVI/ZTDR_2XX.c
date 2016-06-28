@@ -142,7 +142,7 @@ __stdcall int ZTDR_Init (void)
 	// If device already open, close it before re-opening
 	if (deviceOpen)
 	{
-		usbfifo_close ();			   // TODO #999
+		usbfifo_close ();
 		
 		deviceOpen = 0;
 	}
@@ -230,7 +230,6 @@ __stdcall int ZTDR_Init (void)
 			return -116;
 		}
 		*/
-		
 
 		// NOTE: FTDI comm lines; nothing important to debug
 		FT_ClrDtr(serialHandle);
@@ -700,6 +699,7 @@ __stdcall int getData (void)
 	// Device communication failure
 	if (!deviceOpen)
 	{
+		// TODO #999: depricate this
 		return -201;
 	}
 	
@@ -1080,6 +1080,26 @@ __stdcall double calFindDiscont (void)
 //==============================================================================
 // Global functions (USBFIFO)
 
+// Close FTDI device
+__stdcall void usbfifo_close (void)
+{
+	FT_STATUS status;
+
+	if (!deviceOpen)
+	{
+		return;
+	}
+
+	status = FT_Close (serialHandle);
+	status = FT_Close (fifoHandle);
+
+	deviceOpen = 0;
+}
+
+
+
+
+
 // Read FTDI byte
 __stdcall char ftrdbyte(void)
 {
@@ -1141,21 +1161,7 @@ __stdcall int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
 
 }
 
-// Close FTDI device
-__stdcall void usbfifo_close (void)
-{
-	FT_STATUS stat;
 
-	if (!deviceOpen)
-	{
-		return;
-	}
-
-	stat = FT_Close (serialHandle);
-	stat = FT_Close (fifoHandle);
-
-	deviceOpen = 0;
-}
 
 // Read data blocks of acquisition
 __stdcall int usbfifo_readblock (UINT8 block_no, UINT16 *buf)
