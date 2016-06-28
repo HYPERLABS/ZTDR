@@ -1218,41 +1218,6 @@ __stdcall void usbfifo_close (void)
 	deviceOpen = 0;
 }
 
-/*
-// Get device comm speed
-__stdcall void usbfifo_getcomspd (char *buf, int len)
-{
-	// NOTE: a failed comm speed indicates you need to unplug/replug the device
-
-	for (UINT16 i = 0; i < strlen (dev_comspdbuf) + 1 && i < len && i < 19; i++)
-	{
-		*buf++ = dev_comspdbuf[i];
-	}
-}
-*/
-
-/*
-// Get host comm speed
-__stdcall int usbfifo_gethostbps (void)
-{
-	// Return value (hard-coded)
-	return deviceBps;
-}
-
-// Get device ID
-__stdcall void usbfifo_getid (char *buf, int len)
-{
-	// NOTE: make this avialable in the diag program
-
-	for (UINT16 i = 0; i < strlen (dev_idbuf) + 1 && i < len && i < 19; i++)
-	{
-		*buf++ = dev_idbuf[i];
-	}
-}
-*/
-
-
-
 // Read data blocks of acquisition
 __stdcall int usbfifo_readblock (UINT8 block_no, UINT16 *buf)
 {
