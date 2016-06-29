@@ -1233,23 +1233,10 @@ __stdcall int usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calen
 	params[IDX_STROBECNT_UPPER] = strobecount >> 8;
 	params[IDX_STROBECNT_LOWER] = (UINT8) strobecount;
 
-	
-	FT_STATUS status;
-	char open = 'o';
-	char close = 'c';
-	
-	// Open flow control
-	status = FT_Write (serialHandle, &open, 1, &n);
-	
+	ftwrbyte('p');
 	ret = FT_Write (serialHandle, params, NPARAMS, &n);
-	
-	status = FT_Write (serialHandle, &close, 1, &n);
-	
-	
-	
 	ch = ftrdbyte();
 
-	/*
 	if (ch != '.')
 	{
 		// No record received
@@ -1261,7 +1248,6 @@ __stdcall int usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calen
 		// Incorrect number of params passed
 		return -2;
 	}
-	*/
 
 	return 1;
 }
