@@ -251,7 +251,6 @@ __stdcall int ZTDR_CalTimebase (void)
 		calLevels[i] = val / recLen;
 	}
 	
-	
 	// TODO #999: return errors from PollDevice, not just calibration below
 	
 	// Find optimal stepcount
@@ -312,25 +311,13 @@ __stdcall int ZTDR_CalTimebase (void)
 	status = calDAC ();
 	
 	// Amplitude calibration
-	vertCal ();
+	status = ZTDR_CalAmplitude ();
 
 	return calStatus;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-// Calibrate vertical axis
-__stdcall int vertCal (void)
+// Calibrate amplitude
+__stdcall int ZTDR_CalAmplitude (void)
 {
 	int status, i;
 	
@@ -421,7 +408,22 @@ __stdcall int vertCal (void)
 
 	// TODO #106: useful return
 	return 1;
-} 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Set acquisition environment
 __stdcall int setEnviron (int x, int y, double start, double end, double k, int rec)

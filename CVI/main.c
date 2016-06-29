@@ -639,7 +639,7 @@ int calibrate (int showMsg)
 	// Acquisition timer	
 	status = startTimer ();
 	
-	status = vertCal ();
+	status = ZTDR_CalAmplitude ();
 	
 	if (showMsg == MSG_MAIN && status == 1)
 	{

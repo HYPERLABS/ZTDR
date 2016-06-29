@@ -57,6 +57,7 @@ extern "C" {
 // Global functions
 
 	// User-facing functions
+	int 	__stdcall	ZTDR_CalAmplitude (void);
 	int 	__stdcall	ZTDR_CalTimebase (void);
 	int		__stdcall 	ZTDR_Init (void);
 	
@@ -67,7 +68,6 @@ extern "C" {
 	
 	
 	
-	int 	__stdcall	vertCal (void);
 	int 	__stdcall	setEnviron (int x, int y, double start, double end, double k, int rec);
 	int 	__stdcall	setRefX (double x);
 	int 	__stdcall	acquireWaveform (int numAvg);
