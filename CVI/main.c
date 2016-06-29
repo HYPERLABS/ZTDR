@@ -247,8 +247,17 @@ void main (int argc, char *argv[])
 	// Initialization failed
 	else
 	{
+		// Process error codes
+		int errorCode = 1000 - initStatus;
+
+		char title[16];
+		char body[64];
+		
+		status = sprintf (title, "ERROR #%d", errorCode);
+		status = sprintf (body, "Could not initialize the TDR device (ERROR #%d).",errorCode);
+		
 		// Instrument not connected or initial calibration failed
-		status = MessagePopup ("ERROR #1001", "Could not initialize the TDR device.");
+		status = MessagePopup (title, body);
 		
 		QuitUserInterface (0);
 	}
