@@ -207,12 +207,20 @@ __stdcall int ZTDR_Init (void)
 						  (((double) 50.0e-9) / (double) 65536.0));
 	
 	// Full timebase calibration
-	int calStatus = calTimebase ();
-	// TODO: something with timebase
+	int calStatus = ZTDR_CalTimebase ();
+	// TODO #999: error message for timebase cal result
 	
 	// Initialization successful
 	return 1;
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -599,6 +607,67 @@ __stdcall int dumpFile (char *filename)
 //==============================================================================
 // Global functions (not user-facing)
 
+// TODO: make calibrate timebase a user-facing function
+// Full timebase calibration
+__stdcall int ZTDR_CalTimebase (void)
+{
+	int status;
+	
+	// Set calibration window
+	calstart = 0;
+	calend = 4095;
+	
+	// Dummy acquisition to ensure device initialization
+	UINT8 acq_result;
+	status = usbfifo_acquire (&acq_result, 0);
+	
+	// Set start and end time
+	double val = 0;
+	start_tm.time = (UINT32) (val / 50.0 * 0xFFFF);
+
+	val = 0;
+	end_tm.time = (UINT32) (val / 50.0 * 0xFFFF);
+	
+	// Acquire data for each of 4 data segments
+	for (int i = 0; i < 5; i++)
+	{
+		stepcount = stepcountArray[(UINT16) i];
+
+		status = getData ();
+		
+		status = reconstructData (0, 1);
+		
+		// Find mean of waveform segment
+		calLevels[i] = calFindMean ();
+	}
+
+	int calStatus = calFindStepcount ();
+
+	status = calDAC ();
+
+	// TODO: is setupTimescale necessary here?
+	// TODO: setupTimescale is done at each calibration/acquisition
+	// status = setupTimescale ();
+	
+	// Amplitude calibration
+	vertCal ();
+
+	return calStatus;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Quantize acquisition timescale
 __stdcall int setupTimescale (void)
 {
@@ -762,53 +831,7 @@ __stdcall double meanArray (void)
 	return ((double) val / (double) 1000.0);
 }
 
-// TODO: make calibrate timebase a user-facing function
-// Full timebase calibration
-__stdcall int calTimebase (void)
-{
-	int status;
-	
-	// Set calibration window
-	calstart = 0;
-	calend = 4095;
-	
-	// Dummy acquisition to ensure device initialization
-	UINT8 acq_result;
-	status = usbfifo_acquire (&acq_result, 0);
-	
-	// Set start and end time
-	double val = 0;
-	start_tm.time = (UINT32) (val / 50.0 * 0xFFFF);
 
-	val = 0;
-	end_tm.time = (UINT32) (val / 50.0 * 0xFFFF);
-	
-	// Acquire data for each of 4 data segments
-	for (int i = 0; i < 5; i++)
-	{
-		stepcount = stepcountArray[(UINT16) i];
-
-		status = getData ();
-		
-		status = reconstructData (0, 1);
-		
-		// Find mean of waveform segment
-		calLevels[i] = calFindMean ();
-	}
-
-	int calStatus = calFindStepcount ();
-
-	status = calDAC ();
-
-	// TODO: is setupTimescale necessary here?
-	// TODO: setupTimescale is done at each calibration/acquisition
-	// status = setupTimescale ();
-	
-	// Amplitude calibration
-	vertCal ();
-
-	return calStatus;
-}
 
 // Find mean of waveform segment
 __stdcall double calFindMean (void)

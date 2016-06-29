@@ -283,7 +283,7 @@ int CVICALLBACK onAsyncTimer (int reserved, int timerId, int event, void *callba
 		status = startTimer ();
 		
 		// Recalibrate timebase
-		status = calTimebase ();
+		status = ZTDR_CalTimebase ();
 		
 		if (status == 1)
 		{

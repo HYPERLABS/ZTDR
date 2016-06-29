@@ -75,11 +75,13 @@ extern "C" {
 	double	__stdcall	fetchDataY (int idx);
 
 	// Other driver functions
+	int 	__stdcall	ZTDR_CalTimebase (void);
+	
+	
 	int 	__stdcall	calDAC (void);
 	double 	__stdcall	calFindDiscont (void);
 	double 	__stdcall	calFindMean (void);
 	int 	__stdcall	calFindStepcount (void);
-	int 	__stdcall	calTimebase (void);
 	int		__stdcall 	getData (void);
 	double 	__stdcall	meanArray (void);
 	int 	__stdcall	reconstructData (double offset, int filter);
