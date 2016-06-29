@@ -44,7 +44,6 @@ char 		deviceCommspeed[10];	// commspeed of device
 // TODO: clean these up
 
 // Calibration
-double 	calDiscLevel;
 double 	calLevels[5];
 double 	calThreshold;
 int 	calIncrement;
@@ -818,6 +817,116 @@ __stdcall double ZTDR_GetMean (void)
 	return ((double) val / (double) 1000.0);
 }
 
+// Calibrate DACs
+__stdcall int ZTDR_CalDAC (void)
+{
+	int status, i;
+
+	// Set calibration window
+	calstart = 0;
+
+	// Start, end at 0 ns
+	start_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
+	end_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);;
+
+	status = ZTDR_PollDevice (ACQ_FULL);
+
+	status = reconstructData (0, 1);
+
+	double calDiscLevel = ZTDR_FindDiscont ();
+
+	for (i = 0; i < 10 && calDiscLevel < calThreshold && calstart <= 1100; i++)
+	{
+		calstart += 100;
+
+		status = ZTDR_PollDevice (ACQ_FULL);
+
+		status = reconstructData (0, 1);
+
+		calDiscLevel = ZTDR_FindDiscont ();
+	}
+
+	if (i==10)
+	{
+		calstart = CALSTART_DEFAULT;
+	}
+
+	for (i = 0; i < 16 && calDiscLevel > calThreshold; i++)
+	{
+		calstart -= 10;
+
+		status = ZTDR_PollDevice (ACQ_FULL);
+
+		status = reconstructData (0, 1);
+
+		calDiscLevel = ZTDR_FindDiscont ();
+	}
+
+	if (i == 16)
+	{
+		calstart = CALSTART_DEFAULT;
+	}
+
+	UINT16 calstartStored = calstart;
+	int stepcountStored = stepcount;
+
+	calstart = 2000;
+	calend = 4094;
+
+	stepcount = stepcount + 4;
+
+	// Start, end at 0 ns
+	start_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
+	end_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
+
+	status = ZTDR_PollDevice (ACQ_FULL);
+
+	status = reconstructData (0, 1);
+
+	calDiscLevel = ZTDR_FindDiscont ();
+
+	for (i = 0; i < 25 && calDiscLevel < calThreshold && calstart <= 4095; i++)
+	{
+		calstart = calstart + 100;
+
+		status = ZTDR_PollDevice (ACQ_FULL);
+
+		status = reconstructData (0, 1);
+
+		calDiscLevel = ZTDR_FindDiscont ();
+
+		i++;
+	}
+	if (i == 25)
+	{
+		calend = CALEND_DEFAULT;
+	}
+
+	for (i = 0; i < 16 && calDiscLevel > calThreshold; i++)
+	{
+		calstart = calstart - 10;
+
+		status = ZTDR_PollDevice (ACQ_FULL);
+
+		status = reconstructData (0, 1);
+
+		calDiscLevel = ZTDR_FindDiscont ();
+	}
+
+	calend = calstart;
+
+	if (i == 16)
+	{
+		calend = CALEND_DEFAULT;
+	}
+
+	calstart = calstartStored;
+
+	stepcount = (UINT16) stepcountStored +1;
+
+	return 1;
+}
+
 // TODO #999: function description
 __stdcall double ZTDR_FindDiscont (void)
 {
@@ -927,136 +1036,6 @@ __stdcall int reconstructData (double offset, int filter)
 }
 
 
-
-// Calibrate DACs
-__stdcall int ZTDR_CalDAC (void)
-{
-	int status;
-
-	// Set calibration window
-	calstart = 0;
-
-	// Start, end at 0 ns
-	start_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
-	end_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);;
-
-	status = ZTDR_PollDevice (ACQ_FULL);
-
-	status = reconstructData (0, 1);
-
-	calDiscLevel = ZTDR_FindDiscont ();
-
-	int i = 0;
-
-	while ((calDiscLevel < calThreshold) && (i < 10) && (calstart <= 1100))
-	{
-		calstart = calstart + 100;
-
-		status = ZTDR_PollDevice (ACQ_FULL);
-
-		status = reconstructData (0, 1);
-
-		calDiscLevel = ZTDR_FindDiscont ();
-
-		i++;
-	}
-
-	if (i==10)
-	{
-		calstart = CALSTART_DEFAULT;
-	}
-
-	i = 0;
-
-	while ((calDiscLevel > calThreshold) && (i < 16))
-	{
-		calstart = calstart - 10;
-
-		status = ZTDR_PollDevice (ACQ_FULL);
-
-		status = reconstructData (0, 1);
-
-		calDiscLevel = ZTDR_FindDiscont ();
-
-		i++;
-	}
-
-	if (i == 16)
-	{
-		calstart = CALSTART_DEFAULT;
-	}
-
-	UINT16 calstart_save;
-	calstart_save = calstart;
-
-	calend = 4094;
-	calstart = 2000;
-
-	int stepcountSave;
-
-	stepcountSave = stepcount;
-	stepcount = stepcount + 4;
-
-	// Start, end at 0 ns
-	val = 0;
-	start_tm.time = (UINT32) (val / 50.0 * 0xFFFF);
-
-	val = 0;
-	end_tm.time = (UINT32) (val / 50.0 * 0xFFFF);;
-
-	status = ZTDR_PollDevice (ACQ_FULL);
-
-	status = reconstructData (0, 1);
-
-	calDiscLevel = ZTDR_FindDiscont ();
-
-	i = 0;
-
-	while ((calDiscLevel < calThreshold) && (i < 25) && (calstart <= 4095))
-	{
-		calstart = calstart + 100;
-
-		status = ZTDR_PollDevice (ACQ_FULL);
-
-		status = reconstructData (0, 1);
-
-		calDiscLevel = ZTDR_FindDiscont ();
-
-		i++;
-	}
-	if (i == 25)
-	{
-		calend = CALEND_DEFAULT;
-	}
-
-	i = 0;
-
-	while ((calDiscLevel > calThreshold) && (i < 16))
-	{
-		calstart = calstart - 10;
-
-		status = ZTDR_PollDevice (ACQ_FULL);
-
-		status = reconstructData (0, 1);
-
-		calDiscLevel = ZTDR_FindDiscont ();
-
-		i++;
-	}
-
-	calend = calstart;
-
-	if (i == 16)
-	{
-		calend = CALEND_DEFAULT;
-	}
-
-	calstart = calstart_save;
-
-	stepcount = (UINT16) stepcountSave +1;
-
-	return 1;
-}
 
 
 
