@@ -203,7 +203,7 @@ __stdcall int ZTDR_Init (void)
 	}
 	
 	// Set increment for default 50 ns timescale
-	calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 )/
+	calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 ) /
 						  (((double) 50.0e-9) / (double) 65536.0));
 	
 	// Full timebase calibration
@@ -334,11 +334,8 @@ __stdcall int ZTDR_CalAmplitude (void)
 	double vstart = ZTDR_GetMean ();
 
 	// Timescale for 50 ns calibration window
-	double val = 0.0;
-	start_tm.time = (UINT32) (val / 50.0 * 0xFFFF);
-
-	val = 50.0;
-	end_tm.time = (UINT32) (val / 50.0 * 0xFFFF);
+	start_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
+	end_tm.time = (UINT32) (50.0 / 50.0 * 0xFFFF);
 
 	// Main calibration acquisition
 	status = ZTDR_PollDevice (ACQ_FULL);
@@ -346,62 +343,42 @@ __stdcall int ZTDR_CalAmplitude (void)
 	status = reconstructData (0, -1);
 
 	// Find the 50% crossing from vstart to approx. vstart + 1200 (step size)
-	i = 0;
-
-	while (wfmFilter[i] < (vstart + 400.0) && (i <= 1022))
+	for (i = 0; wfmFilter[i] < (vstart + 400) && (i <= 1022); i++)
 	{
-		i = i + 1;
 	}
 
 	int i50 = i;
 
-	// Compute a calibrated vstart as average of points from 0 to (i50 - CAL_GUARD) at calIncrement
-	// Normalize calIncrement to waveform index
-	int calInterval = (int) (CAL_GUARD * 0.5 / (CAL_WINDOW / 1024));
+	// Calibrated vstart as average of points from 0 to (i50 - CAL_GUARD)
+	int calInterval = (int) (CAL_GUARD / (CAL_WINDOW / 1024));
 
-	int tempID;
-	tempID = i50 - calInterval;
-
-	double temp;
-
-	if (tempID > 1)
+	int startIdx = i50 - calInterval;
+	
+	if (startIdx > 1)
 	{
-		temp = 0;
+		double temp = 0;
 
-		for (i=0; i<tempID; i++)
+		for (i = 0; i < startIdx; i++)
 		{
 			temp += wfmFilter[i];
 		}
 
-		vstart = temp / tempID;
+		vstart = temp / startIdx;
 	}
-
-	int tempID2;
+	
+	// Calibrated vend from reference cable
 	double vend;
+	double endIdx1 = i50 + calInterval;
+	double endIdx2 = i50 + (calInterval * 2);
 
-	// Compute calibrated vend as average over 1ns at i50 + 2 * CAL_GUARD at calIncrement
-	tempID = i50 + calInterval;
+	double temp = 0;
 
-	if (tempID > 1023)
-	{
-		tempID = 1023;
-	}
-
-	tempID2 = i50 + 4 * calInterval;
-
-	if (tempID2 > 1023)
-	{
-		tempID2 = 1023;
-	}
-
-	temp = 0;
-
-	for (i = tempID; i < tempID2; i++)
+	for (i = endIdx1; i < endIdx2; i++)
 	{
 		temp += wfmFilter[i];
 	}
 
-	vend = temp / (tempID2 - tempID);
+	vend = temp / (endIdx2 - endIdx1);
 
 	vampl = vend - vstart;
 
