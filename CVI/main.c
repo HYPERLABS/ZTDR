@@ -1581,7 +1581,7 @@ int loadSettings (int isAuto)
 	status = setUnitY (yStored);
 	
 	status = setZero (zeroStored);
-	setupTimescale ();
+	status = ZTDR_QuantizeTimescale ();
 	
 	// Adjust minimum values before out-of-range values potentially set
 	status = SetCtrlAttribute (panelHandle, PANEL_START, ATTR_MIN_VALUE, 0.0 - zeroStored);
@@ -1625,7 +1625,7 @@ int resetSettings (void)
 	
 	setXStart (0.0);
 	setXEnd (10.0);
-	setupTimescale ();
+	status = ZTDR_QuantizeTimescale ();
 	
 	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, labelX[xUnits]);
 	
@@ -1917,7 +1917,7 @@ int recallWaveform (void)
 	SetCtrlAttribute (panelHandle, PANEL_WAVEFORM, ATTR_XNAME, labelX[xUnits]);
 	
 	// Set new acquisition timescale
-	setupTimescale ();
+	status = ZTDR_QuantizeTimescale ();
 	
 	// Remove any other recalled waveforms
 	if (WfmStored)

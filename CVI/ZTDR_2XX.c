@@ -497,8 +497,8 @@ __stdcall int acquireWaveform (int numAvg)
 
 	double offset = ZTDR_GetMean ();
 
-	// Timescale and parameters for main acquisition
-	status = setupTimescale ();
+	// Timescale for main acquisition
+	status = ZTDR_QuantizeTimescale ();
 
 	// Run once for each waveform
 	for (int j = 0; j < numAvg; j++)
@@ -942,50 +942,50 @@ __stdcall double ZTDR_FindDiscont (void)
 	return val;
 }
 
-
-
-
-
-
-
-
-
-
-
 // Quantize acquisition timescale
-__stdcall int setupTimescale (void)
+__stdcall int ZTDR_QuantizeTimescale (void)
 {
-	double val1, val2, vel;
+	double start, end, diel;
 
 	// If X Axis set to time
 	if (xUnits == UNIT_NS)
 	{
-		val1 = xStart;
-		val2 = xEnd;
+		start = xStart;
+		end = xEnd;
 	}
 
 	// If distance selected, calculate based on K
 	else
 	{
 		// Calculate distance in meters
-		vel = (double) 3E8 / sqrt (dielK);
-		val1 = xStart * 1E9 / vel;
-		val2 = xEnd * 1E9 / vel;
+		diel = (double) 3E8 / sqrt (dielK);
+		start = xStart * 1E9 / diel;
+		end = xEnd * 1E9 / diel;
 
 		// Calculate distance in feet, if selected
 		if (xUnits == UNIT_FT)
 		{
-			val1 = val1 / M_TO_FT;
-			val2 = val2 / M_TO_FT;
+			start = start / M_TO_FT;
+			end = end / M_TO_FT;
 		}
 	}
 
-	start_tm.time = (UINT32) (val1 / 50.0 * 0xFFFF);
-	end_tm.time = (UINT32) (val2 / 50.0 * 0xFFFF);
+	start_tm.time = (UINT32) (start / 50.0 * 0xFFFF);
+	end_tm.time = (UINT32) (end / 50.0 * 0xFFFF);
 
 	// TODO: useful return
 	return 1;
 }
+
+
+
+
+
+
+
+
+
+
 
 // Reconstruct data into useable form
 __stdcall int reconstructData (double offset, int filter)

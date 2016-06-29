@@ -173,7 +173,7 @@ int CVICALLBACK onChangeWindow (int panel, int control, int event,
 			
 			status = setWindow ();
 			
-			setupTimescale ();
+			status = ZTDR_QuantizeTimescale ();
 
 			if (getAutoAcq () != 1)
 			{
@@ -290,7 +290,7 @@ int CVICALLBACK onResetZoom (int panel, int control, int event,
 			
 			status = resetZoom ();
 
-			setupTimescale ();
+			status = ZTDR_QuantizeTimescale ();
 
 			if (getAutoAcq () != 1)
 			{
@@ -355,7 +355,7 @@ int CVICALLBACK onZoom (int panel, int control, int event,
 			
 			status = zoom ();
 
-			setupTimescale ();
+			status = ZTDR_QuantizeTimescale ();
 
 			if (getAutoAcq () != 1)
 			{
@@ -713,7 +713,7 @@ void CVICALLBACK onSetXM (int menuBar, int menuItem, void *callbackData,
 	
 	status = setUnitX (UNIT_M);
 
-	setupTimescale ();
+	status = ZTDR_QuantizeTimescale ();
 
 	if (getAutoAcq () != 1)
 	{
@@ -744,7 +744,7 @@ void CVICALLBACK onSetXFt (int menuBar, int menuItem, void *callbackData,
 	
 	status = setUnitX (UNIT_FT);
 
-	setupTimescale ();
+	status = ZTDR_QuantizeTimescale ();
 
 	if (getAutoAcq () != 1)
 	{
@@ -775,7 +775,7 @@ void CVICALLBACK onSetXNs (int menuBar, int menuItem, void *callbackData,
 	
 	status = setUnitX (UNIT_NS);
 
-	setupTimescale ();
+	status = ZTDR_QuantizeTimescale ();
 
 	if (getAutoAcq () != 1)
 	{

@@ -84,7 +84,7 @@ extern "C" {
 	
 	
 	int 	__stdcall	reconstructData (double offset, int filter);
-	int 	__stdcall	setupTimescale (void);
+	int 	__stdcall	ZTDR_QuantizeTimescale (void);
 
 	// USBFIFO functionality  
 	
