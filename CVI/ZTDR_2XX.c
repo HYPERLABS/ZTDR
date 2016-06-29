@@ -93,6 +93,9 @@ UINT16 	strobecount = 2;
 //==============================================================================
 // Global functions (user-facing)
 
+// TODO #999: re-order these
+
+
 // Initialize and calibrate device (UIR agnostic)
 __stdcall int ZTDR_Init (void)
 {
@@ -100,19 +103,19 @@ __stdcall int ZTDR_Init (void)
 	int initStatus = 0;
 	int n;
 	FT_STATUS serialStatus, fifoStatus;
-	
+
 	// If device already open, close it before re-opening
 	if (deviceOpen)
 	{
 		ZTDR_CloseDevice ();
-		
+
 		deviceOpen = 0;
 	}
-	
+
 	// Initialize individual FIFO and serial lanes
 	fifoStatus = FT_OpenEx ("USBFIFOV1A", FT_OPEN_BY_SERIAL_NUMBER, &fifoHandle);
 	serialStatus = FT_OpenEx ("USBFIFOV1B", FT_OPEN_BY_SERIAL_NUMBER, &serialHandle);
-	
+
 	// One or both lanes failed to initialize
 	if (serialStatus != FT_OK || fifoStatus != FT_OK)
 	{
@@ -148,7 +151,7 @@ __stdcall int ZTDR_Init (void)
 		{
 			return -111;
 		}
-		
+
 		// Set device data characteristics
 		serialStatus = FT_SetDataCharacteristics (serialHandle, FT_BITS_8, FT_STOP_BITS_1, FT_PARITY_NONE);
 
@@ -156,7 +159,7 @@ __stdcall int ZTDR_Init (void)
 		{
 			return -112;
 		}
-		
+
 		// Set device flow control
 		serialStatus = FT_SetFlowControl (serialHandle, FT_FLOW_XON_XOFF, 'o', 'c');  // open and close
 
@@ -172,24 +175,24 @@ __stdcall int ZTDR_Init (void)
 		{
 			return -114;
 		}
-		
+
 		// Read device identification
 		serialStatus = ftwrbyte ('o');
 		serialStatus = ftwrbyte ('i');
 		serialStatus = FT_Read (serialHandle, deviceID, 16, &n);
 		serialStatus = ftwrbyte ('c');
-		
+
 		if (strncmp (deviceID, "USBFIFO", 7) != 0)
 		{
 			return -115;
 		}
-		
+
 		// Read device commspeed
 		serialStatus = ftwrbyte ('o');
 		serialStatus = ftwrbyte ('s');
 		serialStatus = FT_Read (serialHandle, deviceCommspeed, 16, &n );
 		serialStatus = ftwrbyte ('c');
-		
+
 		if (strncmp (deviceCommspeed, "256000", 6) != 0)
 		{
 			return -116;
@@ -201,15 +204,15 @@ __stdcall int ZTDR_Init (void)
 		FT_SetRts(serialHandle);
 		FT_ClrRts(serialHandle);
 	}
-	
+
 	// Set increment for default 50 ns timescale
 	calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 ) /
 						  (((double) 50.0e-9) / (double) 65536.0));
-	
+
 	// Full timebase calibration
 	int calStatus = ZTDR_CalTimebase ();
 	// TODO #999: error message for timebase cal result
-	
+
 	// Initialization successful
 	return 1;
 }
@@ -219,27 +222,27 @@ __stdcall int ZTDR_CalTimebase (void)
 {
 	int status, calStatus;
 	int i, j;
-	
+
 	// Set calibration window
 	calstart = 0;
 	calend = 4095;
-	
+
 	// Dummy acquisition to ensure device initialization
 	status = ZTDR_PollDevice (ACQ_DUMMY);
-	
+
 	// Set start and end time to zero
 	start_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
 	end_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
-	
+
 	// Acquire data for each of 4 segments
 	for (i = 0; i < 5; i++)
 	{
 		stepcount = stepcountArray[(UINT16) i];
 
 		status = ZTDR_PollDevice (ACQ_FULL);
-		
+
 		status = reconstructData (0, 1);
-		
+
 		// Find mean of waveform segment
 		double val = 0.00;
 
@@ -250,9 +253,9 @@ __stdcall int ZTDR_CalTimebase (void)
 
 		calLevels[i] = val / recLen;
 	}
-	
+
 	// TODO #999: return errors from PollDevice, not just calibration below
-	
+
 	// Find optimal stepcount
 	int idxMin = 0;
 	int idxMax = 0;
@@ -286,7 +289,7 @@ __stdcall int ZTDR_CalTimebase (void)
 		// Calibration success
 		calStatus = 1;
 	}
-	
+
 	double val = ((max - min) / 4) + min;
 
 	int idxOpt = 0;
@@ -302,14 +305,14 @@ __stdcall int ZTDR_CalTimebase (void)
 	// Update globals
 	stepcount = stepcountArray[idxOpt];
 	calThreshold = val;
-	
-	
-	
-	
-	
+
+
+
+
+
 
 	status = calDAC ();
-	
+
 	// Amplitude calibration
 	status = ZTDR_CalAmplitude ();
 
@@ -320,16 +323,16 @@ __stdcall int ZTDR_CalTimebase (void)
 __stdcall int ZTDR_CalAmplitude (void)
 {
 	int status, i;
-	
+
 	// Timescale for 50 averaging 1024 samples at 0 ns
 	start_tm.time = 0;
 	end_tm.time = start_tm.time;
 
 	// Acquisition for offset calculation
 	status = ZTDR_PollDevice (ACQ_FULL);
-	
+
 	status = reconstructData (0, -1);
-	
+
 	// Find offset for acquisition
 	double vstart = ZTDR_GetMean ();
 
@@ -339,7 +342,7 @@ __stdcall int ZTDR_CalAmplitude (void)
 
 	// Main calibration acquisition
 	status = ZTDR_PollDevice (ACQ_FULL);
-	
+
 	status = reconstructData (0, -1);
 
 	// Find the 50% crossing from vstart to approx. vstart + 1200 (step size)
@@ -353,7 +356,7 @@ __stdcall int ZTDR_CalAmplitude (void)
 	int calInterval = (int) (CAL_GUARD / (CAL_WINDOW / 1024));
 
 	int startIdx = i50 - calInterval;
-	
+
 	if (startIdx > 1)
 	{
 		double temp = 0;
@@ -365,7 +368,7 @@ __stdcall int ZTDR_CalAmplitude (void)
 
 		vstart = temp / startIdx;
 	}
-	
+
 	// Calibrated vend from reference cable
 	double vend;
 	double endIdx1 = i50 + calInterval;
@@ -484,9 +487,9 @@ __stdcall int acquireWaveform (int numAvg)
 
 	// Acquisition for offset calculation
 	status = ZTDR_PollDevice (ACQ_FULL);
-	
+
 	status = reconstructData (0, -1);
-	
+
 	double offset = ZTDR_GetMean ();
 
 	// Timescale and parameters for main acquisition
@@ -496,12 +499,12 @@ __stdcall int acquireWaveform (int numAvg)
 	for (int j = 0; j < numAvg; j++)
 	{
 		// TODO #175: need dummy strobe
-		
+
 		// Main acquisition
 		status = ZTDR_PollDevice (ACQ_FULL);
-	
+
 		status = reconstructData (offset, -1);
-	
+
 		// Store data, perform rho conversion
 		for (i = 0; i < recLen; i++)
 		{
@@ -709,7 +712,7 @@ __stdcall int ZTDR_PollDevice (int acqType)
 {
 	int i;
 	int status = 0;
-	
+
 	// Write acquisition parameters to device
 	if (acqType == ACQ_FULL)
 	{
@@ -717,8 +720,8 @@ __stdcall int ZTDR_PollDevice (int acqType)
 		static UINT8 params[NPARAMS];
 		char ch;
 		int n;
-		
-		// Full parameter list       
+
+		// Full parameter list
 		params[IDX_FREERUN] = 0;
 		params[IDX_STEPCNT_UPPER] = stepcount >> 8;
 		params[IDX_STEPCNT_LOWER] = (UINT8) stepcount;
@@ -745,8 +748,8 @@ __stdcall int ZTDR_PollDevice (int acqType)
 		params[IDX_OVERSAMPLE] = 0;
 		params[IDX_STROBECNT_UPPER] = strobecount >> 8;
 		params[IDX_STROBECNT_LOWER] = (UINT8) strobecount;
-		
-		
+
+
 		// Send parameters to device
 		// TODO #999: cleanup
 		stat = ftwrbyte('p');
@@ -766,23 +769,23 @@ __stdcall int ZTDR_PollDevice (int acqType)
 			return -202;
 		}
 	}
-	
+
 	// Acquire waveform
 	UINT8 acq_result;
 	status = usbfifo_acquire (&acq_result, 0);
-	
+
 	// Verify block integrity
 	if (acqType == ACQ_FULL)
 	{
 		// Blocks of 256 data points (max 256 blocks, 16,384 data points)
 		int numBlocks = recLen / 256;
-	
+
 		// Verify integrity of all data blocks
 		for (int i = 0; i < numBlocks; i++)
 		{
 			// Number of read attempts before failure
 			int nTries = 3;
-		
+
 			// Verify data integrity of block
 			while ((status = usbfifo_readblock ((UINT8) i, (UINT16*) wfm + (256 * i))) < 0 && nTries--);
 
@@ -793,7 +796,7 @@ __stdcall int ZTDR_PollDevice (int acqType)
 			}
 		}
 	}
-	
+
 	// Acquisition successful
 	return 1;
 }
@@ -850,7 +853,7 @@ __stdcall int setupTimescale (void)
 
 	start_tm.time = (UINT32) (val1 / 50.0 * 0xFFFF);
 	end_tm.time = (UINT32) (val2 / 50.0 * 0xFFFF);
-	
+
 	// TODO: useful return
 	return 1;
 }
@@ -880,14 +883,14 @@ __stdcall int writeParams (void)
 __stdcall int reconstructData (double offset, int filter)
 {
 	int i;
-	
+
 	// Increment between data points
 	UINT32 incr;
 	incr = (end_tm.time - start_tm.time) / recLen;
-	
+
 	timeinf curt;
 	curt.time = start_tm.time;
-	
+
 	// Set dielectric constant
 	double vDiel = (double) 3E8 / sqrt (dielK);
 
@@ -901,7 +904,7 @@ __stdcall int reconstructData (double offset, int filter)
 
 		curt.time += incr;
 	}
-	
+
 	// Smooth data for better resolution
 	if (filter == 1)
 	{
@@ -919,7 +922,7 @@ __stdcall int reconstructData (double offset, int filter)
 			wfmFilter[i] = val / FILTER_WIDTH;
 		}
 	}
-	
+
 	// TODO: useful return
 	return 1;
 }
@@ -930,7 +933,7 @@ __stdcall int reconstructData (double offset, int filter)
 __stdcall int calDAC (void)
 {
 	int status;
-	
+
 	// Set calibration window
 	calstart = 0;
 
@@ -940,11 +943,11 @@ __stdcall int calDAC (void)
 
 	val = 0;
 	end_tm.time = (UINT32) (val / 50.0 * 0xFFFF);;
-	
+
 	status = ZTDR_PollDevice (ACQ_FULL);
-	
+
 	status = reconstructData (0, 1);
-	
+
 	calDiscLevel = calFindDiscont ();
 
 	int i = 0;
@@ -952,13 +955,13 @@ __stdcall int calDAC (void)
 	while ((calDiscLevel < calThreshold) && (i < 10) && (calstart <= 1100))
 	{
 		calstart = calstart + 100;
-		
+
 		status = ZTDR_PollDevice (ACQ_FULL);
-	
+
 		status = reconstructData (0, 1);
-	
+
 		calDiscLevel = calFindDiscont ();
-		
+
 		i++;
 	}
 
@@ -972,13 +975,13 @@ __stdcall int calDAC (void)
 	while ((calDiscLevel > calThreshold) && (i < 16))
 	{
 		calstart = calstart - 10;
-		
+
 		status = ZTDR_PollDevice (ACQ_FULL);
-	
+
 		status = reconstructData (0, 1);
-	
+
 		calDiscLevel = calFindDiscont ();
-		
+
 		i++;
 	}
 
@@ -997,7 +1000,7 @@ __stdcall int calDAC (void)
 
 	stepcountSave = stepcount;
 	stepcount = stepcount + 4;
-	
+
 	// Start, end at 0 ns
 	val = 0;
 	start_tm.time = (UINT32) (val / 50.0 * 0xFFFF);
@@ -1006,9 +1009,9 @@ __stdcall int calDAC (void)
 	end_tm.time = (UINT32) (val / 50.0 * 0xFFFF);;
 
 	status = ZTDR_PollDevice (ACQ_FULL);
-	
+
 	status = reconstructData (0, 1);
-	
+
 	calDiscLevel = calFindDiscont ();
 
 	i = 0;
@@ -1016,13 +1019,13 @@ __stdcall int calDAC (void)
 	while ((calDiscLevel < calThreshold) && (i < 25) && (calstart <= 4095))
 	{
 		calstart = calstart + 100;
-		
+
 		status = ZTDR_PollDevice (ACQ_FULL);
-	
+
 		status = reconstructData (0, 1);
-	
+
 		calDiscLevel = calFindDiscont ();
-		
+
 		i++;
 	}
 	if (i == 25)
@@ -1035,13 +1038,13 @@ __stdcall int calDAC (void)
 	while ((calDiscLevel > calThreshold) && (i < 16))
 	{
 		calstart = calstart - 10;
-		
+
 		status = ZTDR_PollDevice (ACQ_FULL);
-	
+
 		status = reconstructData (0, 1);
-	
+
 		calDiscLevel = calFindDiscont ();
-		
+
 		i++;
 	}
 
@@ -1055,7 +1058,7 @@ __stdcall int calDAC (void)
 	calstart = calstart_save;
 
 	stepcount = (UINT16) stepcountSave +1;
-	
+
 	return 1;
 }
 
@@ -1070,7 +1073,7 @@ __stdcall double calFindDiscont (void)
 	}
 
 	val = val / recLen;
-	
+
 	return val;
 }
 
@@ -1105,7 +1108,7 @@ __stdcall FT_STATUS ftwrbyte(char ch)
 	int n;
 
 	status = FT_Write (serialHandle, &ch, 1, &n);
-	
+
 	return status;
 }
 
