@@ -818,6 +818,22 @@ __stdcall double ZTDR_GetMean (void)
 	return ((double) val / (double) 1000.0);
 }
 
+// TODO #999: function description
+__stdcall double ZTDR_FindDiscont (void)
+{
+	double val = 0.0;
+
+	for (int i = 0; i < recLen; i++)
+	{
+		val = val + wfmFilter[i];
+	}
+
+	val = val / recLen;
+
+	return val;
+}
+
+
 
 
 
@@ -921,17 +937,14 @@ __stdcall int ZTDR_CalDAC (void)
 	calstart = 0;
 
 	// Start, end at 0 ns
-	double val = 0;
-	start_tm.time = (UINT32) (val / 50.0 * 0xFFFF);
-
-	val = 0;
-	end_tm.time = (UINT32) (val / 50.0 * 0xFFFF);;
+	start_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
+	end_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);;
 
 	status = ZTDR_PollDevice (ACQ_FULL);
 
 	status = reconstructData (0, 1);
 
-	calDiscLevel = calFindDiscont ();
+	calDiscLevel = ZTDR_FindDiscont ();
 
 	int i = 0;
 
@@ -943,7 +956,7 @@ __stdcall int ZTDR_CalDAC (void)
 
 		status = reconstructData (0, 1);
 
-		calDiscLevel = calFindDiscont ();
+		calDiscLevel = ZTDR_FindDiscont ();
 
 		i++;
 	}
@@ -963,7 +976,7 @@ __stdcall int ZTDR_CalDAC (void)
 
 		status = reconstructData (0, 1);
 
-		calDiscLevel = calFindDiscont ();
+		calDiscLevel = ZTDR_FindDiscont ();
 
 		i++;
 	}
@@ -995,7 +1008,7 @@ __stdcall int ZTDR_CalDAC (void)
 
 	status = reconstructData (0, 1);
 
-	calDiscLevel = calFindDiscont ();
+	calDiscLevel = ZTDR_FindDiscont ();
 
 	i = 0;
 
@@ -1007,7 +1020,7 @@ __stdcall int ZTDR_CalDAC (void)
 
 		status = reconstructData (0, 1);
 
-		calDiscLevel = calFindDiscont ();
+		calDiscLevel = ZTDR_FindDiscont ();
 
 		i++;
 	}
@@ -1026,7 +1039,7 @@ __stdcall int ZTDR_CalDAC (void)
 
 		status = reconstructData (0, 1);
 
-		calDiscLevel = calFindDiscont ();
+		calDiscLevel = ZTDR_FindDiscont ();
 
 		i++;
 	}
@@ -1045,24 +1058,10 @@ __stdcall int ZTDR_CalDAC (void)
 	return 1;
 }
 
-// TO DO: function description
-__stdcall double calFindDiscont (void)
-{
-	double val = 0.0;
-
-	for (int i = 0; i < recLen; i++)
-	{
-		val = val + wfmFilter[i];
-	}
-
-	val = val / recLen;
-
-	return val;
-}
 
 
 
-// TODO: check errors based on response from usbfifo_acquire ()
+
 
 
 

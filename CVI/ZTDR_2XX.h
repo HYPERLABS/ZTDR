@@ -77,12 +77,12 @@ extern "C" {
 
 	// Other driver functions
 	void 	__stdcall	ZTDR_CloseDevice (void);
+	double 	__stdcall	ZTDR_FindDiscont (void);
 	double 	__stdcall	ZTDR_GetMean (void);
 	int 	__stdcall	ZTDR_PollDevice (int acqType);
 	
 	
 	int 	__stdcall	ZTDR_CalDAC (void);
-	double 	__stdcall	calFindDiscont (void);
 	int 	__stdcall	reconstructData (double offset, int filter);
 	int 	__stdcall	setupTimescale (void);
 
