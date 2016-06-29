@@ -196,6 +196,12 @@ __stdcall int ZTDR_Init (void)
 		{
 			return -116;
 		}
+		
+		// NOTE: FTDI comm lines; nothing important to debug
+		FT_ClrDtr(serialHandle);
+
+		FT_SetRts(serialHandle);
+		FT_ClrRts(serialHandle);
 	}
 
 	// Set increment for default 50 ns timescale
