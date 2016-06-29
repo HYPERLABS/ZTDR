@@ -57,6 +57,7 @@ extern "C" {
 // Global functions
 
 	// User-facing functions
+	int 	__stdcall	ZTDR_CalTimebase (void);
 	int		__stdcall 	ZTDR_Init (void);
 	
 	
@@ -75,14 +76,12 @@ extern "C" {
 	double	__stdcall	fetchDataY (int idx);
 
 	// Other driver functions
-	int 	__stdcall	ZTDR_CalTimebase (void);
 	void 	__stdcall	ZTDR_CloseDevice (void);
 	int 	__stdcall	ZTDR_PollDevice (int acqType);
 	
 	
 	int 	__stdcall	calDAC (void);
 	double 	__stdcall	calFindDiscont (void);
-	double 	__stdcall	calFindMean (void);
 	int 	__stdcall	calFindStepcount (void);
 	double 	__stdcall	meanArray (void);
 	int 	__stdcall	reconstructData (double offset, int filter);

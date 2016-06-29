@@ -214,7 +214,58 @@ __stdcall int ZTDR_Init (void)
 	return 1;
 }
 
+// Full timebase calibration
+__stdcall int ZTDR_CalTimebase (void)
+{
+	int status;
+	
+	// Set calibration window
+	calstart = 0;
+	calend = 4095;
+	
+	// Dummy acquisition to ensure device initialization
+	status = ZTDR_PollDevice (ACQ_DUMMY);
+	
+	// Set start and end time to zero
+	start_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
+	end_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
+	
+	// Acquire data for each of 4 segments
+	for (int i = 0; i < 5; i++)
+	{
+		stepcount = stepcountArray[(UINT16) i];
 
+		status = ZTDR_PollDevice (ACQ_FULL);
+		
+		status = reconstructData (0, 1);
+		
+		// Find mean of waveform segment
+		double val = 0.00;
+
+		for (int i = 0; i < recLen; i++)
+		{
+			val = val + wfmFilter[i];
+		}
+
+		calLevels[i] = val / recLen;
+	}
+	
+	
+	
+
+	int calStatus = calFindStepcount ();
+
+	status = calDAC ();
+
+	// TODO: is setupTimescale necessary here?
+	// TODO: setupTimescale is done at each calibration/acquisition
+	// status = setupTimescale ();
+	
+	// Amplitude calibration
+	vertCal ();
+
+	return calStatus;
+}
 
 
 
@@ -607,49 +658,7 @@ __stdcall int dumpFile (char *filename)
 //==============================================================================
 // Global functions (not user-facing)
 
-// TODO: make calibrate timebase a user-facing function
-// Full timebase calibration
-__stdcall int ZTDR_CalTimebase (void)
-{
-	int status;
-	
-	// Set calibration window
-	calstart = 0;
-	calend = 4095;
-	
-	// Dummy acquisition to ensure device initialization
-	status = ZTDR_PollDevice (ACQ_DUMMY);
-	
-	// Set start and end time to zero
-	start_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
-	end_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
-	
-	// Acquire data for each of 4 segments
-	for (int i = 0; i < 5; i++)
-	{
-		stepcount = stepcountArray[(UINT16) i];
 
-		status = ZTDR_PollDevice (ACQ_FULL);
-		
-		status = reconstructData (0, 1);
-		
-		// Find mean of waveform segment
-		calLevels[i] = calFindMean ();
-	}
-
-	int calStatus = calFindStepcount ();
-
-	status = calDAC ();
-
-	// TODO: is setupTimescale necessary here?
-	// TODO: setupTimescale is done at each calibration/acquisition
-	// status = setupTimescale ();
-	
-	// Amplitude calibration
-	vertCal ();
-
-	return calStatus;
-}
 
 // Close FTDI device
 __stdcall void ZTDR_CloseDevice (void)
@@ -887,23 +896,6 @@ __stdcall double meanArray (void)
 	}
 
 	return ((double) val / (double) 1000.0);
-}
-
-
-
-// Find mean of waveform segment
-__stdcall double calFindMean (void)
-{
-	double val = 0.00;
-
-	for (int i = 0; i < recLen; i++)
-	{
-		val = val + wfmFilter[i];
-	}
-
-	val = val / recLen;
-
-	return val;
 }
 
 // Find optimal step count
