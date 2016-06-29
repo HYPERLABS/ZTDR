@@ -331,8 +331,7 @@ __stdcall int ZTDR_CalAmplitude (void)
 	status = reconstructData (0, -1);
 	
 	// Find offset for acquisition
-	double vstart;
-	vstart = meanArray ();
+	double vstart = ZTDR_GetMean ();
 
 	// Timescale for 50 ns calibration window
 	double val = 0.0;
@@ -511,7 +510,7 @@ __stdcall int acquireWaveform (int numAvg)
 	
 	status = reconstructData (0, -1);
 	
-	double offset = meanArray();
+	double offset = ZTDR_GetMean ();
 
 	// Timescale and parameters for main acquisition
 	status = setupTimescale ();
@@ -710,7 +709,7 @@ __stdcall int dumpFile (char *filename)
 //==============================================================================
 // Global functions (not user-facing)
 
-
+// TODO #999: re-order these
 
 // Close FTDI device
 __stdcall void ZTDR_CloseDevice (void)
@@ -822,7 +821,18 @@ __stdcall int ZTDR_PollDevice (int acqType)
 	return 1;
 }
 
+// Calculate mean of data array
+__stdcall double ZTDR_GetMean (void)
+{
+	long val = 0;
 
+	for (int i = 24; i < 1024; i++)
+	{
+		val += wfmFilter[i];
+	}
+
+	return ((double) val / (double) 1000.0);
+}
 
 
 
@@ -937,18 +947,7 @@ __stdcall int reconstructData (double offset, int filter)
 	return 1;
 }
 
-// Calculate offset from average 0
-__stdcall double meanArray (void)
-{
-	long val = 0;
 
-	for (int i = 24; i < 1024; i++)
-	{
-		val += wfmFilter[i];
-	}
-
-	return ((double) val / (double) 1000.0);
-}
 
 // Calibrate DACs
 __stdcall int calDAC (void)
