@@ -297,14 +297,9 @@ __stdcall int ZTDR_CalTimebase (void)
 	stepcount = stepcountArray[idxOpt];
 	calThreshold = val;
 
-
-	
-
+	// Calibrate DAC
 	status = ZTDR_CalDAC ();
-
 	// TODO #999 fail on DAC?
-	
-	
 	
 	// Amplitude calibration
 	calStatus = ZTDR_CalAmplitude ();
