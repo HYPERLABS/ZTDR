@@ -238,7 +238,7 @@ __stdcall int vertCal (void)
 	end_tm.time = start_tm.time;
 
 	// Acquisition for offset calculation
-	status = getData ();
+	status = ZTDR_PollDevice (ACQ_FULL);
 	
 	status = reconstructData (0, -1);
 	
@@ -254,7 +254,7 @@ __stdcall int vertCal (void)
 	end_tm.time = (UINT32) (val / 50.0 * 0xFFFF);
 
 	// Main calibration acquisition
-	status = getData ();
+	status = ZTDR_PollDevice (ACQ_FULL);
 	
 	status = reconstructData (0, -1);
 
@@ -404,7 +404,7 @@ __stdcall int acquireWaveform (int numAvg)
 	end_tm.time = start_tm.time;
 
 	// Acquisition for offset calculation
-	status = getData ();
+	status = ZTDR_PollDevice (ACQ_FULL);
 	
 	status = reconstructData (0, -1);
 	
@@ -419,7 +419,7 @@ __stdcall int acquireWaveform (int numAvg)
 		// TODO #175: need dummy strobe
 		
 		// Main acquisition
-		status = getData ();
+		status = ZTDR_PollDevice (ACQ_FULL);
 	
 		status = reconstructData (offset, -1);
 	
@@ -1029,7 +1029,7 @@ __stdcall int calDAC (void)
 	val = 0;
 	end_tm.time = (UINT32) (val / 50.0 * 0xFFFF);;
 	
-	status = getData ();
+	status = ZTDR_PollDevice (ACQ_FULL);
 	
 	status = reconstructData (0, 1);
 	
@@ -1041,7 +1041,7 @@ __stdcall int calDAC (void)
 	{
 		calstart = calstart + 100;
 		
-		status = getData ();
+		status = ZTDR_PollDevice (ACQ_FULL);
 	
 		status = reconstructData (0, 1);
 	
@@ -1061,7 +1061,7 @@ __stdcall int calDAC (void)
 	{
 		calstart = calstart - 10;
 		
-		status = getData ();
+		status = ZTDR_PollDevice (ACQ_FULL);
 	
 		status = reconstructData (0, 1);
 	
@@ -1093,7 +1093,7 @@ __stdcall int calDAC (void)
 	val = 0;
 	end_tm.time = (UINT32) (val / 50.0 * 0xFFFF);;
 
-	status = getData ();
+	status = ZTDR_PollDevice (ACQ_FULL);
 	
 	status = reconstructData (0, 1);
 	
@@ -1105,7 +1105,7 @@ __stdcall int calDAC (void)
 	{
 		calstart = calstart + 100;
 		
-		status = getData ();
+		status = ZTDR_PollDevice (ACQ_FULL);
 	
 		status = reconstructData (0, 1);
 	
@@ -1124,7 +1124,7 @@ __stdcall int calDAC (void)
 	{
 		calstart = calstart - 10;
 		
-		status = getData ();
+		status = ZTDR_PollDevice (ACQ_FULL);
 	
 		status = reconstructData (0, 1);
 	
