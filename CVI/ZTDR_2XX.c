@@ -123,19 +123,19 @@ __stdcall int ZTDR_Init (void)
 		{
 			FT_Close (serialHandle);
 
-			initStatus = -102;
+			return -102;
 		}
 		// FIFO OK, serial failed
 		else if (fifoStatus == FT_OK)
 		{
 			FT_Close (fifoHandle);
 
-			initStatus = -103;
+			return -103;
 		}
 		// Both serial and FIFO failed
 		else
 		{
-			initStatus = -101;
+			return -101;
 		}
 	}
 	// Both serial and FIFO lanes initialized
@@ -197,9 +197,7 @@ __stdcall int ZTDR_Init (void)
 			return -116;
 		}
 		
-		// NOTE: FTDI comm lines; nothing important to debug
-		serialStatus = FT_ClrDtr(serialHandle);
-
+		// TODO #999: figure out why this is necessary here
 		serialStatus = FT_SetRts(serialHandle);
 		serialStatus = FT_ClrRts(serialHandle);
 	}
