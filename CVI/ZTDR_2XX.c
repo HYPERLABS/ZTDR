@@ -217,7 +217,8 @@ __stdcall int ZTDR_Init (void)
 // Full timebase calibration
 __stdcall int ZTDR_CalTimebase (void)
 {
-	int status;
+	int status, calStatus;
+	int i, j;
 	
 	// Set calibration window
 	calstart = 0;
@@ -231,7 +232,7 @@ __stdcall int ZTDR_CalTimebase (void)
 	end_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
 	
 	// Acquire data for each of 4 segments
-	for (int i = 0; i < 5; i++)
+	for (i = 0; i < 5; i++)
 	{
 		stepcount = stepcountArray[(UINT16) i];
 
@@ -242,24 +243,73 @@ __stdcall int ZTDR_CalTimebase (void)
 		// Find mean of waveform segment
 		double val = 0.00;
 
-		for (int i = 0; i < recLen; i++)
+		for (j = 0; j < recLen; j++)
 		{
-			val = val + wfmFilter[i];
+			val = val + wfmFilter[j];
 		}
 
 		calLevels[i] = val / recLen;
 	}
 	
 	
+	// TODO #999: return errors from PollDevice, not just calibration below
+	
+	// Find optimal stepcount
+	int idxMin = 0;
+	int idxMax = 0;
+
+	// Any valid data sets new max/min
+	double max = 0.00;
+	double min = 4095.0;
+
+	// Cycle each of 4 data segments
+	for (i = 0; i < 5; i++)
+	{
+		if (calLevels[i] < min)
+		{
+			min = calLevels[i];
+			idxMin = i;
+		}
+		if (calLevels[i] > max)
+		{
+			max = calLevels[i];
+			idxMax = i;
+		}
+	}
+
+	if ((min < 1) || (max > 4094))
+	{
+		// Calibration fail
+		calStatus = -501;
+	}
+	else
+	{
+		// Calibration success
+		calStatus = 1;
+	}
+	
+	double val = ((max - min) / 4) + min;
+
+	int idxOpt = 0;
+
+	for (i = 4; i > 0; i--)
+	{
+		if (calLevels[i] < val)
+		{
+			idxOpt = i;
+		}
+	}
+
+	// Update globals
+	stepcount = stepcountArray[idxOpt];
+	calThreshold = val;
+	
+	
+	
+	
 	
 
-	int calStatus = calFindStepcount ();
-
 	status = calDAC ();
-
-	// TODO: is setupTimescale necessary here?
-	// TODO: setupTimescale is done at each calibration/acquisition
-	// status = setupTimescale ();
 	
 	// Amplitude calibration
 	vertCal ();
@@ -896,68 +946,6 @@ __stdcall double meanArray (void)
 	}
 
 	return ((double) val / (double) 1000.0);
-}
-
-// Find optimal step count
-__stdcall int calFindStepcount (void)
-{
-	int i;
-	
-	int idxMin, idxMax;
-	idxMin = 0;
-	idxMax = 0;
-
-	// Set so any good data sets new max/min
-	double max = 0.00;
-	double min = 4095.0;
-
-	// Cycle each of 4 data segments
-	for (i = 0; i < 5; i++)
-	{
-		if (calLevels[i] < min)
-		{
-			min = calLevels[i];
-			idxMin = i;
-		}
-		if (calLevels[i] > max)
-		{
-			max = calLevels[i];
-			idxMax = i;
-		}
-	}
-
-	int calStatus = 0;
-
-	if ((min < 1) || (max > 4094))
-	{
-		// Calibration failed
-		calStatus = -501;
-	}
-	else
-	{
-		// Calibration success
-		calStatus = 1;
-	}
-
-	double val;
-	val = (max - min) / 4 + min;
-
-	int idxOpt;
-	idxOpt = 0;
-
-	for (i = 4; i > 0; i--)
-	{
-		if (calLevels[i] < val)
-		{
-			idxOpt = i;
-		}
-	}
-
-	stepcount = stepcountArray[idxOpt];
-
-	calThreshold = val;
-
-	return calStatus;
 }
 
 // Calibrate DACs

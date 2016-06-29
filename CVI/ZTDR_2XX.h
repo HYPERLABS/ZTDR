@@ -82,7 +82,6 @@ extern "C" {
 	
 	int 	__stdcall	calDAC (void);
 	double 	__stdcall	calFindDiscont (void);
-	int 	__stdcall	calFindStepcount (void);
 	double 	__stdcall	meanArray (void);
 	int 	__stdcall	reconstructData (double offset, int filter);
 	int 	__stdcall	setupTimescale (void);
