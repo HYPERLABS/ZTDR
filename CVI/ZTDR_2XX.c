@@ -287,11 +287,6 @@ __stdcall int ZTDR_CalTimebase (void)
 		// Calibration fail
 		return -201;
 	}
-	else
-	{
-		// Calibration success
-		calStatus = 1;
-	}
 
 	double val = ((max - min) / 4) + min;
 
@@ -320,7 +315,7 @@ __stdcall int ZTDR_CalTimebase (void)
 	
 	// Amplitude calibration
 	calStatus = ZTDR_CalAmplitude ();
-
+	
 	return calStatus;
 }
 
@@ -767,7 +762,6 @@ __stdcall int ZTDR_PollDevice (int acqType)
 
 
 		// Send parameters to device
-		// TODO #999: cleanup
 		stat = ftwrbyte('p');
 		stat = FT_Write (serialHandle, params, NPARAMS, &n);
 		ch = ftrdbyte();
