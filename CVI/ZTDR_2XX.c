@@ -158,7 +158,7 @@ __stdcall int ZTDR_Init (void)
 		}
 		
 		// Set device flow control
-		serialStatus = FT_SetFlowControl (serialHandle, FT_FLOW_XON_XOFF, 'o', 'c');  // open, close for flow control
+		serialStatus = FT_SetFlowControl (serialHandle, FT_FLOW_NONE, 'o', 'p');  // o and p are bogus characters
 
 		if (serialStatus != FT_OK)
 		{
@@ -174,8 +174,8 @@ __stdcall int ZTDR_Init (void)
 		}
 		
 		// Read device identification
-		serialStatus = ftwrbyte ('i');
-		serialStatus = FT_Read (serialHandle, deviceID, 16, &n);
+		ftwrbyte ('i');
+		FT_Read (serialHandle, deviceID, 16, &n);
 		
 		if (strncmp (deviceID, "USBFIFO", 7) != 0)
 		{
@@ -183,21 +183,21 @@ __stdcall int ZTDR_Init (void)
 		}
 		
 		// Read device commspeed
-		serialStatus = ftwrbyte ('s');
-		serialStatus = FT_Read (serialHandle, deviceCommspeed, 16, &n );
+		ftwrbyte ('s');
+		FT_Read (serialHandle, deviceCommspeed, 16, &n );
 		
-		if (strncmp (deviceCommspeed, "256000", 6) != 0)
+		/*
+		if (ch != '.')
 		{
 			return -116;
 		}
+		*/
 
-		/*
 		// NOTE: FTDI comm lines; nothing important to debug
 		FT_ClrDtr(serialHandle);
 
 		FT_SetRts(serialHandle);
 		FT_ClrRts(serialHandle);
-		*/
 	}
 	
 	// Set increment for default 50 ns timescale
@@ -1074,24 +1074,11 @@ __stdcall char ftrdbyte(void)
 }
 
 // Write FTDI byte
-__stdcall FT_STATUS ftwrbyte (char ch)
+__stdcall void ftwrbyte(char ch)
 {
-	FT_STATUS status;
 	int n;
-	
-	char open = 'o';
-	char close = 'c';
-	
-	// Open flow control
-	status = FT_Write (serialHandle, &open, 1, &n);
-	
-	// Send actual command
-	status = FT_Write (serialHandle, &ch, 1, &n);
-	
-	// Close flow control
-	status = FT_Write (serialHandle, &close, 1, &n);
-	
-	return status;
+
+	FT_Write (serialHandle, &ch, 1, &n);
 }
 
 // Acquire from FDTI device
@@ -1108,10 +1095,10 @@ __stdcall int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
 	}
 
 	// NOTE: Write 'a' (acquire) to ADUC
-	stat = ftwrbyte ('a');
+	ftwrbyte ('a');
 
 	// NOTE: Write a '0' to ADUC (leave it)
-	stat = ftwrbyte (arg);
+	ftwrbyte (arg);
 
 	// NOTE: Sets time for ADUC to respond
 	stat = FT_SetTimeouts (serialHandle, 1000, 1000);
@@ -1122,7 +1109,7 @@ __stdcall int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
 	// NOTE: '.' means the acquisition successful
 	ch = ftrdbyte ();
 
-	//stat = FT_SetTimeouts (serialHandle, STD_TIMEOUT, STD_TIMEOUT);
+	stat = FT_SetTimeouts (serialHandle, STD_TIMEOUT, STD_TIMEOUT);
 
 	if (ch != '.')
 	{
@@ -1143,8 +1130,6 @@ __stdcall int usbfifo_readblock (UINT8 block_no, UINT16 *buf)
 {
 #define BLOCK_LEN 256
 
-	FT_STATUS stat;
-	
 	char ch;
 	int n, ret,i;
 	UINT8 rawbuf8[2*BLOCK_LEN];
@@ -1154,7 +1139,8 @@ __stdcall int usbfifo_readblock (UINT8 block_no, UINT16 *buf)
 		return 0;
 	}
 
-	// NOTE: command to 'b', read from block  
+	// NOTE: command to 'b', read from block
+
 	ftwrbyte ('b');
 
 	// NOTE: which block to pull from
@@ -1194,8 +1180,6 @@ __stdcall int usbfifo_readblock (UINT8 block_no, UINT16 *buf)
 __stdcall int usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calend, timeinf tmstart, timeinf tmend, UINT16 stepcount,
 								 UINT16 strobecount, UINT8 noversample, UINT16 record_len, UINT16 dac0, UINT16 dac1, UINT16 dac2)
 {
-	FT_STATUS stat;
-	
 	static UINT8 params[NPARAMS];
 	int ch;
 	int n;
