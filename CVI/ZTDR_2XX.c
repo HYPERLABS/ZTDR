@@ -618,15 +618,23 @@ __stdcall int ZTDR_CalTimebase (void)
 	calend = 4095;
 	
 	// Dummy acquisition to ensure device initialization
-	UINT8 acq_result;
-	status = usbfifo_acquire (&acq_result, 0);
+	status = ZTDR_PollDevice (ACQ_DUMMY);
 	
-	// Set start and end time
-	double val = 0;
-	start_tm.time = (UINT32) (val / 50.0 * 0xFFFF);
-
-	val = 0;
-	end_tm.time = (UINT32) (val / 50.0 * 0xFFFF);
+	// Set start and end time to zero
+	start_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
+	end_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	// Acquire data for each of 4 data segments
 	for (int i = 0; i < 5; i++)
@@ -655,7 +663,114 @@ __stdcall int ZTDR_CalTimebase (void)
 	return calStatus;
 }
 
+// Close FTDI device
+__stdcall void ZTDR_CloseDevice (void)
+{
+	FT_STATUS status;
 
+	if (!deviceOpen)
+	{
+		return;
+	}
+
+	status = FT_Close (serialHandle);
+	status = FT_Close (fifoHandle);
+
+	deviceOpen = 0;
+}
+
+// Get full waveform data for use in all functions
+__stdcall int ZTDR_PollDevice (int acqType)
+{
+	int status = 0;
+	
+	// Write acquisition parameters to device
+	if (acqType == ACQ_FULL)
+	{
+		FT_STATUS stat;
+		static UINT8 params[NPARAMS];
+		char ch;
+		int n;
+		
+		// Full parameter list       
+		params[IDX_FREERUN] = 0;
+		params[IDX_STEPCNT_UPPER] = stepcount >> 8;
+		params[IDX_STEPCNT_LOWER] = (UINT8) stepcount;
+		params[IDX_RECLEN_UPPER] = recLen >> 8;
+		params[IDX_RECLEN_LOWER] = (UINT8) recLen;
+		params[IDX_DAC0_UPPER] = dac0val >> 8;
+		params[IDX_DAC0_LOWER] = (UINT8) dac0val;
+		params[IDX_DAC1_UPPER] = dac1val >> 8;
+		params[IDX_DAC1_LOWER] = (UINT8) dac1val;
+		params[IDX_DAC2_UPPER] = dac2val >> 8;
+		params[IDX_DAC2_LOWER] = (UINT8) dac2val;
+		params[IDX_CALSTART_UPPER] = calstart >> 8;
+		params[IDX_CALSTART_LOWER] = (UINT8) calstart;
+		params[IDX_CALEND_UPPER] = calend >> 8;
+		params[IDX_CALEND_LOWER] = (UINT8) calend;
+		params[IDX_TMSTART_B3] = start_tm.time_b.b3;
+		params[IDX_TMSTART_B2] = start_tm.time_b.b2;
+		params[IDX_TMSTART_B1] = start_tm.time_b.b1;
+		params[IDX_TMSTART_B0] = start_tm.time_b.b0;
+		params[IDX_TMEND_B3] = end_tm.time_b.b3;
+		params[IDX_TMEND_B2] = end_tm.time_b.b2;
+		params[IDX_TMEND_B1] = end_tm.time_b.b1;
+		params[IDX_TMEND_B0] = end_tm.time_b.b0;
+		params[IDX_OVERSAMPLE] = 0;
+		params[IDX_STROBECNT_UPPER] = strobecount >> 8;
+		params[IDX_STROBECNT_LOWER] = (UINT8) strobecount;
+		
+		
+		// Send parameters to device
+		// TODO #999: cleanup
+		stat = ftwrbyte('p');
+		stat = FT_Write (serialHandle, params, NPARAMS, &n);
+		ch = ftrdbyte();
+
+		// Errors
+		if (ch != '.')
+		{
+			// No record received
+			return -201;
+		}
+
+		else if (n != NPARAMS)
+		{
+			// Incorrect number of params passed
+			return -202;
+		}
+	}
+	
+	// Acquire waveform
+	UINT8 acq_result;
+	
+	status = usbfifo_acquire (&acq_result, 0);
+	
+	if (acqType == ACQ_FULL)
+	{
+		// Blocks of 256 data points (max 256 blocks, 16,384 data points)
+		int numBlocks = recLen / 256;
+	
+		// Verify integrity of all data blocks
+		for (int i = 0; i < numBlocks; i++)
+		{
+			// Number of read attempts before failure
+			int nTries = 3;
+		
+			// Verify data integrity of block
+			while ((status = usbfifo_readblock ((UINT8) i, (UINT16*) wfm + (256 * i))) < 0 && nTries--);
+
+			if (status != 1)
+			{
+				// Indicate which block failed (-30n for nth block)
+				return (300 - i);
+			}
+		}
+	}
+	
+	// Acquisition successful
+	return 1;
+}
 
 
 
@@ -1066,22 +1181,6 @@ __stdcall double calFindDiscont (void)
 
 //==============================================================================
 // Global functions (USBFIFO)
-
-// Close FTDI device
-__stdcall void ZTDR_CloseDevice (void)
-{
-	FT_STATUS status;
-
-	if (!deviceOpen)
-	{
-		return;
-	}
-
-	status = FT_Close (serialHandle);
-	status = FT_Close (fifoHandle);
-
-	deviceOpen = 0;
-}
 
 
 

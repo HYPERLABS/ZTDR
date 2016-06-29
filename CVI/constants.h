@@ -21,7 +21,7 @@ extern "C" {
 
 //==============================================================================
 // Constants
-
+	
 // Calibration
 #define CALSTART_DEFAULT 540
 #define CALEND_DEFAULT 3870
@@ -31,6 +31,10 @@ extern "C" {
 
 #define FILTER_WIDTH 4
 #define	CAL_RECLEN 1024 // data points for calibration
+	
+// Acquisition
+#define ACQ_DUMMY	0
+#define	ACQ_FULL	1
 
 // Max data points of USBFIFO
 #define NPOINTS_MAX 16384
