@@ -828,52 +828,6 @@ __stdcall int writeParams (void)
 	}
 }
 
-// Get waveform for use in all functions
-__stdcall int getData (void)
-{
-	int status = 0;
-	
-	// Device communication failure
-	if (!deviceOpen)
-	{
-		// TODO #999: depricate this
-		return -201;
-	}
-	
-	// Write acquisition parameters to device
-	if (writeParams () < 0)
-	{   
-		return -202;
-	}
-	
-	// Acquire waveform
-	// TODO: actual useful return of acquisition status
-	
-	UINT8 acq_result;
-	status = usbfifo_acquire (&acq_result, 0);
-	
-	// Blocks of 256 data points (max 256 blocks, 16,384 data points)
-	int numBlocks = recLen / 256;
-	
-	// Verify integrity of all data blocks
-	for (int i = 0; i < numBlocks; i++)
-	{
-		// Number of read attempts before failure
-		int nTries = 3;
-		
-		// Verify data integrity of block
-		while ((status = usbfifo_readblock ((UINT8) i, (UINT16*) wfm + (256 * i))) < 0 && nTries--);
-
-		if (status != 1)
-		{
-			// Indicate which block failed (-30n for nth block)
-			return (300 - i);
-		}
-	}
-	
-	return 1;
-}
-
 // Reconstruct data into useable form
 __stdcall int reconstructData (double offset, int filter)
 {
