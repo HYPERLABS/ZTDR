@@ -371,8 +371,8 @@ __stdcall int ZTDR_CalAmplitude (void)
 
 	// Calibrated vend from reference cable
 	double vend;
-	double endIdx1 = i50 + calInterval;
-	double endIdx2 = i50 + (calInterval * 2);
+	int endIdx1 = i50 + calInterval;
+	int endIdx2 = i50 + (calInterval * 2);
 
 	double temp = 0;
 
