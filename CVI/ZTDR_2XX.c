@@ -307,7 +307,7 @@ __stdcall int ZTDR_CalTimebase (void)
 
 	
 
-	status = calDAC ();
+	status = ZTDR_CalDAC ();
 
 	// TODO #999 fail on DAC?
 	
@@ -919,7 +919,7 @@ __stdcall int reconstructData (double offset, int filter)
 
 
 // Calibrate DACs
-__stdcall int calDAC (void)
+__stdcall int ZTDR_CalDAC (void)
 {
 	int status;
 

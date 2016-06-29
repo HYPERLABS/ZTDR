@@ -81,7 +81,7 @@ extern "C" {
 	int 	__stdcall	ZTDR_PollDevice (int acqType);
 	
 	
-	int 	__stdcall	calDAC (void);
+	int 	__stdcall	ZTDR_CalDAC (void);
 	double 	__stdcall	calFindDiscont (void);
 	int 	__stdcall	reconstructData (double offset, int filter);
 	int 	__stdcall	setupTimescale (void);
