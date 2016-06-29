@@ -3,7 +3,7 @@
 // Title:		ZTDR_2XX.c
 // Purpose:		ZTDR driver module and DLL functionality (v2.x.x)
 //
-// Copyright:	(c) 2015, HYPERLABS INC. All rights reserved.
+// Copyright:	(c) 2016, HYPERLABS INC. All rights reserved.
 //
 //==============================================================================
 
@@ -211,10 +211,9 @@ __stdcall int ZTDR_Init (void)
 
 	// Full timebase calibration
 	int calStatus = ZTDR_CalTimebase ();
-	// TODO #999: error message for timebase cal result
-
+	
 	// Initialization successful
-	return 1;
+	return calStatus;
 }
 
 // Full timebase calibration
@@ -240,6 +239,12 @@ __stdcall int ZTDR_CalTimebase (void)
 		stepcount = stepcountArray[(UINT16) i];
 
 		status = ZTDR_PollDevice (ACQ_FULL);
+		
+		// Poll device failed
+		if (status < 0)
+		{
+			return status;
+		}
 
 		status = reconstructData (0, 1);
 
@@ -253,8 +258,6 @@ __stdcall int ZTDR_CalTimebase (void)
 
 		calLevels[i] = val / recLen;
 	}
-
-	// TODO #999: return errors from PollDevice, not just calibration below
 
 	// Find optimal stepcount
 	int idxMin = 0;
@@ -282,7 +285,7 @@ __stdcall int ZTDR_CalTimebase (void)
 	if ((min < 1) || (max > 4094))
 	{
 		// Calibration fail
-		calStatus = -501;
+		return -201;
 	}
 	else
 	{
@@ -307,14 +310,16 @@ __stdcall int ZTDR_CalTimebase (void)
 	calThreshold = val;
 
 
-
-
-
+	
 
 	status = calDAC ();
 
+	// TODO #999 fail on DAC?
+	
+	
+	
 	// Amplitude calibration
-	status = ZTDR_CalAmplitude ();
+	calStatus = ZTDR_CalAmplitude ();
 
 	return calStatus;
 }
@@ -346,11 +351,17 @@ __stdcall int ZTDR_CalAmplitude (void)
 	status = reconstructData (0, -1);
 
 	// Find the 50% crossing from vstart to approx. vstart + 1200 (step size)
-	for (i = 0; wfmFilter[i] < (vstart + 400) && (i <= 1022); i++)
+	for (i = 0; wfmFilter[i] < (vstart + 400) && (i < 1024); i++)
 	{
 	}
-
+	
 	int i50 = i;
+	
+	// Could not locate edge
+	if (i50 == 1023)
+	{
+		return -250;
+	}
 
 	// Calibrated vstart as average of points from 0 to (i50 - CAL_GUARD)
 	int calInterval = (int) (CAL_GUARD / (CAL_WINDOW / 1024));
@@ -373,6 +384,12 @@ __stdcall int ZTDR_CalAmplitude (void)
 	double vend;
 	int endIdx1 = i50 + calInterval;
 	int endIdx2 = i50 + (calInterval * 2);
+	
+	// Reference goes beyond window
+	if (endIdx1 >= 1024)
+	{
+		return -251;
+	}
 
 	double temp = 0;
 
@@ -385,7 +402,7 @@ __stdcall int ZTDR_CalAmplitude (void)
 
 	vampl = vend - vstart;
 
-	// TODO #106: useful return
+	// Calibration successful
 	return 1;
 }
 
@@ -759,13 +776,13 @@ __stdcall int ZTDR_PollDevice (int acqType)
 		if (ch != '.')
 		{
 			// No record received
-			return -201;
+			return -311;
 		}
 
 		else if (n != NPARAMS)
 		{
 			// Incorrect number of params passed
-			return -202;
+			return -312;
 		}
 	}
 
