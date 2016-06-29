@@ -710,7 +710,6 @@ __stdcall void ZTDR_CloseDevice (void)
 // Get full waveform data for use in all functions
 __stdcall int ZTDR_PollDevice (int acqType)
 {
-	int i;
 	int status = 0;
 
 	// Write acquisition parameters to device
@@ -856,27 +855,6 @@ __stdcall int setupTimescale (void)
 
 	// TODO: useful return
 	return 1;
-}
-
-// Write parameters to device
-__stdcall int writeParams (void)
-{
-	int status;
-
-	status = usbfifo_setparams (0, calstart, calend, start_tm, end_tm, stepcount,
-								strobecount, 0, recLen, dac0val, dac1val, dac2val);
-
-	// Parameters successfully written
-	if (status == 1)
-	{
-		return 1;
-	}
-	// Parameters not written to device
-	else
-	{
-		// TODO: differentiate between returned -1 (bad write) and -2 (wrong number of params)?
-		return -401;
-	}
 }
 
 // Reconstruct data into useable form
@@ -1202,66 +1180,6 @@ __stdcall int usbfifo_readblock (UINT8 block_no, UINT16 *buf)
 	for (i=0; i<BLOCK_LEN; i++)
 	{
 		buf[i] = (UINT16) (((UINT16) rawbuf8[2 * i + 1]) << 8) | ((UINT16) rawbuf8[2 * i]);
-	}
-
-	return 1;
-}
-
-// Set parameters for acquisition
-__stdcall int usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calend, timeinf tmstart, timeinf tmend, UINT16 stepcount,
-								 UINT16 strobecount, UINT8 noversample, UINT16 record_len, UINT16 dac0, UINT16 dac1, UINT16 dac2)
-{
-	static UINT8 params[NPARAMS];
-	int ch;
-	int n;
-	int ret;
-
-	if (!deviceOpen)
-	{
-		return 0;
-	}
-
-	params[IDX_FREERUN] = freerun_en;
-	params[IDX_STEPCNT_UPPER] = stepcount >> 8;
-	params[IDX_STEPCNT_LOWER] = (UINT8) stepcount;
-	params[IDX_RECLEN_UPPER] = record_len >> 8;
-	params[IDX_RECLEN_LOWER] = (UINT8) record_len;
-	params[IDX_DAC0_UPPER] = dac0 >> 8;
-	params[IDX_DAC0_LOWER] = (UINT8) dac0;
-	params[IDX_DAC1_UPPER] = dac1 >> 8;
-	params[IDX_DAC1_LOWER] = (UINT8) dac1;
-	params[IDX_DAC2_UPPER] = dac2 >> 8;
-	params[IDX_DAC2_LOWER] = (UINT8) dac2;
-	params[IDX_CALSTART_UPPER] = calstart >> 8;
-	params[IDX_CALSTART_LOWER] = (UINT8) calstart;
-	params[IDX_CALEND_UPPER] = calend >> 8;
-	params[IDX_CALEND_LOWER] = (UINT8) calend;
-	params[IDX_TMSTART_B3] = tmstart.time_b.b3;
-	params[IDX_TMSTART_B2] = tmstart.time_b.b2;
-	params[IDX_TMSTART_B1] = tmstart.time_b.b1;
-	params[IDX_TMSTART_B0] = tmstart.time_b.b0;
-	params[IDX_TMEND_B3] = tmend.time_b.b3;
-	params[IDX_TMEND_B2] = tmend.time_b.b2;
-	params[IDX_TMEND_B1] = tmend.time_b.b1;
-	params[IDX_TMEND_B0] = tmend.time_b.b0;
-	params[IDX_OVERSAMPLE] = noversample;
-	params[IDX_STROBECNT_UPPER] = strobecount >> 8;
-	params[IDX_STROBECNT_LOWER] = (UINT8) strobecount;
-
-	ftwrbyte('p');
-	ret = FT_Write (serialHandle, params, NPARAMS, &n);
-	ch = ftrdbyte();
-
-	if (ch != '.')
-	{
-		// No record received
-		return -1;
-	}
-
-	if (n != NPARAMS)
-	{
-		// Incorrect number of params passed
-		return -2;
 	}
 
 	return 1;

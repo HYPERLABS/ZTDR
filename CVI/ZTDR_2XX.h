@@ -85,7 +85,6 @@ extern "C" {
 	double 	__stdcall	calFindDiscont (void);
 	int 	__stdcall	reconstructData (double offset, int filter);
 	int 	__stdcall	setupTimescale (void);
-	int 	__stdcall	writeParams (void);
 
 	// USBFIFO functionality  
 	
@@ -96,8 +95,6 @@ extern "C" {
 	char 	__stdcall	ftrdbyte (void);
 	int 	__stdcall	usbfifo_acquire (UINT8 *ret_val, UINT8 arg);
 	int 	__stdcall	usbfifo_readblock (UINT8 block_no, UINT16 *buf);
-	int 	__stdcall	usbfifo_setparams (UINT8 freerun_en, UINT16 calstart, UINT16 calend, timeinf tmstart, timeinf tmend, UINT16 stepcount,
-										   UINT16 strobecount, UINT8 noversample, UINT16 record_len, UINT16 dac0, UINT16 dac1, UINT16 dac2);
 
 
 #ifdef __cplusplus
