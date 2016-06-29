@@ -87,8 +87,12 @@ extern "C" {
 	int 	__stdcall	writeParams (void);
 
 	// USBFIFO functionality  
+	
+	FT_STATUS 	__stdcall	ftwrbyte (char ch);
+	
+	
+	
 	char 	__stdcall	ftrdbyte (void);
-	void 	__stdcall	ftwrbyte (char ch);
 	int 	__stdcall	usbfifo_acquire (UINT8 *ret_val, UINT8 arg);
 	void 	__stdcall	usbfifo_close (void);
 	int 	__stdcall	usbfifo_readblock (UINT8 block_no, UINT16 *buf);

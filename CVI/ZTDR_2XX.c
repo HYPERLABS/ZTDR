@@ -158,7 +158,7 @@ __stdcall int ZTDR_Init (void)
 		}
 		
 		// Set device flow control
-		serialStatus = FT_SetFlowControl (serialHandle, FT_FLOW_NONE, 'o', 'p');  // o and p are bogus characters
+		serialStatus = FT_SetFlowControl (serialHandle, FT_FLOW_XON_XOFF, 'o', 'c');  // open and close
 
 		if (serialStatus != FT_OK)
 		{
@@ -174,8 +174,10 @@ __stdcall int ZTDR_Init (void)
 		}
 		
 		// Read device identification
-		ftwrbyte ('i');
-		FT_Read (serialHandle, deviceID, 16, &n);
+		serialStatus = ftwrbyte ('o');
+		serialStatus = ftwrbyte ('i');
+		serialStatus = FT_Read (serialHandle, deviceID, 16, &n);
+		serialStatus = ftwrbyte ('c');
 		
 		if (strncmp (deviceID, "USBFIFO", 7) != 0)
 		{
@@ -183,15 +185,15 @@ __stdcall int ZTDR_Init (void)
 		}
 		
 		// Read device commspeed
-		ftwrbyte ('s');
-		FT_Read (serialHandle, deviceCommspeed, 16, &n );
+		serialStatus = ftwrbyte ('o');
+		serialStatus = ftwrbyte ('s');
+		serialStatus = FT_Read (serialHandle, deviceCommspeed, 16, &n );
+		serialStatus = ftwrbyte ('c');
 		
-		/*
-		if (ch != '.')
+		if (strncmp (deviceCommspeed, "256000", 6) != 0)
 		{
 			return -116;
 		}
-		*/
 
 		// NOTE: FTDI comm lines; nothing important to debug
 		FT_ClrDtr(serialHandle);
@@ -1074,11 +1076,14 @@ __stdcall char ftrdbyte(void)
 }
 
 // Write FTDI byte
-__stdcall void ftwrbyte(char ch)
+__stdcall FT_STATUS ftwrbyte(char ch)
 {
+	FT_STATUS status;
 	int n;
 
-	FT_Write (serialHandle, &ch, 1, &n);
+	status = FT_Write (serialHandle, &ch, 1, &n);
+	
+	return status;
 }
 
 // Acquire from FDTI device
