@@ -99,7 +99,6 @@ UINT16 	strobecount = 2;
 __stdcall int ZTDR_Init (void)
 {
 	// Instrument initialization status
-	int initStatus = 0;
 	int n;
 	FT_STATUS serialStatus, fifoStatus;
 
@@ -1078,7 +1077,7 @@ __stdcall int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
 	// NOTE: this is important crash point
 
 	char ch;
-	FT_STATUS stat;
+	FT_STATUS status;
 
 	if (!deviceOpen)
 	{
@@ -1086,13 +1085,13 @@ __stdcall int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
 	}
 
 	// NOTE: Write 'a' (acquire) to ADUC
-	ftwrbyte ('a');
+	status = ftwrbyte ('a');
 
 	// NOTE: Write a '0' to ADUC (leave it)
-	ftwrbyte (arg);
+	status = ftwrbyte (arg);
 
 	// NOTE: Sets time for ADUC to respond
-	stat = FT_SetTimeouts (serialHandle, 1000, 1000);
+	status = FT_SetTimeouts (serialHandle, 1000, 1000);
 
 	// NOTE: this actually returns the waveform?
 	*ret_val = ftrdbyte ();
@@ -1100,7 +1099,7 @@ __stdcall int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
 	// NOTE: '.' means the acquisition successful
 	ch = ftrdbyte ();
 
-	stat = FT_SetTimeouts (serialHandle, STD_TIMEOUT, STD_TIMEOUT);
+	status = FT_SetTimeouts (serialHandle, STD_TIMEOUT, STD_TIMEOUT);
 
 	if (ch != '.')
 	{
