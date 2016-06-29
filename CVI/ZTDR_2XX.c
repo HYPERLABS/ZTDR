@@ -624,24 +624,12 @@ __stdcall int ZTDR_CalTimebase (void)
 	start_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
 	end_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	// Acquire data for each of 4 data segments
+	// Acquire data for each of 4 segments
 	for (int i = 0; i < 5; i++)
 	{
 		stepcount = stepcountArray[(UINT16) i];
 
-		status = getData ();
+		status = ZTDR_PollDevice (ACQ_FULL);
 		
 		status = reconstructData (0, 1);
 		
@@ -682,6 +670,7 @@ __stdcall void ZTDR_CloseDevice (void)
 // Get full waveform data for use in all functions
 __stdcall int ZTDR_PollDevice (int acqType)
 {
+	int i;
 	int status = 0;
 	
 	// Write acquisition parameters to device
@@ -743,9 +732,9 @@ __stdcall int ZTDR_PollDevice (int acqType)
 	
 	// Acquire waveform
 	UINT8 acq_result;
-	
 	status = usbfifo_acquire (&acq_result, 0);
 	
+	// Verify block integrity
 	if (acqType == ACQ_FULL)
 	{
 		// Blocks of 256 data points (max 256 blocks, 16,384 data points)
