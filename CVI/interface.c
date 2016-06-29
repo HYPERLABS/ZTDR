@@ -258,7 +258,7 @@ int CVICALLBACK onPanel (int panel, int event, void *callbackData,
 			// Save program state on exit
 			status = saveSettings (1);
 			
-			usbfifo_close ();
+			ZTDR_CloseDevice ();
 			
 			status = QuitUserInterface (0);
 
@@ -472,7 +472,7 @@ void CVICALLBACK onExit (int menuBar, int menuItem, void *callbackData,
 	// Save program state on exit
 	status = saveSettings (1);
 
-	usbfifo_close ();
+	ZTDR_CloseDevice ();
 
 	QuitUserInterface (0);
 }

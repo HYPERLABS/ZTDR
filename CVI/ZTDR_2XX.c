@@ -104,7 +104,7 @@ __stdcall int ZTDR_Init (void)
 	// If device already open, close it before re-opening
 	if (deviceOpen)
 	{
-		usbfifo_close ();
+		ZTDR_CloseDevice ();
 		
 		deviceOpen = 0;
 	}
@@ -1045,7 +1045,7 @@ __stdcall double calFindDiscont (void)
 // Global functions (USBFIFO)
 
 // Close FTDI device
-__stdcall void usbfifo_close (void)
+__stdcall void ZTDR_CloseDevice (void)
 {
 	FT_STATUS status;
 
