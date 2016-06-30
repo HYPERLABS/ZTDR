@@ -28,7 +28,6 @@
 // Externs
 
 // Calibration
-extern 	int 	calIncrement;
 extern	double	vampl;
 
 // Acquisition environment
@@ -217,8 +216,9 @@ void main (int argc, char *argv[])
 	// Show software version
 	status = showVersion ();
 	
-	// Peform unified initialization and calibration
+	// Peform initialization and timebase calibration
 	int initStatus = ZTDR_Init ();
+	int calStatus = ZTDR_CalTimebase ();
 	
 	// Initialation complete
 	if (initStatus == 1)

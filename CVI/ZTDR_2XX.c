@@ -200,16 +200,9 @@ __stdcall int ZTDR_Init (void)
 		serialStatus = FT_SetRts(serialHandle);
 		serialStatus = FT_ClrRts(serialHandle);
 	}
-
-	// Set increment for default 50 ns timescale
-	calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 ) /
-						  (((double) 50.0e-9) / (double) 65536.0));
-
-	// Full timebase calibration
-	int calStatus = ZTDR_CalTimebase ();
 	
 	// Initialization successful
-	return calStatus;
+	return 1;
 }
 
 // Full timebase calibration
@@ -217,11 +210,15 @@ __stdcall int ZTDR_CalTimebase (void)
 {
 	int status, calStatus;
 	int i, j;
-
+	
 	// Set calibration window
 	calstart = 0;
 	calend = 4095;
 
+	// Set increment for default 50 ns timescale
+	calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 ) /
+						  (((double) 50.0e-9) / (double) 65536.0));
+	
 	// Dummy acquisition to ensure device initialization
 	status = ZTDR_PollDevice (ACQ_DUMMY);
 
