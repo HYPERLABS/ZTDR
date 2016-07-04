@@ -159,7 +159,7 @@ __stdcall int ZTDR_Init (void)
 		}
 
 		// Set device flow control
-		serialStatus = FT_SetFlowControl (serialHandle, FT_FLOW_XON_XOFF, 'y', 'n');  // Transmit y/n (unused)
+		serialStatus = FT_SetFlowControl (serialHandle, FT_FLOW_NONE, 'y', 'n');  // Transmit y/n (unused)
 
 		if (serialStatus != FT_OK)
 		{
@@ -175,21 +175,21 @@ __stdcall int ZTDR_Init (void)
 		}
 
 		// Read device identification
-		serialStatus = ftwrbyte ('y');
+		// serialStatus = ftwrbyte ('y');
 		serialStatus = ftwrbyte ('i');
 		serialStatus = FT_Read (serialHandle, deviceID, 16, &n);
-		serialStatus = ftwrbyte ('n');
+		// serialStatus = ftwrbyte ('n');
 
 		if (strncmp (deviceID, "USBFIFO", 7) != 0)
 		{
 			return -115;
 		}
-
+		
 		// Read device commspeed
-		serialStatus = ftwrbyte ('y');
+		// serialStatus = ftwrbyte ('y');
 		serialStatus = ftwrbyte ('s');
 		serialStatus = FT_Read (serialHandle, deviceCommspeed, 16, &n);
-		serialStatus = ftwrbyte ('n');
+		// serialStatus = ftwrbyte ('n');
 
 		if (strncmp (deviceCommspeed, "256000", 6) != 0)
 		{
@@ -197,8 +197,8 @@ __stdcall int ZTDR_Init (void)
 		}
 		
 		// TODO #999: figure out why this is necessary here
-		// serialStatus = FT_SetRts(serialHandle);
-		// serialStatus = FT_ClrRts(serialHandle);
+		serialStatus = FT_SetRts(serialHandle);
+		serialStatus = FT_ClrRts(serialHandle);
 	}
 	
 	// Initialization successful
@@ -750,12 +750,11 @@ __stdcall int ZTDR_PollDevice (int acqType)
 
 
 		// Send parameters to device
-		stat = ftwrbyte ('y');
+		// stat = ftwrbyte ('y');
 		stat = ftwrbyte ('p');
 		stat = FT_Write (serialHandle, params, NPARAMS, &n);
 		ch = ftrdbyte ();
-		
-		stat = ftwrbyte ('n');
+		// stat = ftwrbyte ('n');
 
 		// Errors
 		if (ch != '.')
