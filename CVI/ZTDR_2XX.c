@@ -187,8 +187,6 @@ __stdcall int ZTDR_Init (void)
 		{
 			return -115;
 		}
-		
-		char ch = ftrdbyte ();
 
 		// Read device commspeed
 		serialStatus = ftwrbyte ('s');
@@ -198,12 +196,10 @@ __stdcall int ZTDR_Init (void)
 		{
 			return -116;
 		}
-		
-		ch = ftrdbyte ();
 
 		// TODO #999: figure out why this is necessary here
-		// serialStatus = FT_SetRts(serialHandle);
-		// serialStatus = FT_ClrRts(serialHandle);
+		serialStatus = FT_SetRts (serialHandle);
+		serialStatus = FT_ClrRts (serialHandle);
 	}
 
 	// Initialization successful
