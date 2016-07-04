@@ -142,7 +142,7 @@ __stdcall int ZTDR_Init (void)
 		deviceOpen = 1;
 
 		// Set latency
-		serialStatus = FT_SetLatencyTimer (serialHandle, 2);
+		serialStatus = FT_SetLatencyTimer (serialHandle, 16);
 		if (serialStatus != FT_OK)
 		{
 			return -110;
