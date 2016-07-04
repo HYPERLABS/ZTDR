@@ -766,13 +766,13 @@ __stdcall int ZTDR_PollDevice (int acqType)
 		if (ch != '.')
 		{
 			// No record received
-			return -311;
+			return -300 - ch;
 		}
 
 		else if (n != NPARAMS)
 		{
 			// Incorrect number of params passed
-			return -300;
+			return -301;
 		}
 	}
 

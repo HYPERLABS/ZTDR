@@ -221,7 +221,7 @@ void main (int argc, char *argv[])
 	int calStatus = ZTDR_CalTimebase ();
 	
 	// Initialation complete
-	if (initStatus == 1)
+	if (initStatus == 1 && calStatus == 1)
 	{   
 		// Run first acquisition, don't draw
 		status = acquire (0);
@@ -247,8 +247,17 @@ void main (int argc, char *argv[])
 	// Initialization failed
 	else
 	{
+		int errorCode = 0;
+		
 		// Process error codes
-		int errorCode = 1000 - initStatus;
+		if (initStatus != 1)
+		{
+			errorCode = 1000 - initStatus;
+		}
+		else if (calStatus != 1)
+		{
+			errorCode = 1000 - calStatus;
+		}
 
 		char title[16];
 		char body[64];
