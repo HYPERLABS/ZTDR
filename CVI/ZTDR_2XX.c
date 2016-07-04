@@ -202,12 +202,16 @@ __stdcall int ZTDR_Init (void)
 		}
 
 		// Dummy write
+		/*
 		serialStatus = ftwrbyte ('s');
 		ch = ftrdbyte ();
+		*/
 		
+		/*
 		// TODO #999: figure out why this is necessary here
 		serialStatus = FT_SetRts (serialHandle);
 		serialStatus = FT_ClrRts (serialHandle);
+		*/
 	}
 
 	// Initialization successful
