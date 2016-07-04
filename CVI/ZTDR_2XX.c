@@ -180,13 +180,13 @@ __stdcall int ZTDR_Init (void)
 		serialStatus = FT_Read (serialHandle, deviceID, 16, &n);
 		// serialStatus = ftwrbyte ('n');
 		
-		// Bogus break
-		serialStatus = ftwrbyte ('z');
-
 		if (strncmp (deviceID, "USBFIFO", 7) != 0)
 		{
 			return -115;
 		}
+		
+		// Dummy poll
+		serialStatus = ftwrbyte ('z');
 		
 		// Read device commspeed
 		// serialStatus = ftwrbyte ('y');
