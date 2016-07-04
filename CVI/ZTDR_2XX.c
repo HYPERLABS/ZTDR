@@ -39,8 +39,6 @@ char 		deviceCommspeed[10];	// commspeed of device
 
 
 
-
-
 // TODO: clean these up
 
 // Calibration
@@ -177,16 +175,12 @@ __stdcall int ZTDR_Init (void)
 		// Read device identification
 		serialStatus = ftwrbyte ('i');
 		serialStatus = FT_Read (serialHandle, deviceID, 16, &n);
-		
+
 		if (strncmp (deviceID, "USBFIFO", 7) != 0)
 		{
 			return -115;
 		}
-		
-		// Dummy poll
-		serialStatus = ftwrbyte ('z');
-		serialStatus = ftrdbyte ();
-		
+
 		// Read device commspeed
 		serialStatus = ftwrbyte ('s');
 		serialStatus = FT_Read (serialHandle, deviceCommspeed, 16, &n);
@@ -195,12 +189,12 @@ __stdcall int ZTDR_Init (void)
 		{
 			return -116;
 		}
-		
+
 		// TODO #999: figure out why this is necessary here
 		serialStatus = FT_SetRts(serialHandle);
 		serialStatus = FT_ClrRts(serialHandle);
 	}
-	
+
 	// Initialization successful
 	return 1;
 }
@@ -210,7 +204,7 @@ __stdcall int ZTDR_CalTimebase (void)
 {
 	int status, calStatus;
 	int i, j;
-	
+
 	// Set calibration window
 	calstart = 0;
 	calend = 4095;
@@ -218,7 +212,7 @@ __stdcall int ZTDR_CalTimebase (void)
 	// Set increment for default 50 ns timescale
 	calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 ) /
 						  (((double) 50.0e-9) / (double) 65536.0));
-	
+
 	// Dummy acquisition to ensure device initialization
 	status = ZTDR_PollDevice (ACQ_DUMMY);
 
@@ -232,7 +226,7 @@ __stdcall int ZTDR_CalTimebase (void)
 		stepcount = stepcountArray[(UINT16) i];
 
 		status = ZTDR_PollDevice (ACQ_FULL);
-		
+
 		// Poll device failed
 		if (status < 0)
 		{
@@ -300,10 +294,10 @@ __stdcall int ZTDR_CalTimebase (void)
 	// Calibrate DAC
 	status = ZTDR_CalDAC ();
 	// TODO #999 fail on DAC?
-	
+
 	// Amplitude calibration
 	calStatus = ZTDR_CalAmplitude ();
-	
+
 	return calStatus;
 }
 
@@ -337,9 +331,9 @@ __stdcall int ZTDR_CalAmplitude (void)
 	for (i = 0; wfmFilter[i] < (vstart + 400) && (i < 1024); i++)
 	{
 	}
-	
+
 	int i50 = i;
-	
+
 	// Could not locate edge
 	if (i50 == 1023)
 	{
@@ -367,7 +361,7 @@ __stdcall int ZTDR_CalAmplitude (void)
 	double vend;
 	int endIdx1 = i50 + calInterval;
 	int endIdx2 = i50 + (calInterval * 2);
-	
+
 	// Reference goes beyond window
 	if (endIdx1 >= 1024)
 	{
@@ -748,7 +742,6 @@ __stdcall int ZTDR_PollDevice (int acqType)
 		params[IDX_STROBECNT_UPPER] = strobecount >> 8;
 		params[IDX_STROBECNT_LOWER] = (UINT8) strobecount;
 
-
 		// Send parameters to device
 		stat = ftwrbyte ('p');
 		stat = FT_Write (serialHandle, params, NPARAMS, &n);
@@ -1045,9 +1038,8 @@ __stdcall int reconstructData (double offset, int filter)
 
 
 
-
 // Read FTDI byte
-__stdcall char ftrdbyte(void)
+__stdcall char ftrdbyte (void)
 {
 	char ch;
 	int n;
@@ -1056,6 +1048,7 @@ __stdcall char ftrdbyte(void)
 
 	return ch;
 }
+
 
 // Write FTDI byte
 __stdcall FT_STATUS ftwrbyte(char ch)
