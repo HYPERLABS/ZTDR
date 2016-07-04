@@ -175,10 +175,8 @@ __stdcall int ZTDR_Init (void)
 		}
 
 		// Read device identification
-		// serialStatus = ftwrbyte ('y');
 		serialStatus = ftwrbyte ('i');
 		serialStatus = FT_Read (serialHandle, deviceID, 16, &n);
-		// serialStatus = ftwrbyte ('n');
 		
 		if (strncmp (deviceID, "USBFIFO", 7) != 0)
 		{
@@ -186,22 +184,21 @@ __stdcall int ZTDR_Init (void)
 		}
 		
 		// Dummy poll
-		serialStatus = ftwrbyte ('z');
+		serialStatus = ftwrbyte ('D');
+		serialStatus = ftrdbyte ();
 		
 		// Read device commspeed
-		// serialStatus = ftwrbyte ('y');
 		serialStatus = ftwrbyte ('s');
 		serialStatus = FT_Read (serialHandle, deviceCommspeed, 16, &n);
-		// serialStatus = ftwrbyte ('n');
 
 		if (strncmp (deviceCommspeed, "256000", 6) != 0)
 		{
 			return -116;
 		}
 		
-		// TODO #999: figure out why this is necessary here
-		serialStatus = FT_SetRts(serialHandle);
-		serialStatus = FT_ClrRts(serialHandle);
+		// Dummy poll
+		serialStatus = ftwrbyte ('D');
+		serialStatus = ftrdbyte ();
 	}
 	
 	// Initialization successful
@@ -753,11 +750,9 @@ __stdcall int ZTDR_PollDevice (int acqType)
 
 
 		// Send parameters to device
-		// stat = ftwrbyte ('y');
 		stat = ftwrbyte ('p');
 		stat = FT_Write (serialHandle, params, NPARAMS, &n);
 		ch = ftrdbyte ();
-		// stat = ftwrbyte ('n');
 
 		// Errors
 		if (ch != '.')
@@ -769,7 +764,7 @@ __stdcall int ZTDR_PollDevice (int acqType)
 		else if (n != NPARAMS)
 		{
 			// Incorrect number of params passed
-			return -312;
+			return -300;
 		}
 	}
 
