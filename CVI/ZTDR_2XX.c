@@ -179,6 +179,9 @@ __stdcall int ZTDR_Init (void)
 		serialStatus = ftwrbyte ('i');
 		serialStatus = FT_Read (serialHandle, deviceID, 16, &n);
 		// serialStatus = ftwrbyte ('n');
+		
+		// Bogus break
+		serialStatus = ftwrbyte ('z');
 
 		if (strncmp (deviceID, "USBFIFO", 7) != 0)
 		{
