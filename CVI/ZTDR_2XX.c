@@ -184,7 +184,7 @@ __stdcall int ZTDR_Init (void)
 		}
 		
 		// Dummy poll
-		serialStatus = ftwrbyte ('D');
+		serialStatus = ftwrbyte ('z');
 		serialStatus = ftrdbyte ();
 		
 		// Read device commspeed
@@ -196,9 +196,9 @@ __stdcall int ZTDR_Init (void)
 			return -116;
 		}
 		
-		// Dummy poll
-		serialStatus = ftwrbyte ('D');
-		serialStatus = ftrdbyte ();
+		// TODO #999: figure out why this is necessary here
+		serialStatus = FT_SetRts(serialHandle);
+		serialStatus = FT_ClrRts(serialHandle);
 	}
 	
 	// Initialization successful
