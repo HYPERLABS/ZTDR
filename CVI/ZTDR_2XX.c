@@ -188,7 +188,7 @@ __stdcall int ZTDR_Init (void)
 		// Read device commspeed
 		serialStatus = ftwrbyte ('o');
 		serialStatus = ftwrbyte ('s');
-		serialStatus = FT_Read (serialHandle, deviceCommspeed, 16, &n );
+		serialStatus = FT_Read (serialHandle, deviceCommspeed, 16, &n);
 		serialStatus = ftwrbyte ('c');
 
 		if (strncmp (deviceCommspeed, "256000", 6) != 0)
@@ -750,9 +750,9 @@ __stdcall int ZTDR_PollDevice (int acqType)
 
 
 		// Send parameters to device
-		stat = ftwrbyte('p');
+		stat = ftwrbyte ('p');
 		stat = FT_Write (serialHandle, params, NPARAMS, &n);
-		ch = ftrdbyte();
+		ch = ftrdbyte ();
 
 		// Errors
 		if (ch != '.')
@@ -1148,14 +1148,14 @@ __stdcall int usbfifo_readblock (UINT8 block_no, UINT16 *buf)
 		return -1;
 	}
 
-	if (n != 2*BLOCK_LEN)
+	if (n != 2 * BLOCK_LEN)
 	{
 		return -2;
 	}
 
 	// NOTE: write data to software buffer
 
-	for (i=0; i<BLOCK_LEN; i++)
+	for (i = 0; i < BLOCK_LEN; i++)
 	{
 		buf[i] = (UINT16) (((UINT16) rawbuf8[2 * i + 1]) << 8) | ((UINT16) rawbuf8[2 * i]);
 	}
