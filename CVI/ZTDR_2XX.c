@@ -141,6 +141,13 @@ __stdcall int ZTDR_Init (void)
 		// Flag device as open
 		deviceOpen = 1;
 
+		// Set latency
+		serialStatus = FT_SetLatencyTimer (serialHandle, 2);
+		if (serialStatus != FT_OK)
+		{
+			return -110;
+		}
+		
 		// Set device baud rate
 		serialStatus = FT_SetBaudRate (serialHandle, deviceBps);
 		if (serialStatus != FT_OK)
@@ -171,7 +178,7 @@ __stdcall int ZTDR_Init (void)
 		{
 			return -114;
 		}
-
+		
 		// Read device identification
 		serialStatus = ftwrbyte ('i');
 		serialStatus = FT_Read (serialHandle, deviceID, 16, &n);
@@ -180,6 +187,8 @@ __stdcall int ZTDR_Init (void)
 		{
 			return -115;
 		}
+		
+		char ch = ftrdbyte ();
 
 		// Read device commspeed
 		serialStatus = ftwrbyte ('s');
@@ -189,10 +198,12 @@ __stdcall int ZTDR_Init (void)
 		{
 			return -116;
 		}
+		
+		ch = ftrdbyte ();
 
 		// TODO #999: figure out why this is necessary here
-		serialStatus = FT_SetRts(serialHandle);
-		serialStatus = FT_ClrRts(serialHandle);
+		// serialStatus = FT_SetRts(serialHandle);
+		// serialStatus = FT_ClrRts(serialHandle);
 	}
 
 	// Initialization successful
