@@ -201,9 +201,11 @@ __stdcall int ZTDR_Init (void)
 			return -116;
 		}
 
+		/*
 		// Dummy write
 		serialStatus = ftwrbyte ('s');
 		ch = ftrdbyte ();
+		*/
 		
 		/*
 		// TODO #999: figure out why this is necessary here
