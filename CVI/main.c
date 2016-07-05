@@ -252,11 +252,11 @@ void main (int argc, char *argv[])
 		// Process error codes
 		if (initStatus != 1)
 		{
-			errorCode = 1000 - initStatus;
+			errorCode = 0 - initStatus;
 		}
 		else if (calStatus != 1)
 		{
-			errorCode = 1000 - calStatus;
+			errorCode = 0 - calStatus;
 		}
 
 		char title[16];

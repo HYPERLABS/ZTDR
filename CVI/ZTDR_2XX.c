@@ -202,16 +202,12 @@ __stdcall int ZTDR_Init (void)
 		}
 
 		// Dummy write
-		/*
 		serialStatus = ftwrbyte ('s');
 		ch = ftrdbyte ();
-		*/
 		
-		/*
 		// TODO #999: figure out why this is necessary here
 		serialStatus = FT_SetRts (serialHandle);
 		serialStatus = FT_ClrRts (serialHandle);
-		*/
 	}
 
 	// Initialization successful
@@ -776,7 +772,7 @@ __stdcall int ZTDR_PollDevice (int acqType)
 		else if (n != NPARAMS)
 		{
 			// Incorrect number of params passed
-			return -301;
+			return -299;
 		}
 	}
 
