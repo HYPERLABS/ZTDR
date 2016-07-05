@@ -188,9 +188,11 @@ __stdcall int ZTDR_Init (void)
 			return -115;
 		}
 		
+		/*
 		// Dummy write
 		serialStatus = ftwrbyte ('i');
 		char ch = ftrdbyte ();
+		*/
 
 		// Read device commspeed
 		serialStatus = ftwrbyte ('s');
