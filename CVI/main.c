@@ -53,7 +53,7 @@ extern	double  wfmData[]; // converted to selected units
 extern	double	wfmAvg[]; // waveform after averaging
 
 // Start/end time for device
-extern	timeinf start_tm, end_tm;
+extern	timeinf startTime, endTime;
 
 
 //==============================================================================

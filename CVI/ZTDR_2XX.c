@@ -71,7 +71,7 @@ double  wfmData[NPOINTS_MAX]; // converted to selected units
 double  wfmAvg[NPOINTS_MAX]; // waveform after averaging
 
 // Start/end time for device
-timeinf start_tm, end_tm;
+timeinf startTime, endTime;
 
 
 // USBFIFO functionality
@@ -232,8 +232,8 @@ __stdcall int ZTDR_CalTimebase (void)
 	status = ZTDR_PollDevice (ACQ_DUMMY);
 
 	// Set start and end time to zero
-	start_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
-	end_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
+	startTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
+	endTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
 
 	// Acquire data for each of 4 segments
 	for (i = 0; i < 5; i++)
@@ -322,8 +322,8 @@ __stdcall int ZTDR_CalAmplitude (void)
 	int status, i;
 
 	// Timescale for 50 averaging 1024 samples at 0 ns
-	start_tm.time = 0;
-	end_tm.time = start_tm.time;
+	startTime.time = 0;
+	endTime.time = startTime.time;
 
 	// Acquisition for offset calculation
 	status = ZTDR_PollDevice (ACQ_FULL);
@@ -334,8 +334,8 @@ __stdcall int ZTDR_CalAmplitude (void)
 	double vstart = ZTDR_GetMean ();
 
 	// Timescale for 50 ns calibration window
-	start_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
-	end_tm.time = (UINT32) (50.0 / 50.0 * 0xFFFF);
+	startTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
+	endTime.time = (UINT32) (50.0 / 50.0 * 0xFFFF);
 
 	// Main calibration acquisition
 	status = ZTDR_PollDevice (ACQ_FULL);
@@ -491,8 +491,8 @@ __stdcall int acquireWaveform (int numAvg)
 	int status, i;
 
 	// Timescale for averaging 1024 samples at 0 ns
-	start_tm.time = 0;
-	end_tm.time = start_tm.time;
+	startTime.time = 0;
+	endTime.time = startTime.time;
 
 	// Acquisition for offset calculation
 	status = ZTDR_PollDevice (ACQ_FULL);
@@ -745,14 +745,14 @@ __stdcall int ZTDR_PollDevice (int acqType)
 		params[IDX_CALSTART_LOWER] = (UINT8) calstart;
 		params[IDX_CALEND_UPPER] = calend >> 8;
 		params[IDX_CALEND_LOWER] = (UINT8) calend;
-		params[IDX_TMSTART_B3] = start_tm.time_b.b3;
-		params[IDX_TMSTART_B2] = start_tm.time_b.b2;
-		params[IDX_TMSTART_B1] = start_tm.time_b.b1;
-		params[IDX_TMSTART_B0] = start_tm.time_b.b0;
-		params[IDX_TMEND_B3] = end_tm.time_b.b3;
-		params[IDX_TMEND_B2] = end_tm.time_b.b2;
-		params[IDX_TMEND_B1] = end_tm.time_b.b1;
-		params[IDX_TMEND_B0] = end_tm.time_b.b0;
+		params[IDX_TMSTART_B3] = startTime.time_b.b3;
+		params[IDX_TMSTART_B2] = startTime.time_b.b2;
+		params[IDX_TMSTART_B1] = startTime.time_b.b1;
+		params[IDX_TMSTART_B0] = startTime.time_b.b0;
+		params[IDX_TMEND_B3] = endTime.time_b.b3;
+		params[IDX_TMEND_B2] = endTime.time_b.b2;
+		params[IDX_TMEND_B1] = endTime.time_b.b1;
+		params[IDX_TMEND_B0] = endTime.time_b.b0;
 		params[IDX_OVERSAMPLE] = 0;
 		params[IDX_STROBECNT_UPPER] = strobecount >> 8;
 		params[IDX_STROBECNT_LOWER] = (UINT8) strobecount;
@@ -829,8 +829,8 @@ __stdcall int ZTDR_CalDAC (void)
 	calstart = 0;
 
 	// Start, end at 0 ns
-	start_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
-	end_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);;
+	startTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
+	endTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);;
 
 	status = ZTDR_PollDevice (ACQ_FULL);
 
@@ -879,8 +879,8 @@ __stdcall int ZTDR_CalDAC (void)
 	stepcount = stepcount + 4;
 
 	// Start, end at 0 ns
-	start_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
-	end_tm.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
+	startTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
+	endTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
 
 	status = ZTDR_PollDevice (ACQ_FULL);
 
@@ -973,8 +973,8 @@ __stdcall int ZTDR_QuantizeTimescale (void)
 		}
 	}
 
-	start_tm.time = (UINT32) (start / 50.0 * 0xFFFF);
-	end_tm.time = (UINT32) (end / 50.0 * 0xFFFF);
+	startTime.time = (UINT32) (start / 50.0 * 0xFFFF);
+	endTime.time = (UINT32) (end / 50.0 * 0xFFFF);
 
 	// TODO: useful return
 	return 1;
@@ -997,10 +997,10 @@ __stdcall int reconstructData (double offset, int filter)
 
 	// Increment between data points
 	UINT32 incr;
-	incr = (end_tm.time - start_tm.time) / recLen;
+	incr = (endTime.time - startTime.time) / recLen;
 
-	timeinf curt;
-	curt.time = start_tm.time;
+	timeinf currentTime;
+	currentTime.time = startTime.time;
 
 	// Set dielectric constant
 	double vDiel = (double) 3E8 / sqrt (dielK);
@@ -1009,11 +1009,11 @@ __stdcall int reconstructData (double offset, int filter)
 	{
 		wfmFilter[i] = (double) wfm[i] - offset;
 
-		wfmTime[i] = ((double) curt.time) / ((double) 0xFFFF) * 50.0;
+		wfmTime[i] = ((double) currentTime.time) / ((double) 0xFFFF) * 50.0;
 		wfmDistM[i] = wfmTime[i] * vDiel * 1E-9;
 		wfmDistFt[i] = wfmTime[i] * vDiel * 1E-9 * M_TO_FT;
 
-		curt.time += incr;
+		currentTime.time += incr;
 	}
 
 	// Smooth data for better resolution
