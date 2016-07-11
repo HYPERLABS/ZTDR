@@ -755,7 +755,7 @@ int showVersion (void)
 	status = sprintf (version, "ZTDR v%s", _TARGET_PRODUCT_VERSION_);
 	
 	// Trim build number
-	int len = strlen (version);
+	int len = strlen (version) - 2;
 	version[len] = 0;
 	
 	// Append instrument model
