@@ -59,8 +59,12 @@ extern "C" {
 	// User-facing functions
 	int 	__stdcall	ZTDR_CalAmplitude (void);
 	int 	__stdcall	ZTDR_CalTimebase (void);
+	int 	__stdcall	ZTDR_DumpFile (char *filename);
+	double	__stdcall	ZTDR_FetchDataX (int idx);
+	double	__stdcall	ZTDR_FetchDataY (int idx);
 	int		__stdcall 	ZTDR_Init (void);
 	int 	__stdcall	ZTDR_SetEnviron (int x, int y, double start, double end, double k, int rec);
+	int 	__stdcall	ZTDR_SetRefX (double x);
 	
 	
 	
@@ -69,11 +73,7 @@ extern "C" {
 	
 	
 	
-	int 	__stdcall	setRefX (double x);
 	int 	__stdcall	acquireWaveform (int numAvg);
-	int 	__stdcall	dumpFile (char *filename);
-	double	__stdcall	fetchDataX (int idx);
-	double	__stdcall	fetchDataY (int idx);
 
 	// Other driver functions
 	int 	__stdcall	ZTDR_CalDAC (void);

@@ -439,7 +439,15 @@ int acquire (int doDraw)
 	
 	// Call unified acquisition function
 	status = acquireWaveform (numAvg);
-    
+	
+	// Return error message if device not opened
+	if (status == -1)
+	{
+		status = MessagePopup ("Error #3010", "Cannot connect to TDR device.");
+		
+		return -1;
+	}
+	
 	// Min/max of averaged waveform
 	double ymax = 0.0;
 	double ymin = 0.0;
@@ -599,7 +607,7 @@ int acquire (int doDraw)
 			}
 			else
 			{
-				// Don't scale if ymax <= ymin (typically caused by getting no waveform)
+				// Don't scale if bad waveform received from device
 				status = MessagePopup ("Error #3011", "Invalid waveform received from device.");
 				
 				return -1;
@@ -1199,12 +1207,12 @@ int setZero (double x)
 		}
 	
 		// Find new reference point based on open
-		status = setRefX (-1.0);
+		status = ZTDR_SetRefX (-1.0);
 	}
 	// Set reference to specified value
 	else
 	{
-		status = setRefX (x);
+		status = ZTDR_SetRefX (x);
 	}
 	
 	// Adjust start/end controls

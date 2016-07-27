@@ -411,16 +411,8 @@ __stdcall int ZTDR_SetEnviron (int x, int y, double start, double end, double k,
 	return 1;
 }
 
-
-
-
-
-
-
-
-
 // Set horizontal reference point
-__stdcall int setRefX (double x)
+__stdcall int ZTDR_SetRefX (double x)
 {
 	// Acquire reference point based on step to open
 	if (x == -1.0)
@@ -478,11 +470,94 @@ __stdcall int setRefX (double x)
 	}
 }
 
+
+
+
+
+
+
+// Acquire horizontal value of specific point
+__stdcall double ZTDR_FetchDataX (int idx)
+{
+	double val = wfmX[idx];
+
+	return val;
+}
+
+// Acquire vertical value of specific point
+__stdcall double ZTDR_FetchDataY (int idx)
+{
+	double val = wfmAvg[idx];
+
+	return val;
+}
+
+// Dump data to CSV
+__stdcall int ZTDR_DumpFile (char *filename)
+{
+	int status;
+
+	// Open selected file for write
+	FILE *fd;
+	fd = fopen (filename, "w");
+
+	// Set up data buffer;
+	char buf[256];
+	buf[0] = 0;
+
+	// List unit names to avoid confusion
+	char *nameY[] =
+	{
+		"mV",
+		"Norm",
+		"Ohm",
+		"Rho"
+	};
+
+	char *nameX[] =
+	{
+		"m",
+		"ft",
+		"ns"
+	};
+
+	// Write header row
+	// TODO: why does it do Y data first then X?
+	status = sprintf (buf + strlen(buf), "%s, %s, %3.10f, %3.10f, %3.3f, %3.10f\n", nameY[yUnits], nameX[xUnits], xStart, xEnd, dielK, xZero);
+
+	status = fwrite (buf, 1, strlen (buf), fd);
+
+	// Log X/Y data
+	for (int i = 0; i < recLen; i++)
+	{
+		// Reset buffer
+		buf[0] = 0;
+
+		status = sprintf (buf + strlen (buf), "%3.10f, %3.10f\n", wfmAvg[i], wfmX[i]);
+
+		status = fwrite (buf, 1, strlen (buf), fd);
+	}
+
+	status = fclose(fd);
+
+	return 1;
+}
+
+
+
+
+
 // Acquisition (UIR agnostic)
 __stdcall int acquireWaveform (int numAvg)
 {
 	int status, i;
 
+	// Verify device
+	if (deviceOpen != 1)
+	{
+		return -1;
+	}
+	
 	// Timescale for averaging 1024 samples at 0 ns
 	startTime.time = 0;
 	endTime.time = startTime.time;
@@ -620,72 +695,11 @@ __stdcall int acquireWaveform (int numAvg)
 	return 1;
 }
 
-// Acquire horizontal value of specific point
-__stdcall double fetchDataX (int idx)
-{
-	double val = wfmX[idx];
 
-	return val;
-}
 
-// Acquire vertical value of specific point
-__stdcall double fetchDataY (int idx)
-{
-	double val = wfmAvg[idx];
 
-	return val;
-}
 
-// Dump data to CSV
-__stdcall int dumpFile (char *filename)
-{
-	int status;
 
-	// Open selected file for write
-	FILE *fd;
-	fd = fopen (filename, "w");
-
-	// Set up data buffer;
-	char buf[256];
-	buf[0] = 0;
-
-	// List unit names to avoid confusion
-	char *nameY[] =
-	{
-		"mV",
-		"Norm",
-		"Ohm",
-		"Rho"
-	};
-
-	char *nameX[] =
-	{
-		"m",
-		"ft",
-		"ns"
-	};
-
-	// Write header row
-	// TODO: why does it do Y data first then X?
-	status = sprintf (buf + strlen(buf), "%s, %s, %3.10f, %3.10f, %3.3f, %3.10f\n", nameY[yUnits], nameX[xUnits], xStart, xEnd, dielK, xZero);
-
-	status = fwrite (buf, 1, strlen (buf), fd);
-
-	// Log X/Y data
-	for (int i = 0; i < recLen; i++)
-	{
-		// Reset buffer
-		buf[0] = 0;
-
-		status = sprintf (buf + strlen (buf), "%3.10f, %3.10f\n", wfmAvg[i], wfmX[i]);
-
-		status = fwrite (buf, 1, strlen (buf), fd);
-	}
-
-	status = fclose(fd);
-
-	return 1;
-}
 
 
 //==============================================================================

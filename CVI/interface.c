@@ -1062,8 +1062,8 @@ int CVICALLBACK onDebug (int panel, int control, int event,
 
 			for (int i = 0; i < length; i++)
 			{
-				wfmDataX[i] = fetchDataX (i);
-				wfmDataY[i] = fetchDataY (i);
+				wfmDataX[i] = ZTDR_FetchDataX (i);
+				wfmDataY[i] = ZTDR_FetchDataY (i);
 			}
 
 			dumpFile ("eggwool.csv");
