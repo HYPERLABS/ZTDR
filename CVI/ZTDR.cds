@@ -11,34 +11,37 @@
 			<summary title="ZTDR" subject="" keyWords="" comments="" author=""/></general>
 		<userinterface language="English" showPaths="true" readMe="" license="">
 			<dlgstrings welcomeTitle="Welcome to ZTDR" welcomeText=""/></userinterface>
-		<dirs appDirID="103">
-			<installDir name="HYPERLABS" dirID="100" parentID="102" isMSIDir="false" visible="true" unlock="false"/>
-			<installDir name="ZTDR" dirID="101" parentID="104" isMSIDir="false" visible="true" unlock="false"/>
-			<installDir name="C:" dirID="102" parentID="-1" isMSIDir="false" visible="true" unlock="false"/>
+		<dirs appDirID="104">
 			<installDir name="[Start&gt;&gt;Programs]" dirID="7" parentID="-1" isMSIDir="true" visible="true" unlock="false"/>
-			<installDir name="ZTDR" dirID="103" parentID="100" isMSIDir="false" visible="true" unlock="false"/>
-			<installDir name="HYPERLABS" dirID="104" parentID="7" isMSIDir="false" visible="true" unlock="false"/></dirs>
+			<installDir name="ZTDR" dirID="100" parentID="103" isMSIDir="false" visible="true" unlock="false"/>
+			<installDir name="C:" dirID="101" parentID="-1" isMSIDir="false" visible="true" unlock="false"/>
+			<installDir name="HYPERLABS" dirID="102" parentID="101" isMSIDir="false" visible="true" unlock="false"/>
+			<installDir name="HYPERLABS" dirID="103" parentID="7" isMSIDir="false" visible="true" unlock="false"/>
+			<installDir name="ZTDR" dirID="104" parentID="102" isMSIDir="false" visible="true" unlock="false"/></dirs>
 		<files>
-			<simpleFile fileID="0" sourcePath="d:\Dropbox\Documents\HYPERLABS\GitHub\ZTDR\CVI\cvibuild.ZTDR\Release\ZTDR.exe" targetDir="103" readonly="false" hidden="false" system="false" regActiveX="false" runAfterInstallStyle="IMMEDIATELY_RESUME_INSTALL" cmdLineArgs="" runAfterInstall="false" uninstCmdLnArgs="" runUninst="false"/>
-			<simpleFile fileID="1" sourcePath="d:\Dropbox\Documents\HYPERLABS\GitHub\ZTDR\CVI\FTD2XX.dll" targetDir="103" readonly="false" hidden="false" system="false" regActiveX="false" runAfterInstallStyle="IMMEDIATELY_RESUME_INSTALL" cmdLineArgs="" runAfterInstall="false" uninstCmdLnArgs="" runUninst="false"/></files>
+			<simpleFile fileID="0" sourcePath="d:\Dropbox\Documents\HYPERLABS\GitHub\ZTDR\CVI\cvibuild.ZTDR\Release\ZTDR.exe" targetDir="104" readonly="false" hidden="false" system="false" regActiveX="false" runAfterInstallStyle="IMMEDIATELY_RESUME_INSTALL" cmdLineArgs="" runAfterInstall="false" uninstCmdLnArgs="" runUninst="false"/></files>
 		<fileGroups>
-			<projectOutput targetType="0" dirID="103" projectID="0">
-				<fileID>0</fileID></projectOutput>
-			<projectDependencies dirID="103" projectID="0">
-				<fileID>1</fileID></projectDependencies></fileGroups>
+			<projectOutput targetType="0" dirID="104" projectID="0">
+				<fileID>0</fileID></projectOutput></fileGroups>
 		<shortcuts>
-			<shortcut name="ZTDR" targetFileID="0" destDirID="101" cmdLineArgs="" description="" runStyle="NORMAL"/></shortcuts>
+			<shortcut name="ZTDR" targetFileID="0" destDirID="100" cmdLineArgs="" description="" runStyle="NORMAL"/></shortcuts>
 		<mergemodules/>
 		<products>
-			<product name="NI LabWindows/CVI Shared Run-Time Engine" UC="{80D3D303-75B9-4607-9312-E5FC68E5BFD2}" productID="{D3C549FD-7DA5-440B-A1BC-DD92C898949A}" path="C:\ProgramData\National Instruments\MDF\ProductCache\" flavorID="_full_" flavorName="Full" verRestr="false" coreVer="">
-				<cutSoftDeps/></product></products>
+			<product name="NI LabWindows/CVI Shared Run-Time Engine" UC="{80D3D303-75B9-4607-9312-E5FC68E5BFD2}" productID="{D3C549FD-7DA5-440B-A1BC-DD92C898949A}" path="(None)" flavorID="_full_" flavorName="Full" verRestr="false" coreVer=""/></products>
 		<nonAutoSelectProducts>
 			<productID>{D3C549FD-7DA5-440B-A1BC-DD92C898949A}</productID></nonAutoSelectProducts>
-		<runtimeEngine installToAppDir="false" activeXsup="true" analysis="true" cvirte="true" dotnetsup="true" instrsup="true" lowlevelsup="true" lvrt="true" netvarsup="true" rtutilsup="true">
+		<runtimeEngine installToAppDir="false" activeXsup="false" analysis="false" cvirte="true" dotnetsup="false" instrsup="true" lowlevelsup="false" lvrt="true" netvarsup="false" rtutilsup="false">
 			<hasSoftDeps/>
 			<doNotAutoSelect>
+			<component>activeXsup</component>
+			<component>analysis</component>
+			<component>cvirte</component>
+			<component>dotnetsup</component>
 			<component>instrsup</component>
+			<component>lowlevelsup</component>
 			<component>lvrt</component>
+			<component>netvarsup</component>
+			<component>rtutilsup</component>
 			</doNotAutoSelect></runtimeEngine><sxsRuntimeEngine>
 			<selected>false</selected>
 			<doNotAutoSelect>false</doNotAutoSelect></sxsRuntimeEngine>
