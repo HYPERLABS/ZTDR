@@ -1055,7 +1055,7 @@ int CVICALLBACK onDebug (int panel, int control, int event,
 			int length = 1024;
 
 			status = setEnviron (0, 0, 0.00, 10.0, 2.25, length);
-			status = acquireWaveform (numAvg);
+			status = ZTDR_AcquireData (numAvg);
 
 			double wfmDataX[length];
 			double wfmDataY[length];

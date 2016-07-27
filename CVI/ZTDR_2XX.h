@@ -57,6 +57,7 @@ extern "C" {
 // Global functions
 
 	// User-facing functions
+	int 	__stdcall	ZTDR_AcquireData (int numAvg);
 	int 	__stdcall	ZTDR_CalAmplitude (void);
 	int 	__stdcall	ZTDR_CalTimebase (void);
 	int 	__stdcall	ZTDR_DumpFile (char *filename);
@@ -65,15 +66,6 @@ extern "C" {
 	int		__stdcall 	ZTDR_Init (void);
 	int 	__stdcall	ZTDR_SetEnviron (int x, int y, double start, double end, double k, int rec);
 	int 	__stdcall	ZTDR_SetRefX (double x);
-	
-	
-	
-	
-	
-	
-	
-	
-	int 	__stdcall	acquireWaveform (int numAvg);
 
 	// Other driver functions
 	int 	__stdcall	ZTDR_CalDAC (void);
@@ -81,11 +73,13 @@ extern "C" {
 	double 	__stdcall	ZTDR_FindDiscont (void);
 	double 	__stdcall	ZTDR_GetMean (void);
 	int 	__stdcall	ZTDR_PollDevice (int acqType);
-	
-	
-	int 	__stdcall	reconstructData (double offset, int filter);
 	int 	__stdcall	ZTDR_QuantizeTimescale (void);
+	int 	__stdcall	ZTDR_ReconstructData (double offset, int filter);
 
+	
+	
+	
+	
 	// USBFIFO functionality  
 	
 	FT_STATUS 	__stdcall	ftwrbyte (char ch);

@@ -438,7 +438,7 @@ int acquire (int doDraw)
 	int numAvg = getNumAvg ();
 	
 	// Call unified acquisition function
-	status = acquireWaveform (numAvg);
+	status = ZTDR_AcquireData (numAvg);
 	
 	// Return error message if device not opened
 	if (status == -1)

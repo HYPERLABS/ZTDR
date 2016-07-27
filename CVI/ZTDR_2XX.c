@@ -248,7 +248,7 @@ __stdcall int ZTDR_CalTimebase (void)
 			return status;
 		}
 
-		status = reconstructData (0, 1);
+		status = ZTDR_ReconstructData (0, 1);
 
 		// Find mean of waveform segment
 		double val = 0.00;
@@ -328,7 +328,7 @@ __stdcall int ZTDR_CalAmplitude (void)
 	// Acquisition for offset calculation
 	status = ZTDR_PollDevice (ACQ_FULL);
 
-	status = reconstructData (0, -1);
+	status = ZTDR_ReconstructData (0, -1);
 
 	// Find offset for acquisition
 	double vstart = ZTDR_GetMean ();
@@ -340,7 +340,7 @@ __stdcall int ZTDR_CalAmplitude (void)
 	// Main calibration acquisition
 	status = ZTDR_PollDevice (ACQ_FULL);
 
-	status = reconstructData (0, -1);
+	status = ZTDR_ReconstructData (0, -1);
 
 	// Find the 50% crossing from vstart to approx. vstart + 1200 (step size)
 	for (i = 0; wfmFilter[i] < (vstart + 400) && (i < 1024); i++)
@@ -414,6 +414,8 @@ __stdcall int ZTDR_SetEnviron (int x, int y, double start, double end, double k,
 // Set horizontal reference point
 __stdcall int ZTDR_SetRefX (double x)
 {
+	int status;
+	
 	// Acquire reference point based on step to open
 	if (x == -1.0)
 	{
@@ -424,7 +426,7 @@ __stdcall int ZTDR_SetRefX (double x)
 
 		// Acquire new waveform with no X offset
 		xZero = 0.0;
-		acquireWaveform (1);
+		status = ZTDR_AcquireData (1);
 
 		int i = 0;
 
@@ -470,85 +472,8 @@ __stdcall int ZTDR_SetRefX (double x)
 	}
 }
 
-
-
-
-
-
-
-// Acquire horizontal value of specific point
-__stdcall double ZTDR_FetchDataX (int idx)
-{
-	double val = wfmX[idx];
-
-	return val;
-}
-
-// Acquire vertical value of specific point
-__stdcall double ZTDR_FetchDataY (int idx)
-{
-	double val = wfmAvg[idx];
-
-	return val;
-}
-
-// Dump data to CSV
-__stdcall int ZTDR_DumpFile (char *filename)
-{
-	int status;
-
-	// Open selected file for write
-	FILE *fd;
-	fd = fopen (filename, "w");
-
-	// Set up data buffer;
-	char buf[256];
-	buf[0] = 0;
-
-	// List unit names to avoid confusion
-	char *nameY[] =
-	{
-		"mV",
-		"Norm",
-		"Ohm",
-		"Rho"
-	};
-
-	char *nameX[] =
-	{
-		"m",
-		"ft",
-		"ns"
-	};
-
-	// Write header row
-	// TODO: why does it do Y data first then X?
-	status = sprintf (buf + strlen(buf), "%s, %s, %3.10f, %3.10f, %3.3f, %3.10f\n", nameY[yUnits], nameX[xUnits], xStart, xEnd, dielK, xZero);
-
-	status = fwrite (buf, 1, strlen (buf), fd);
-
-	// Log X/Y data
-	for (int i = 0; i < recLen; i++)
-	{
-		// Reset buffer
-		buf[0] = 0;
-
-		status = sprintf (buf + strlen (buf), "%3.10f, %3.10f\n", wfmAvg[i], wfmX[i]);
-
-		status = fwrite (buf, 1, strlen (buf), fd);
-	}
-
-	status = fclose(fd);
-
-	return 1;
-}
-
-
-
-
-
 // Acquisition (UIR agnostic)
-__stdcall int acquireWaveform (int numAvg)
+__stdcall int ZTDR_AcquireData (int numAvg)
 {
 	int status, i;
 
@@ -565,7 +490,7 @@ __stdcall int acquireWaveform (int numAvg)
 	// Acquisition for offset calculation
 	status = ZTDR_PollDevice (ACQ_FULL);
 
-	status = reconstructData (0, -1);
+	status = ZTDR_ReconstructData (0, -1);
 
 	double offset = ZTDR_GetMean ();
 
@@ -580,7 +505,7 @@ __stdcall int acquireWaveform (int numAvg)
 		// Main acquisition
 		status = ZTDR_PollDevice (ACQ_FULL);
 
-		status = reconstructData (offset, -1);
+		status = ZTDR_ReconstructData (offset, -1);
 
 		// Store data, perform rho conversion
 		for (i = 0; i < recLen; i++)
@@ -695,11 +620,72 @@ __stdcall int acquireWaveform (int numAvg)
 	return 1;
 }
 
+// Acquire horizontal value of specific point
+__stdcall double ZTDR_FetchDataX (int idx)
+{
+	double val = wfmX[idx];
 
+	return val;
+}
 
+// Acquire vertical value of specific point
+__stdcall double ZTDR_FetchDataY (int idx)
+{
+	double val = wfmAvg[idx];
 
+	return val;
+}
 
+// Dump data to CSV
+__stdcall int ZTDR_DumpFile (char *filename)
+{
+	int status;
 
+	// Open selected file for write
+	FILE *fd;
+	fd = fopen (filename, "w");
+
+	// Set up data buffer;
+	char buf[256];
+	buf[0] = 0;
+
+	// List unit names to avoid confusion
+	char *nameY[] =
+	{
+		"mV",
+		"Norm",
+		"Ohm",
+		"Rho"
+	};
+
+	char *nameX[] =
+	{
+		"m",
+		"ft",
+		"ns"
+	};
+
+	// Write header row
+	// TODO: why does it do Y data first then X?
+	status = sprintf (buf + strlen(buf), "%s, %s, %3.10f, %3.10f, %3.3f, %3.10f\n", nameY[yUnits], nameX[xUnits], xStart, xEnd, dielK, xZero);
+
+	status = fwrite (buf, 1, strlen (buf), fd);
+
+	// Log X/Y data
+	for (int i = 0; i < recLen; i++)
+	{
+		// Reset buffer
+		buf[0] = 0;
+
+		status = sprintf (buf + strlen (buf), "%3.10f, %3.10f\n", wfmAvg[i], wfmX[i]);
+
+		status = fwrite (buf, 1, strlen (buf), fd);
+	}
+
+	status = fclose(fd);
+
+	return 1;
+}
 
 
 //==============================================================================
@@ -814,6 +800,54 @@ __stdcall int ZTDR_PollDevice (int acqType)
 	return 1;
 }
 
+// Data post-processing
+__stdcall int ZTDR_ReconstructData (double offset, int filter)
+{
+	int i;
+
+	// Increment between data points
+	UINT32 incr;
+	incr = (endTime.time - startTime.time) / recLen;
+
+	timeinf currentTime;
+	currentTime.time = startTime.time;
+
+	// Set dielectric constant
+	double vDiel = (double) 3E8 / sqrt (dielK);
+
+	for (i = 0; i < recLen; i++)
+	{
+		wfmFilter[i] = (double) wfm[i] - offset;
+
+		wfmTime[i] = ((double) currentTime.time) / ((double) 0xFFFF) * 50.0;
+		wfmDistM[i] = wfmTime[i] * vDiel * 1E-9;
+		wfmDistFt[i] = wfmTime[i] * vDiel * 1E-9 * M_TO_FT;
+
+		currentTime.time += incr;
+	}
+
+	// Smooth data for better resolution during DAC calibration
+	if (filter == 1)
+	{
+		for (i = FILTER_WIDTH / 2; i < recLen - FILTER_WIDTH / 2; i++)
+		{
+			double val;
+
+			val = 0.00;
+
+			for (int j = i - FILTER_WIDTH / 2; j < i + FILTER_WIDTH / 2; j++)
+			{
+				val = val + wfmFilter[j];
+			}
+
+			wfmFilter[i] = val / FILTER_WIDTH;
+		}
+	}
+
+	// TODO: useful return
+	return 1;
+}
+
 // Calculate mean of data array
 __stdcall double ZTDR_GetMean (void)
 {
@@ -841,7 +875,7 @@ __stdcall int ZTDR_CalDAC (void)
 
 	status = ZTDR_PollDevice (ACQ_FULL);
 
-	status = reconstructData (0, 1);
+	status = ZTDR_ReconstructData (0, 1);
 
 	double calDiscLevel = ZTDR_FindDiscont ();
 
@@ -851,7 +885,7 @@ __stdcall int ZTDR_CalDAC (void)
 
 		status = ZTDR_PollDevice (ACQ_FULL);
 
-		status = reconstructData (0, 1);
+		status = ZTDR_ReconstructData (0, 1);
 
 		calDiscLevel = ZTDR_FindDiscont ();
 	}
@@ -867,7 +901,7 @@ __stdcall int ZTDR_CalDAC (void)
 
 		status = ZTDR_PollDevice (ACQ_FULL);
 
-		status = reconstructData (0, 1);
+		status = ZTDR_ReconstructData (0, 1);
 
 		calDiscLevel = ZTDR_FindDiscont ();
 	}
@@ -891,7 +925,7 @@ __stdcall int ZTDR_CalDAC (void)
 
 	status = ZTDR_PollDevice (ACQ_FULL);
 
-	status = reconstructData (0, 1);
+	status = ZTDR_ReconstructData (0, 1);
 
 	calDiscLevel = ZTDR_FindDiscont ();
 
@@ -901,7 +935,7 @@ __stdcall int ZTDR_CalDAC (void)
 
 		status = ZTDR_PollDevice (ACQ_FULL);
 
-		status = reconstructData (0, 1);
+		status = ZTDR_ReconstructData (0, 1);
 
 		calDiscLevel = ZTDR_FindDiscont ();
 
@@ -918,7 +952,7 @@ __stdcall int ZTDR_CalDAC (void)
 
 		status = ZTDR_PollDevice (ACQ_FULL);
 
-		status = reconstructData (0, 1);
+		status = ZTDR_ReconstructData (0, 1);
 
 		calDiscLevel = ZTDR_FindDiscont ();
 	}
@@ -986,72 +1020,6 @@ __stdcall int ZTDR_QuantizeTimescale (void)
 	// TODO: useful return
 	return 1;
 }
-
-
-
-
-
-
-
-
-
-
-
-// Reconstruct data into useable form
-__stdcall int reconstructData (double offset, int filter)
-{
-	int i;
-
-	// Increment between data points
-	UINT32 incr;
-	incr = (endTime.time - startTime.time) / recLen;
-
-	timeinf currentTime;
-	currentTime.time = startTime.time;
-
-	// Set dielectric constant
-	double vDiel = (double) 3E8 / sqrt (dielK);
-
-	for (i = 0; i < recLen; i++)
-	{
-		wfmFilter[i] = (double) wfm[i] - offset;
-
-		wfmTime[i] = ((double) currentTime.time) / ((double) 0xFFFF) * 50.0;
-		wfmDistM[i] = wfmTime[i] * vDiel * 1E-9;
-		wfmDistFt[i] = wfmTime[i] * vDiel * 1E-9 * M_TO_FT;
-
-		currentTime.time += incr;
-	}
-
-	// Smooth data for better resolution
-	if (filter == 1)
-	{
-		for (i = FILTER_WIDTH / 2; i < recLen - FILTER_WIDTH / 2; i++)
-		{
-			double val;
-
-			val = 0.00;
-
-			for (int j = i - FILTER_WIDTH / 2; j < i + FILTER_WIDTH / 2; j++)
-			{
-				val = val + wfmFilter[j];
-			}
-
-			wfmFilter[i] = val / FILTER_WIDTH;
-		}
-	}
-
-	// TODO: useful return
-	return 1;
-}
-
-
-
-
-
-
-
-
 
 
 //==============================================================================
