@@ -32,15 +32,6 @@ int			deviceBps = 256000;		// expected host comm speed
 char 		deviceID[16];			// device ID
 char 		deviceCommspeed[10];	// commspeed of device
 
-
-
-
-
-
-
-
-// TODO: clean these up
-
 // Calibration
 double 	calLevels[5];
 double 	calThreshold;
@@ -657,8 +648,7 @@ __stdcall int ZTDR_DumpFile (char *filename)
 	};
 
 	// Write header row
-	// TODO: why does it do Y data first then X?
-	status = sprintf (buf + strlen(buf), "%s, %s, %3.10f, %3.10f, %3.3f, %3.10f\n", nameY[yUnits], nameX[xUnits], xStart, xEnd, dielK, xZero);
+	status = sprintf (buf + strlen(buf), "%s, %s, %3.10f, %3.10f, %3.3f, %3.10f\n", nameX[xUnits], nameY[yUnits], xStart, xEnd, dielK, xZero);
 
 	status = fwrite (buf, 1, strlen (buf), fd);
 
@@ -668,7 +658,7 @@ __stdcall int ZTDR_DumpFile (char *filename)
 		// Reset buffer
 		buf[0] = 0;
 
-		status = sprintf (buf + strlen (buf), "%3.10f, %3.10f\n", wfmAvg[i], wfmX[i]);
+		status = sprintf (buf + strlen (buf), "%3.10f, %3.10f\n", wfmX[i], wfmAvg[i]);
 
 		status = fwrite (buf, 1, strlen (buf), fd);
 	}
@@ -833,7 +823,7 @@ __stdcall int ZTDR_ReconstructData (double offset, int filter)
 		}
 	}
 
-	// TODO: useful return
+	// TODO #106: useful return
 	return 1;
 }
 
@@ -960,7 +950,7 @@ __stdcall int ZTDR_CalDAC (void)
 	return 1;
 }
 
-// TODO #999: function description
+// TODO #106: function description
 __stdcall double ZTDR_FindDiscont (void)
 {
 	double val = 0.0;
@@ -1006,7 +996,7 @@ __stdcall int ZTDR_QuantizeTimescale (void)
 	startTime.time = (UINT32) (start / 50.0 * 0xFFFF);
 	endTime.time = (UINT32) (end / 50.0 * 0xFFFF);
 
-	// TODO: useful return
+	// TODO #106: useful return
 	return 1;
 }
 
