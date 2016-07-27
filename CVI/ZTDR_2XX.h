@@ -60,6 +60,7 @@ extern "C" {
 	int 	__stdcall	ZTDR_CalAmplitude (void);
 	int 	__stdcall	ZTDR_CalTimebase (void);
 	int		__stdcall 	ZTDR_Init (void);
+	int 	__stdcall	ZTDR_SetEnviron (int x, int y, double start, double end, double k, int rec);
 	
 	
 	
@@ -68,7 +69,6 @@ extern "C" {
 	
 	
 	
-	int 	__stdcall	setEnviron (int x, int y, double start, double end, double k, int rec);
 	int 	__stdcall	setRefX (double x);
 	int 	__stdcall	acquireWaveform (int numAvg);
 	int 	__stdcall	dumpFile (char *filename);

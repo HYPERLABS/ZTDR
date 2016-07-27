@@ -398,23 +398,8 @@ __stdcall int ZTDR_CalAmplitude (void)
 	return 1;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Set acquisition environment
-__stdcall int setEnviron (int x, int y, double start, double end, double k, int rec)
+__stdcall int ZTDR_SetEnviron (int x, int y, double start, double end, double k, int rec)
 {
 	xUnits = x;
 	yUnits = y;
@@ -425,6 +410,14 @@ __stdcall int setEnviron (int x, int y, double start, double end, double k, int 
 
 	return 1;
 }
+
+
+
+
+
+
+
+
 
 // Set horizontal reference point
 __stdcall int setRefX (double x)
