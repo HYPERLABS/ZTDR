@@ -73,10 +73,6 @@ double  wfmAvg[NPOINTS_MAX]; // waveform after averaging
 // Start/end time for device
 timeinf startTime, endTime;
 
-
-// USBFIFO functionality
-
-
 // USBFIFO parameters
 UINT16 	calstart = 540;
 UINT16 	calend = 3870;
@@ -86,12 +82,8 @@ UINT16 	dac0val = 0, dac1val = 0, dac2val = 0;
 UINT16 	strobecount = 2;
 
 
-
 //==============================================================================
 // Global functions (user-facing)
-
-// TODO #999: re-order these
-
 
 // Initialize and calibrate device (UIR agnostic)
 __stdcall int ZTDR_Init (void)
@@ -308,7 +300,6 @@ __stdcall int ZTDR_CalTimebase (void)
 
 	// Calibrate DAC
 	status = ZTDR_CalDAC ();
-	// TODO #999 fail on DAC?
 
 	// Amplitude calibration
 	calStatus = ZTDR_CalAmplitude ();
@@ -691,8 +682,6 @@ __stdcall int ZTDR_DumpFile (char *filename)
 //==============================================================================
 // Global functions (not user-facing)
 
-// TODO #999: re-order these
-
 // Close FTDI device
 __stdcall void ZTDR_CloseDevice (void)
 {
@@ -771,7 +760,7 @@ __stdcall int ZTDR_PollDevice (int acqType)
 
 	// Acquire waveform
 	UINT8 acq_result;
-	status = usbfifo_acquire (&acq_result, 0);
+	status = USBFIFO_Acquire (&acq_result, 0);
 
 	// Verify block integrity
 	if (acqType == ACQ_FULL)
@@ -786,7 +775,7 @@ __stdcall int ZTDR_PollDevice (int acqType)
 			int nTries = 3;
 
 			// Verify data integrity of block
-			while ((status = usbfifo_readblock ((UINT8) i, (UINT16*) wfm + (256 * i))) < 0 && nTries--);
+			while ((status = USBFIFO_ReadBlock ((UINT8) i, (UINT16*) wfm + (256 * i))) < 0 && nTries--);
 
 			if (status != 1)
 			{
@@ -1047,20 +1036,9 @@ __stdcall FT_STATUS USBFIFO_WriteByte (char ch)
 	return status;
 }
 
-
-
-
-
-
-
-
-
-
-// Acquire from FDTI device
-__stdcall int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
+// Acquire waveform from FDTI device
+__stdcall int USBFIFO_Acquire (UINT8 *ret_val, UINT8 arg)
 {
-	// NOTE: this is important crash point
-
 	char ch;
 	FT_STATUS status;
 
@@ -1069,26 +1047,25 @@ __stdcall int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
 		return 0;
 	}
 
-	// NOTE: Write 'a' (acquire) to ADUC
+	// Acquire ('a') from ADUC
 	status = USBFIFO_WriteByte ('a');
 
-	// NOTE: Write a '0' to ADUC (leave it)
+	// Dummy argument ('0') to ADUC
 	status = USBFIFO_WriteByte (arg);
 
-	// NOTE: Sets time for ADUC to respond
+	// Sets ADUC timeouts
 	status = FT_SetTimeouts (serialHandle, 1000, 1000);
 
-	// NOTE: this actually returns the waveform?
 	*ret_val = USBFIFO_ReadByte ();
 
-	// NOTE: '.' means the acquisition successful
+	// Check handshake ('.') to ensure successful acquisition
 	ch = USBFIFO_ReadByte ();
 
 	status = FT_SetTimeouts (serialHandle, STD_TIMEOUT, STD_TIMEOUT);
 
 	if (ch != '.')
 	{
-		// NOTE: crashes software
+		// Failed to acquire data; crashes
 		return -1;
 	}
 	else
@@ -1098,37 +1075,34 @@ __stdcall int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
 
 }
 
-
-
 // Read data blocks of acquisition
-__stdcall int usbfifo_readblock (UINT8 block_no, UINT16 *buf)
+__stdcall int USBFIFO_ReadBlock (UINT8 block_no, UINT16 *buf)
 {
-#define BLOCK_LEN 256
-
 	char ch;
 	int n, ret,i;
-	UINT8 rawbuf8[2*BLOCK_LEN];
 
+	// Define block length
+	int blockLength = 256;
+	UINT8 rawbuf8[2*blockLength];
+	
+	// Verify that device is open
 	if (!deviceOpen)
 	{
 		return 0;
 	}
 
-	// NOTE: command to 'b', read from block
-
+	// Prepare to read block
 	USBFIFO_WriteByte ('b');
 
-	// NOTE: which block to pull from
+	// Specify block to pull from
 	USBFIFO_WriteByte (block_no);
 
-	// NOTE: FTDI function, goes to FIFO handle, reads buffer
+	// Read from buffer
+	ret = FT_Read (fifoHandle, rawbuf8, blockLength * 2, &n);
 
-	ret = FT_Read (fifoHandle, rawbuf8, BLOCK_LEN * 2, &n);
-
+	// Verify that good data read from buffer ('f')
 	ch = USBFIFO_ReadByte();
-
-	// NOTE: 'f' didn't get good data from buffer
-
+	
 	if (ch == 'f')
 	{
 		// handle failure, clean out FIFO and return error
@@ -1136,14 +1110,13 @@ __stdcall int usbfifo_readblock (UINT8 block_no, UINT16 *buf)
 		return -1;
 	}
 
-	if (n != 2 * BLOCK_LEN)
+	if (n != 2 * blockLength)
 	{
 		return -2;
 	}
 
 	// NOTE: write data to software buffer
-
-	for (i = 0; i < BLOCK_LEN; i++)
+	for (i = 0; i < blockLength; i++)
 	{
 		buf[i] = (UINT16) (((UINT16) rawbuf8[2 * i + 1]) << 8) | ((UINT16) rawbuf8[2 * i]);
 	}
