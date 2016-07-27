@@ -469,6 +469,8 @@ __stdcall int ZTDR_AcquireData (int numAvg)
 	startTime.time = 0;
 	endTime.time = startTime.time;
 
+	// TODO #180: need dummy strobe or other fix for first-point dribble up
+	
 	// Acquisition for offset calculation
 	status = ZTDR_PollDevice (ACQ_FULL);
 
@@ -482,8 +484,6 @@ __stdcall int ZTDR_AcquireData (int numAvg)
 	// Run once for each waveform
 	for (int j = 0; j < numAvg; j++)
 	{
-		// TODO #175: need dummy strobe
-
 		// Main acquisition
 		status = ZTDR_PollDevice (ACQ_FULL);
 
