@@ -76,17 +76,12 @@ extern "C" {
 	int 	__stdcall	ZTDR_QuantizeTimescale (void);
 	int 	__stdcall	ZTDR_ReconstructData (double offset, int filter);
 
-	
-	
-	
-	
 	// USBFIFO functionality  
+	char 	__stdcall	USBFIFO_ReadByte (void);
+	FT_STATUS 	__stdcall	USBFIFO_WriteByte (char ch);
 	
-	FT_STATUS 	__stdcall	ftwrbyte (char ch);
 	
 	
-	
-	char 	__stdcall	ftrdbyte (void);
 	int 	__stdcall	usbfifo_acquire (UINT8 *ret_val, UINT8 arg);
 	int 	__stdcall	usbfifo_readblock (UINT8 block_no, UINT16 *buf);
 

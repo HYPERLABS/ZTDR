@@ -180,7 +180,7 @@ __stdcall int ZTDR_Init (void)
 		}
 		
 		// Read device identification
-		serialStatus = ftwrbyte ('i');
+		serialStatus = USBFIFO_WriteByte ('i');
 		serialStatus = FT_Read (serialHandle, deviceID, 16, &n);
 
 		if (strncmp (deviceID, "USBFIFO", 7) != 0)
@@ -189,11 +189,11 @@ __stdcall int ZTDR_Init (void)
 		}
 		
 		// Dummy write
-		serialStatus = ftwrbyte ('i');
-		char ch = ftrdbyte ();
+		serialStatus = USBFIFO_WriteByte ('i');
+		char ch = USBFIFO_ReadByte ();
 
 		// Read device commspeed
-		serialStatus = ftwrbyte ('s');
+		serialStatus = USBFIFO_WriteByte ('s');
 		serialStatus = FT_Read (serialHandle, deviceCommspeed, 16, &n);
 
 		if (strncmp (deviceCommspeed, "256000", 6) != 0)
@@ -202,8 +202,8 @@ __stdcall int ZTDR_Init (void)
 		}
 
 		// Dummy write
-		serialStatus = ftwrbyte ('s');
-		ch = ftrdbyte ();
+		serialStatus = USBFIFO_WriteByte ('s');
+		ch = USBFIFO_ReadByte ();
 		
 		// TODO #999: figure out why this is necessary here
 		serialStatus = FT_SetRts (serialHandle);
@@ -751,9 +751,9 @@ __stdcall int ZTDR_PollDevice (int acqType)
 		params[IDX_STROBECNT_LOWER] = (UINT8) strobecount;
 
 		// Send parameters to device
-		stat = ftwrbyte ('p');
+		stat = USBFIFO_WriteByte ('p');
 		stat = FT_Write (serialHandle, params, NPARAMS, &n);
-		ch = ftrdbyte ();
+		ch = USBFIFO_ReadByte ();
 
 		// Errors
 		if (ch != '.')
@@ -1025,11 +1025,8 @@ __stdcall int ZTDR_QuantizeTimescale (void)
 //==============================================================================
 // Global functions (USBFIFO)
 
-
-
-
-// Read FTDI byte
-__stdcall char ftrdbyte (void)
+// Read first byte from FTDI
+__stdcall char USBFIFO_ReadByte (void)
 {
 	char ch;
 	int n;
@@ -1039,9 +1036,8 @@ __stdcall char ftrdbyte (void)
 	return ch;
 }
 
-
-// Write FTDI byte
-__stdcall FT_STATUS ftwrbyte(char ch)
+// Send command string to FTDI
+__stdcall FT_STATUS USBFIFO_WriteByte (char ch)
 {
 	FT_STATUS status;
 	int n;
@@ -1050,6 +1046,15 @@ __stdcall FT_STATUS ftwrbyte(char ch)
 
 	return status;
 }
+
+
+
+
+
+
+
+
+
 
 // Acquire from FDTI device
 __stdcall int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
@@ -1065,19 +1070,19 @@ __stdcall int usbfifo_acquire (UINT8 *ret_val, UINT8 arg)
 	}
 
 	// NOTE: Write 'a' (acquire) to ADUC
-	status = ftwrbyte ('a');
+	status = USBFIFO_WriteByte ('a');
 
 	// NOTE: Write a '0' to ADUC (leave it)
-	status = ftwrbyte (arg);
+	status = USBFIFO_WriteByte (arg);
 
 	// NOTE: Sets time for ADUC to respond
 	status = FT_SetTimeouts (serialHandle, 1000, 1000);
 
 	// NOTE: this actually returns the waveform?
-	*ret_val = ftrdbyte ();
+	*ret_val = USBFIFO_ReadByte ();
 
 	// NOTE: '.' means the acquisition successful
-	ch = ftrdbyte ();
+	ch = USBFIFO_ReadByte ();
 
 	status = FT_SetTimeouts (serialHandle, STD_TIMEOUT, STD_TIMEOUT);
 
@@ -1111,16 +1116,16 @@ __stdcall int usbfifo_readblock (UINT8 block_no, UINT16 *buf)
 
 	// NOTE: command to 'b', read from block
 
-	ftwrbyte ('b');
+	USBFIFO_WriteByte ('b');
 
 	// NOTE: which block to pull from
-	ftwrbyte (block_no);
+	USBFIFO_WriteByte (block_no);
 
 	// NOTE: FTDI function, goes to FIFO handle, reads buffer
 
 	ret = FT_Read (fifoHandle, rawbuf8, BLOCK_LEN * 2, &n);
 
-	ch = ftrdbyte();
+	ch = USBFIFO_ReadByte();
 
 	// NOTE: 'f' didn't get good data from buffer
 
