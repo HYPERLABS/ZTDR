@@ -738,13 +738,13 @@ __stdcall int ZTDR_PollDevice (int acqType)
 		if (ch != '.')
 		{
 			// No record received
-			return -300 - ch;
+			return -400 - ch;
 		}
 
 		else if (n != NPARAMS)
 		{
 			// Incorrect number of params passed
-			return -299;
+			return -399;
 		}
 	}
 
@@ -770,7 +770,7 @@ __stdcall int ZTDR_PollDevice (int acqType)
 			if (status != 1)
 			{
 				// Indicate which block failed (-30n for nth block)
-				return (300 - i);
+				return (-300 - i);
 			}
 		}
 	}
