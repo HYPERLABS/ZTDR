@@ -147,7 +147,8 @@ __stdcall int ZTDR_Init (void)
 		}
 
 		// Set device flow control
-		serialStatus = FT_SetFlowControl (serialHandle, FT_FLOW_NONE, 'y', 'n');  // Transmit y/n (unused)
+		serialStatus = FT_SetFlowControl (serialHandle, FT_FLOW_NONE, 0, 0);
+		//serialStatus = FT_SetFlowControl (serialHandle, FT_FLOW_XON_XOFF, 'x', 'z');
 
 		if (serialStatus != FT_OK)
 		{
@@ -162,6 +163,9 @@ __stdcall int ZTDR_Init (void)
 			return -114;
 		}
 		
+		// Flow control
+		// serialStatus = USBFIFO_WriteByte ('z');
+
 		// Read device identification
 		serialStatus = USBFIFO_WriteByte ('i');
 		serialStatus = FT_Read (serialHandle, deviceID, 16, &n);
