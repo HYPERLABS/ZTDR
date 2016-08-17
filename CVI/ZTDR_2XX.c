@@ -80,6 +80,7 @@ UINT16 	strobecount = 2;
 __stdcall int ZTDR_Init (void)
 {
 	// Instrument initialization status
+	int status;
 	int n;
 	FT_STATUS serialStatus, fifoStatus;
 
@@ -130,7 +131,7 @@ __stdcall int ZTDR_Init (void)
 		{
 			return -110;
 		}
-		
+
 		// Set device baud rate
 		serialStatus = FT_SetBaudRate (serialHandle, deviceBps);
 		if (serialStatus != FT_OK)
@@ -148,7 +149,6 @@ __stdcall int ZTDR_Init (void)
 
 		// Set device flow control
 		serialStatus = FT_SetFlowControl (serialHandle, FT_FLOW_NONE, 0, 0);
-		//serialStatus = FT_SetFlowControl (serialHandle, FT_FLOW_XON_XOFF, 'x', 'z');
 
 		if (serialStatus != FT_OK)
 		{
@@ -162,9 +162,6 @@ __stdcall int ZTDR_Init (void)
 		{
 			return -114;
 		}
-		
-		// Flow control
-		// serialStatus = USBFIFO_WriteByte ('z');
 
 		// Read device identification
 		serialStatus = USBFIFO_WriteByte ('i');
@@ -175,28 +172,36 @@ __stdcall int ZTDR_Init (void)
 			return -115;
 		}
 		
-		// Dummy write
-		serialStatus = USBFIFO_WriteByte ('i');
-		char ch = USBFIFO_ReadByte ();
-
 		// Read device commspeed
+		int numTries = 3;
 		serialStatus = USBFIFO_WriteByte ('s');
 		serialStatus = FT_Read (serialHandle, deviceCommspeed, 16, &n);
+		
+		// Retry up to 3 times if commspeed can't be read
+		while (strncmp (deviceCommspeed, "256000", 6) != 0 && numTries > 0)
+		{
+			serialStatus = USBFIFO_WriteByte ('s');
+			serialStatus = FT_Read (serialHandle, deviceCommspeed, 16, &n);	
+			
+			numTries--;
+		}
 
-		if (strncmp (deviceCommspeed, "256000", 6) != 0)
+		// Failed to get any commspeed
+		if (numTries == 0)
 		{
 			return -116;
 		}
-
-		// Dummy write
-		serialStatus = USBFIFO_WriteByte ('s');
-		ch = USBFIFO_ReadByte ();
-		
-		// TODO #999: figure out why this is necessary here
-		serialStatus = FT_SetRts (serialHandle);
-		serialStatus = FT_ClrRts (serialHandle);
+		// Unexpected commspeed returned
+		else if (strncmp (deviceCommspeed, "256000", 6) != 0)
+		{
+			return -117;
+		}
 	}
 
+	// Dummy acquisition to ensure device initialization
+	UINT8 acq_result;
+	status = USBFIFO_Acquire (&acq_result, 0);
+	
 	// Initialization successful
 	return 1;
 }
@@ -204,7 +209,8 @@ __stdcall int ZTDR_Init (void)
 // Full timebase calibration
 __stdcall int ZTDR_CalTimebase (void)
 {
-	int status, calStatus;
+	int status;
+	int calStatus = 1;
 	int i, j;
 
 	// Set calibration window
@@ -214,10 +220,7 @@ __stdcall int ZTDR_CalTimebase (void)
 	// Set increment for default 50 ns timescale
 	calIncrement = (int) ((((double) CAL_WINDOW - (double) 0.0) *(double) 1.0 / (double) 1024.0 ) /
 						  (((double) 50.0e-9) / (double) 65536.0));
-
-	// Dummy acquisition to ensure device initialization
-	status = ZTDR_PollDevice (ACQ_DUMMY);
-
+	
 	// Set start and end time to zero
 	startTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
 	endTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
@@ -227,12 +230,12 @@ __stdcall int ZTDR_CalTimebase (void)
 	{
 		stepcount = stepcountArray[(UINT16) i];
 
-		status = ZTDR_PollDevice (ACQ_FULL);
+		calStatus = ZTDR_PollDevice ();
 
 		// Poll device failed
-		if (status < 0)
+		if (calStatus < 0)
 		{
-			return status;
+			return calStatus;
 		}
 
 		status = ZTDR_ReconstructData (0, 1);
@@ -273,7 +276,7 @@ __stdcall int ZTDR_CalTimebase (void)
 
 	if ((min < 1) || (max > 4094))
 	{
-		// Calibration fail
+		// Timebase calibration fail
 		return -201;
 	}
 
@@ -295,10 +298,7 @@ __stdcall int ZTDR_CalTimebase (void)
 
 	// Calibrate DAC
 	status = ZTDR_CalDAC ();
-
-	// Amplitude calibration
-	calStatus = ZTDR_CalAmplitude ();
-
+	
 	return calStatus;
 }
 
@@ -312,8 +312,7 @@ __stdcall int ZTDR_CalAmplitude (void)
 	endTime.time = startTime.time;
 
 	// Acquisition for offset calculation
-	status = ZTDR_PollDevice (ACQ_FULL);
-
+	status = ZTDR_PollDevice ();
 	status = ZTDR_ReconstructData (0, -1);
 
 	// Find offset for acquisition
@@ -324,8 +323,7 @@ __stdcall int ZTDR_CalAmplitude (void)
 	endTime.time = (UINT32) (50.0 / 50.0 * 0xFFFF);
 
 	// Main calibration acquisition
-	status = ZTDR_PollDevice (ACQ_FULL);
-
+	status = ZTDR_PollDevice ();
 	status = ZTDR_ReconstructData (0, -1);
 
 	// Find the 50% crossing from vstart to approx. vstart + 1200 (step size)
@@ -401,7 +399,7 @@ __stdcall int ZTDR_SetEnviron (int x, int y, double start, double end, double k,
 __stdcall int ZTDR_SetRefX (double x)
 {
 	int status;
-	
+
 	// Acquire reference point based on step to open
 	if (x == -1.0)
 	{
@@ -468,16 +466,15 @@ __stdcall int ZTDR_AcquireData (int numAvg)
 	{
 		return -1;
 	}
-	
+
 	// Timescale for averaging 1024 samples at 0 ns
 	startTime.time = 0;
 	endTime.time = startTime.time;
 
 	// TODO #180: need dummy strobe or other fix for first-point dribble up
-	
-	// Acquisition for offset calculation
-	status = ZTDR_PollDevice (ACQ_FULL);
 
+	// Acquisition for offset calculation
+	status = ZTDR_PollDevice ();
 	status = ZTDR_ReconstructData (0, -1);
 
 	double offset = ZTDR_GetMean ();
@@ -489,8 +486,7 @@ __stdcall int ZTDR_AcquireData (int numAvg)
 	for (int j = 0; j < numAvg; j++)
 	{
 		// Main acquisition
-		status = ZTDR_PollDevice (ACQ_FULL);
-
+		status = ZTDR_PollDevice ();
 		status = ZTDR_ReconstructData (offset, -1);
 
 		// Store data, perform rho conversion
@@ -693,63 +689,66 @@ __stdcall void ZTDR_CloseDevice (void)
 }
 
 // Get full waveform data for use in all functions
-__stdcall int ZTDR_PollDevice (int acqType)
+__stdcall int ZTDR_PollDevice (void)
 {
 	int status = 0;
 
 	// Write acquisition parameters to device
-	if (acqType == ACQ_FULL)
+	FT_STATUS stat;
+	static UINT8 params[NPARAMS];
+	char ch;
+	int n;
+
+	// Full parameter list
+	params[IDX_FREERUN] = 0;
+	params[IDX_STEPCNT_UPPER] = stepcount >> 8;
+	params[IDX_STEPCNT_LOWER] = (UINT8) stepcount;
+	params[IDX_RECLEN_UPPER] = recLen >> 8;
+	params[IDX_RECLEN_LOWER] = (UINT8) recLen;
+	params[IDX_DAC0_UPPER] = dac0val >> 8;
+	params[IDX_DAC0_LOWER] = (UINT8) dac0val;
+	params[IDX_DAC1_UPPER] = dac1val >> 8;
+	params[IDX_DAC1_LOWER] = (UINT8) dac1val;
+	params[IDX_DAC2_UPPER] = dac2val >> 8;
+	params[IDX_DAC2_LOWER] = (UINT8) dac2val;
+	params[IDX_CALSTART_UPPER] = calstart >> 8;
+	params[IDX_CALSTART_LOWER] = (UINT8) calstart;
+	params[IDX_CALEND_UPPER] = calend >> 8;
+	params[IDX_CALEND_LOWER] = (UINT8) calend;
+	params[IDX_TMSTART_B3] = startTime.time_b.b3;
+	params[IDX_TMSTART_B2] = startTime.time_b.b2;
+	params[IDX_TMSTART_B1] = startTime.time_b.b1;
+	params[IDX_TMSTART_B0] = startTime.time_b.b0;
+	params[IDX_TMEND_B3] = endTime.time_b.b3;
+	params[IDX_TMEND_B2] = endTime.time_b.b2;
+	params[IDX_TMEND_B1] = endTime.time_b.b1;
+	params[IDX_TMEND_B0] = endTime.time_b.b0;
+	params[IDX_OVERSAMPLE] = 0;
+	params[IDX_STROBECNT_UPPER] = strobecount >> 8;
+	params[IDX_STROBECNT_LOWER] = (UINT8) strobecount;
+
+	// Send parameters to device
+	stat = USBFIFO_WriteByte ('p');
+	stat = FT_Write (serialHandle, params, NPARAMS, &n);
+	ch = USBFIFO_ReadByte ();
+
+	// Errors
+	if (ch != '.')
 	{
-		FT_STATUS stat;
-		static UINT8 params[NPARAMS];
-		char ch;
-		int n;
+		// No record received
+		return -400 - ch;
+	}
 
-		// Full parameter list
-		params[IDX_FREERUN] = 0;
-		params[IDX_STEPCNT_UPPER] = stepcount >> 8;
-		params[IDX_STEPCNT_LOWER] = (UINT8) stepcount;
-		params[IDX_RECLEN_UPPER] = recLen >> 8;
-		params[IDX_RECLEN_LOWER] = (UINT8) recLen;
-		params[IDX_DAC0_UPPER] = dac0val >> 8;
-		params[IDX_DAC0_LOWER] = (UINT8) dac0val;
-		params[IDX_DAC1_UPPER] = dac1val >> 8;
-		params[IDX_DAC1_LOWER] = (UINT8) dac1val;
-		params[IDX_DAC2_UPPER] = dac2val >> 8;
-		params[IDX_DAC2_LOWER] = (UINT8) dac2val;
-		params[IDX_CALSTART_UPPER] = calstart >> 8;
-		params[IDX_CALSTART_LOWER] = (UINT8) calstart;
-		params[IDX_CALEND_UPPER] = calend >> 8;
-		params[IDX_CALEND_LOWER] = (UINT8) calend;
-		params[IDX_TMSTART_B3] = startTime.time_b.b3;
-		params[IDX_TMSTART_B2] = startTime.time_b.b2;
-		params[IDX_TMSTART_B1] = startTime.time_b.b1;
-		params[IDX_TMSTART_B0] = startTime.time_b.b0;
-		params[IDX_TMEND_B3] = endTime.time_b.b3;
-		params[IDX_TMEND_B2] = endTime.time_b.b2;
-		params[IDX_TMEND_B1] = endTime.time_b.b1;
-		params[IDX_TMEND_B0] = endTime.time_b.b0;
-		params[IDX_OVERSAMPLE] = 0;
-		params[IDX_STROBECNT_UPPER] = strobecount >> 8;
-		params[IDX_STROBECNT_LOWER] = (UINT8) strobecount;
+	else if (n != NPARAMS)
+	{
+		// Incorrect number of params passed
+		return -399;
+	}
 
-		// Send parameters to device
-		stat = USBFIFO_WriteByte ('p');
-		stat = FT_Write (serialHandle, params, NPARAMS, &n);
-		ch = USBFIFO_ReadByte ();
-
-		// Errors
-		if (ch != '.')
-		{
-			// No record received
-			return -400 - ch;
-		}
-
-		else if (n != NPARAMS)
-		{
-			// Incorrect number of params passed
-			return -399;
-		}
+	// Break if error
+	if (status < 0)
+	{
+		return status;
 	}
 
 	// Acquire waveform
@@ -757,25 +756,22 @@ __stdcall int ZTDR_PollDevice (int acqType)
 	status = USBFIFO_Acquire (&acq_result, 0);
 
 	// Verify block integrity
-	if (acqType == ACQ_FULL)
+	// Blocks of 256 data points (max 256 blocks, 16,384 data points)
+	int numBlocks = recLen / 256;
+
+	// Verify integrity of all data blocks
+	for (int i = 0; i < numBlocks; i++)
 	{
-		// Blocks of 256 data points (max 256 blocks, 16,384 data points)
-		int numBlocks = recLen / 256;
+		// Number of read attempts before failure
+		int nTries = 3;
 
-		// Verify integrity of all data blocks
-		for (int i = 0; i < numBlocks; i++)
+		// Verify data integrity of block
+		while ((status = USBFIFO_ReadBlock ((UINT8) i, (UINT16*) wfm + (256 * i))) < 0 && nTries--);
+
+		if (status != 1)
 		{
-			// Number of read attempts before failure
-			int nTries = 3;
-
-			// Verify data integrity of block
-			while ((status = USBFIFO_ReadBlock ((UINT8) i, (UINT16*) wfm + (256 * i))) < 0 && nTries--);
-
-			if (status != 1)
-			{
-				// Indicate which block failed (-30n for nth block)
-				return (-300 - i);
-			}
+			// Indicate which block failed (-30n for nth block)
+			return (-300 - i);
 		}
 	}
 
@@ -856,8 +852,7 @@ __stdcall int ZTDR_CalDAC (void)
 	startTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
 	endTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);;
 
-	status = ZTDR_PollDevice (ACQ_FULL);
-
+	status = ZTDR_PollDevice ();
 	status = ZTDR_ReconstructData (0, 1);
 
 	double calDiscLevel = ZTDR_FindDiscont ();
@@ -866,8 +861,7 @@ __stdcall int ZTDR_CalDAC (void)
 	{
 		calstart += 100;
 
-		status = ZTDR_PollDevice (ACQ_FULL);
-
+		status = ZTDR_PollDevice ();
 		status = ZTDR_ReconstructData (0, 1);
 
 		calDiscLevel = ZTDR_FindDiscont ();
@@ -882,8 +876,7 @@ __stdcall int ZTDR_CalDAC (void)
 	{
 		calstart -= 10;
 
-		status = ZTDR_PollDevice (ACQ_FULL);
-
+		status = ZTDR_PollDevice ();
 		status = ZTDR_ReconstructData (0, 1);
 
 		calDiscLevel = ZTDR_FindDiscont ();
@@ -906,8 +899,7 @@ __stdcall int ZTDR_CalDAC (void)
 	startTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
 	endTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
 
-	status = ZTDR_PollDevice (ACQ_FULL);
-
+	status = ZTDR_PollDevice ();
 	status = ZTDR_ReconstructData (0, 1);
 
 	calDiscLevel = ZTDR_FindDiscont ();
@@ -916,8 +908,7 @@ __stdcall int ZTDR_CalDAC (void)
 	{
 		calstart = calstart + 100;
 
-		status = ZTDR_PollDevice (ACQ_FULL);
-
+		status = ZTDR_PollDevice ();
 		status = ZTDR_ReconstructData (0, 1);
 
 		calDiscLevel = ZTDR_FindDiscont ();
@@ -933,8 +924,7 @@ __stdcall int ZTDR_CalDAC (void)
 	{
 		calstart = calstart - 10;
 
-		status = ZTDR_PollDevice (ACQ_FULL);
-
+		status = ZTDR_PollDevice ();
 		status = ZTDR_ReconstructData (0, 1);
 
 		calDiscLevel = ZTDR_FindDiscont ();
@@ -1078,7 +1068,7 @@ __stdcall int USBFIFO_ReadBlock (UINT8 block_no, UINT16 *buf)
 	// Define block length
 	int blockLength = 256;
 	UINT8 rawbuf8[2*blockLength];
-	
+
 	// Verify that device is open
 	if (!deviceOpen)
 	{
@@ -1096,7 +1086,7 @@ __stdcall int USBFIFO_ReadBlock (UINT8 block_no, UINT16 *buf)
 
 	// Verify that good data read from buffer ('f')
 	ch = USBFIFO_ReadByte();
-	
+
 	if (ch == 'f')
 	{
 		// handle failure, clean out FIFO and return error
