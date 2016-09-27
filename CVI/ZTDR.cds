@@ -6,7 +6,7 @@
 		<workingdir>workspacedir</workingdir>
 		<actions></actions></postbuild>
 	<msi GUID="{19A16F8B-B0A6-4056-BF6C-E22260352FB7}">
-		<general appName="ZTDR" outputLocation="d:\Dropbox\Documents\HYPERLABS\GitHub\ZTDR\Install\cvidistkit.ZTDR_2.0.6" relOutputLocation="..\Install\cvidistkit.ZTDR_2.0.6" outputLocationWithVars="d:\Dropbox\Documents\HYPERLABS\GitHub\ZTDR\Install\cvidistkit.%name_%version" relOutputLocationWithVars="..\Install\cvidistkit.%name_%version" upgradeBehavior="1" autoIncrement="true" version="2.0.6">
+		<general appName="ZTDR" outputLocation="d:\Dropbox\Documents\HYPERLABS\GitHub\ZTDR\Install\cvidistkit.ZTDR_2.0.7" relOutputLocation="..\Install\cvidistkit.ZTDR_2.0.7" outputLocationWithVars="d:\Dropbox\Documents\HYPERLABS\GitHub\ZTDR\Install\cvidistkit.%name_%version" relOutputLocationWithVars="..\Install\cvidistkit.%name_%version" upgradeBehavior="1" autoIncrement="true" version="2.0.7">
 			<arp company=" HYPERLABS" companyURL="http://www.hyperlabsinc.com" supportURL="" contact="" phone="" comments=""/>
 			<summary title="ZTDR" subject="" keyWords="" comments="" author=""/></general>
 		<userinterface language="English" showPaths="true" readMe="" license="">
@@ -27,21 +27,15 @@
 			<shortcut name="ZTDR" targetFileID="0" destDirID="100" cmdLineArgs="" description="" runStyle="NORMAL"/></shortcuts>
 		<mergemodules/>
 		<products>
-			<product name="NI LabWindows/CVI Shared Run-Time Engine" UC="{80D3D303-75B9-4607-9312-E5FC68E5BFD2}" productID="{D3C549FD-7DA5-440B-A1BC-DD92C898949A}" path="(None)" flavorID="_full_" flavorName="Full" verRestr="false" coreVer=""/></products>
+			<product name="NI LabWindows/CVI Shared Run-Time Engine" UC="{80D3D303-75B9-4607-9312-E5FC68E5BFD2}" productID="{D3C549FD-7DA5-440B-A1BC-DD92C898949A}" path="C:\ProgramData\National Instruments\MDF\ProductCache\" flavorID="_full_" flavorName="Full" verRestr="false" coreVer="">
+				<cutSoftDeps/></product></products>
 		<nonAutoSelectProducts>
 			<productID>{D3C549FD-7DA5-440B-A1BC-DD92C898949A}</productID></nonAutoSelectProducts>
-		<runtimeEngine installToAppDir="false" activeXsup="false" analysis="false" cvirte="true" dotnetsup="false" instrsup="true" lowlevelsup="false" lvrt="true" netvarsup="false" rtutilsup="false">
+		<runtimeEngine installToAppDir="false" activeXsup="true" analysis="true" cvirte="true" dotnetsup="true" instrsup="true" lowlevelsup="true" lvrt="true" netvarsup="true" rtutilsup="true">
 			<hasSoftDeps/>
 			<doNotAutoSelect>
-			<component>activeXsup</component>
-			<component>analysis</component>
-			<component>cvirte</component>
-			<component>dotnetsup</component>
 			<component>instrsup</component>
-			<component>lowlevelsup</component>
 			<component>lvrt</component>
-			<component>netvarsup</component>
-			<component>rtutilsup</component>
 			</doNotAutoSelect></runtimeEngine><sxsRuntimeEngine>
 			<selected>false</selected>
 			<doNotAutoSelect>false</doNotAutoSelect></sxsRuntimeEngine>
@@ -60,14 +54,14 @@
 			<signDescURL></signDescURL></advanced>
 		<Projects NumProjects="1">
 			<Project000 ProjectID="0" ProjectAbsolutePath="d:\Dropbox\Documents\HYPERLABS\GitHub\ZTDR\CVI\ZTDR.prj" ProjectRelativePath="ZTDR.prj"/></Projects>
-		<buildData progressBarRate="4.910161400904196">
+		<buildData progressBarRate="3.833371886928696">
 			<progressTimes>
 				<Begin>0.000000000000000</Begin>
-				<ProductsAdded>0.056260024176864</ProductsAdded>
-				<DPConfigured>0.622444904538225</DPConfigured>
-				<DPMergeModulesAdded>1.189439028536566</DPMergeModulesAdded>
-				<DPClosed>2.095009835435691</DPClosed>
-				<DistributionsCopied>2.195963533248523</DistributionsCopied>
-				<End>20.365929311730000</End></progressTimes></buildData>
+				<ProductsAdded>0.056628512088432</ProductsAdded>
+				<DPConfigured>0.639682452269112</DPConfigured>
+				<DPMergeModulesAdded>1.123179514268283</DPMergeModulesAdded>
+				<DPClosed>2.000963917717845</DPClosed>
+				<DistributionsCopied>2.101544266624262</DistributionsCopied>
+				<End>26.086694155865001</End></progressTimes></buildData>
 	</msi>
 </distribution>
