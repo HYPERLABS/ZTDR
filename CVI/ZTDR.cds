@@ -11,17 +11,17 @@
 			<summary title="ZTDR" subject="" keyWords="" comments="" author=""/></general>
 		<userinterface language="English" showPaths="true" readMe="" license="">
 			<dlgstrings welcomeTitle="Welcome to ZTDR" welcomeText=""/></userinterface>
-		<dirs appDirID="104">
-			<installDir name="[Start&gt;&gt;Programs]" dirID="7" parentID="-1" isMSIDir="true" visible="true" unlock="false"/>
+		<dirs appDirID="102">
 			<installDir name="ZTDR" dirID="100" parentID="103" isMSIDir="false" visible="true" unlock="false"/>
-			<installDir name="C:" dirID="101" parentID="-1" isMSIDir="false" visible="true" unlock="false"/>
-			<installDir name="HYPERLABS" dirID="102" parentID="101" isMSIDir="false" visible="true" unlock="false"/>
+			<installDir name="HYPERLABS" dirID="101" parentID="104" isMSIDir="false" visible="true" unlock="false"/>
+			<installDir name="ZTDR" dirID="102" parentID="101" isMSIDir="false" visible="true" unlock="false"/>
+			<installDir name="[Start&gt;&gt;Programs]" dirID="7" parentID="-1" isMSIDir="true" visible="true" unlock="false"/>
 			<installDir name="HYPERLABS" dirID="103" parentID="7" isMSIDir="false" visible="true" unlock="false"/>
-			<installDir name="ZTDR" dirID="104" parentID="102" isMSIDir="false" visible="true" unlock="false"/></dirs>
+			<installDir name="C:" dirID="104" parentID="-1" isMSIDir="false" visible="true" unlock="false"/></dirs>
 		<files>
-			<simpleFile fileID="0" sourcePath="d:\Dropbox\Documents\HYPERLABS\GitHub\ZTDR\CVI\cvibuild.ZTDR\Release\ZTDR.exe" targetDir="104" readonly="false" hidden="false" system="false" regActiveX="false" runAfterInstallStyle="IMMEDIATELY_RESUME_INSTALL" cmdLineArgs="" runAfterInstall="false" uninstCmdLnArgs="" runUninst="false"/></files>
+			<simpleFile fileID="0" sourcePath="d:\Dropbox\Documents\HYPERLABS\GitHub\ZTDR\CVI\cvibuild.ZTDR\Release\ZTDR.exe" targetDir="102" readonly="false" hidden="false" system="false" regActiveX="false" runAfterInstallStyle="IMMEDIATELY_RESUME_INSTALL" cmdLineArgs="" runAfterInstall="false" uninstCmdLnArgs="" runUninst="false"/></files>
 		<fileGroups>
-			<projectOutput targetType="0" dirID="104" projectID="0">
+			<projectOutput targetType="0" dirID="102" projectID="0">
 				<fileID>0</fileID></projectOutput></fileGroups>
 		<shortcuts>
 			<shortcut name="ZTDR" targetFileID="0" destDirID="100" cmdLineArgs="" description="" runStyle="NORMAL"/></shortcuts>
@@ -54,14 +54,14 @@
 			<signDescURL></signDescURL></advanced>
 		<Projects NumProjects="1">
 			<Project000 ProjectID="0" ProjectAbsolutePath="d:\Dropbox\Documents\HYPERLABS\GitHub\ZTDR\CVI\ZTDR.prj" ProjectRelativePath="ZTDR.prj"/></Projects>
-		<buildData progressBarRate="3.833371886928696">
+		<buildData progressBarRate="3.996500731431282">
 			<progressTimes>
 				<Begin>0.000000000000000</Begin>
-				<ProductsAdded>0.056628512088432</ProductsAdded>
-				<DPConfigured>0.639682452269112</DPConfigured>
-				<DPMergeModulesAdded>1.123179514268283</DPMergeModulesAdded>
-				<DPClosed>2.000963917717845</DPClosed>
-				<DistributionsCopied>2.101544266624262</DistributionsCopied>
-				<End>26.086694155865001</End></progressTimes></buildData>
+				<ProductsAdded>0.056658256044216</ProductsAdded>
+				<DPConfigured>0.598185726134556</DPConfigured>
+				<DPMergeModulesAdded>0.989931257134142</DPMergeModulesAdded>
+				<DPClosed>1.853822458858923</DPClosed>
+				<DistributionsCopied>1.954176633312131</DistributionsCopied>
+				<End>25.021889577932498</End></progressTimes></buildData>
 	</msi>
 </distribution>
