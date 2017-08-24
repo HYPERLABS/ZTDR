@@ -319,7 +319,8 @@ int CVICALLBACK onAsyncTimer (int reserved, int timerId, int event, void *callba
 		status = setLED (0);
 		
 		// Recalibrate amplitude
-		status = calibrate (MSG_NONE);
+		// status = calibrate (MSG_NONE);
+		status = calibrate (MSG_MAIN);
 		
 		// Reset cal timer if successful
 		if (status == 1)
@@ -338,7 +339,8 @@ int CVICALLBACK onAsyncTimer (int reserved, int timerId, int event, void *callba
 	else if (asyncCal == ASYNC_YES || asyncCal == ASYNC_MSG)
 	{
 		// Force instrument recalibration and optionally show message
-		status = calibrate (asyncCal);
+		// status = calibrate (asyncCal);
+		status = calibrate (MSG_MAIN);
 
 		// Reset cal timer if successful
 		if (status == 1)
@@ -361,7 +363,7 @@ int CVICALLBACK onAsyncTimer (int reserved, int timerId, int event, void *callba
 		// Recalibrate if last calibration was more than 30 seconds ago
 		if (calElapsed > 30)
 		{
-			status = calibrate (MSG_NONE);
+			status = calibrate (MSG_MAIN);
 
 			// Reset cal timer if successful
 			if (status == 1)
@@ -585,8 +587,7 @@ int acquire (int doDraw)
 	{
 		// Match min/max fields to autoscale values
 		status = SetCtrlVal (panelHandle, PANEL_YMAX, ymax);
-		status = SetCtrlVal (panelHandle, PANEL_YMIN, ymin);
-		
+		status = SetCtrlVal (panelHandle, PANEL_YMIN, ymin); 
 	}
 	else
 	{
@@ -669,6 +670,7 @@ int calibrate (int showMsg)
 	
 	if (showMsg == MSG_MAIN && status == 1)
 	{
+		// status = writeMessage (0, "Calibration... DONE", MSG_NONE);
 		status = writeMessage (0, "Calibration... DONE", MSG_MAIN);
 	}
 	else if (status != 1)

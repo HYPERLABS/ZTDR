@@ -1,7 +1,6 @@
 //==============================================================================
 //
 // Title:		ZTDR_2XX.h
-// Release:		2.0.7 (11/08/16)
 // Purpose:		ZTDR driver module and DLL functionality (v2.x.x)
 //
 // Copyright:	(c) 2016, HYPERLABS INC. All rights reserved.
