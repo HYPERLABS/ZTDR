@@ -4,7 +4,7 @@
 // Purpose:		Definitions of all UIR callback functions utilized in ZTDR
 //				Contains largely structural code; most execution in main.c
 //
-// Copyright:	(c) 2015, HYPERLABS INC. All rights reserved.
+// Copyright:	(c) 2018, HYPERLABS INC. All rights reserved.
 //
 //==============================================================================
 

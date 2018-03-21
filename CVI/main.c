@@ -3,7 +3,7 @@
 // Title:		main.c
 // Purpose:		Main ZTDR functionality for LabWindows/CVI
 //
-// Copyright:	(c) 2015, HYPERLABS INC. All rights reserved.
+// Copyright:	(c) 2018, HYPERLABS INC. All rights reserved.
 //
 //==============================================================================
 

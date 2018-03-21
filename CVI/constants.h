@@ -3,7 +3,7 @@
 // Title:		constants.h
 // Purpose:		All definitions for ZTDR.
 //
-// Copyright:	(c) 2015, HYPERLABS INC. All Rights Reserved.
+// Copyright:	(c) 2018, HYPERLABS INC. All Rights Reserved.
 //
 //==============================================================================
 

@@ -3,7 +3,7 @@
 // Title:		shared.h
 // Purpose:		Shared functionality used across multiple files
 //
-// Copyright:	(c) 2015, HYPERLABS INC. All rights reserved.
+// Copyright:	(c) 2018, HYPERLABS INC. All rights reserved.
 //
 //==============================================================================
 

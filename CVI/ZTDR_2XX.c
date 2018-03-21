@@ -3,7 +3,7 @@
 // Title:		ZTDR_2XX.c
 // Purpose:		ZTDR driver module and DLL functionality (v2.x.x)
 //
-// Copyright:	(c) 2016, HYPERLABS INC. All rights reserved.
+// Copyright:	(c) 2018, HYPERLABS INC. All rights reserved.
 //
 //==============================================================================
 
@@ -225,7 +225,7 @@ __stdcall int ZTDR_CalTimebase (void)
 	startTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
 	endTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
 
-	// Acquire data for each of 4 segments
+	// Acquire data for each segment
 	for (i = 0; i < 5; i++)
 	{
 		stepcount = stepcountArray[(UINT16) i];
@@ -259,7 +259,7 @@ __stdcall int ZTDR_CalTimebase (void)
 	double max = 0.00;
 	double min = 4095.0;
 
-	// Cycle each of 4 data segments
+	// Cycle each data segment
 	for (i = 0; i < 5; i++)
 	{
 		if (calLevels[i] < min)
@@ -850,7 +850,7 @@ __stdcall int ZTDR_CalDAC (void)
 
 	// Start, end at 0 ns
 	startTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
-	endTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);;
+	endTime.time = (UINT32) (0.0 / 50.0 * 0xFFFF);
 
 	status = ZTDR_PollDevice ();
 	status = ZTDR_ReconstructData (0, 1);
