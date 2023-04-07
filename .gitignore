@@ -229,3 +229,9 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+#ZTDR make products on linux
+CVI/ZTDR*.d
+CVI/ZTDR*.o
+CVI/*.so
+CVI/ztdr_test

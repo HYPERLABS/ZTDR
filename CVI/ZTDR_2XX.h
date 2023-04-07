@@ -15,11 +15,9 @@
 extern "C" {
 #endif
 
-
-//==============================================================================
-// Include files
-
-#include "FTD2XX.h"
+#ifndef _WIN32
+#define __stdcall
+#endif
 
 
 //==============================================================================
@@ -80,7 +78,7 @@ extern "C" {
 	int 	__stdcall	USBFIFO_Acquire (UINT8 *ret_val, UINT8 arg);
 	int 	__stdcall	USBFIFO_ReadBlock (UINT8 block_no, UINT16 *buf);
 	char 	__stdcall	USBFIFO_ReadByte (void);
-	FT_STATUS 	__stdcall	USBFIFO_WriteByte (char ch);
+	int 	__stdcall	USBFIFO_WriteByte (char ch);
 
 #ifdef __cplusplus
 }
