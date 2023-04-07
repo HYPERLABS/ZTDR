@@ -10,7 +10,7 @@
 
 //==============================================================================
 // Include files
-
+#include "cvidef.h"
 #include "asynctmr.h"
 #include "constants.h"
 #include "interface.h"

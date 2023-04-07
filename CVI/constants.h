@@ -15,13 +15,7 @@ extern "C" {
 #endif
 
 //==============================================================================
-// Include files
-
-#include "cvidef.h"
-
-//==============================================================================
 // Constants
-	
 // Calibration
 #define CALSTART_DEFAULT 540
 #define CALEND_DEFAULT 3870
@@ -97,11 +91,8 @@ extern "C" {
 
 #define STD_TIMEOUT 1000
 
-
-	int Declare_Your_Functions_Here (int x);
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /* ndef __constants_H__ */
+#endif  /* ifndef __constants_H__ */

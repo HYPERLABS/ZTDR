@@ -11,10 +11,10 @@
 //==============================================================================
 // Include files
 
-#include <ansi_c.h>
-
-#include "FTD2XX.h"
-
+#include <string.h>
+#include <stdio.h>
+#include <math.h>
+#include "ftd2xx.h"
 #include "constants.h"
 #include "ZTDR_2XX.h"
 
@@ -81,7 +81,7 @@ __stdcall int ZTDR_Init (void)
 {
 	// Instrument initialization status
 	int status;
-	int n;
+	DWORD n;
 	FT_STATUS serialStatus, fifoStatus;
 
 	// If device already open, close it before re-opening
@@ -697,7 +697,7 @@ __stdcall int ZTDR_PollDevice (void)
 	FT_STATUS stat;
 	static UINT8 params[NPARAMS];
 	char ch;
-	int n;
+	DWORD n;
 
 	// Full parameter list
 	params[IDX_FREERUN] = 0;
@@ -1002,7 +1002,7 @@ __stdcall int ZTDR_QuantizeTimescale (void)
 __stdcall char USBFIFO_ReadByte (void)
 {
 	char ch;
-	int n;
+	DWORD n;
 
 	FT_Read (serialHandle, &ch, 1, &n);
 
@@ -1010,14 +1010,14 @@ __stdcall char USBFIFO_ReadByte (void)
 }
 
 // Send command string to FTDI
-__stdcall FT_STATUS USBFIFO_WriteByte (char ch)
+__stdcall int USBFIFO_WriteByte (char ch)
 {
 	FT_STATUS status;
-	int n;
+	DWORD n;
 
 	status = FT_Write (serialHandle, &ch, 1, &n);
 
-	return status;
+	return (int)status;
 }
 
 // Acquire waveform from FDTI device
@@ -1063,7 +1063,8 @@ __stdcall int USBFIFO_Acquire (UINT8 *ret_val, UINT8 arg)
 __stdcall int USBFIFO_ReadBlock (UINT8 block_no, UINT16 *buf)
 {
 	char ch;
-	int n, ret,i;
+	DWORD n;
+	int ret,i;
 
 	// Define block length
 	int blockLength = 256;
@@ -1094,7 +1095,7 @@ __stdcall int USBFIFO_ReadBlock (UINT8 block_no, UINT16 *buf)
 		return -1;
 	}
 
-	if (n != 2 * blockLength)
+	if ((int)n != 2 * blockLength)
 	{
 		return -2;
 	}
