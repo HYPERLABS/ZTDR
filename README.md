@@ -28,7 +28,7 @@ exit
 ```
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:~/<path>/ZTDR/CVI/
 ```
-3. Remove `ftdi_sio` and `usbserial` kernel modules.
+3. On most distributions, the linux kernel will have either a built-in or optional module called `ftdi_sio`. This will detect an FTDI device and automatically invoke the `usbserial` module and create devices such as `/dev/ttyUSB0`. When the `ftdi_sio` module is controlling an FTDI device it is not available to `libftd2xx`. If the library attempts to access the device it will receive a message `FT_Open failed`. Several workarounds are suggested by FTDI in the readme file attached in the driver package mentioned above. For testing you can simply remove `ftdi_sio` and `usbserial` kernel modules by running:
 ```
 sudo rmmod ftdi_sio
 sudo rmmod usbserial
