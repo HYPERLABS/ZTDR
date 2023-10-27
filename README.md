@@ -20,16 +20,15 @@ cp WinTypes.h /usr/local/include
 ldconfig -v
 exit
 ```
-3. Change directory to ZTDR/CVI/ and run `make`
+3. Change directory to `<path>/ZTDR/CVI/` and run `make`
 
 ### Test
-1. Change directory to ZTDR/CVI/
-2. Update the linker path using:
+1. Change directory to `<path>/ZTDR/CVI/
+2. Update the linker path using the following command **(make sure to replace** `<path>` **with the installation path)**:
 ```
-LD_LIBRARY_PATH=/usr/local/lib:~/projects/ZTDR/CVI/
-export LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:~/<path>/ZTDR/CVI/
 ```
-3. Remove `ftdi_sio` and `usbserial` kernel modules
+3. Remove `ftdi_sio` and `usbserial` kernel modules.
 ```
 sudo rmmod ftdi_sio
 sudo rmmod usbserial
